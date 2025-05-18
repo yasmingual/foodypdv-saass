@@ -1,0 +1,260 @@
+
+import { useState } from "react";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Header } from "@/components/layout/Header";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+
+// Mock data for transactions
+const mockTransactions = [
+  { id: "T1001", orderId: 1001, value: 56.90, type: "Crédito", time: "10:15", status: "completed" },
+  { id: "T1002", orderId: 1002, value: 87.80, type: "Dinheiro", time: "10:25", status: "completed" },
+  { id: "T1003", orderId: 1003, value: 102.50, type: "Débito", time: "11:05", status: "completed" },
+  { id: "T1004", orderId: 1004, value: 45.00, type: "Pix", time: "11:10", status: "completed" },
+  { id: "T1005", orderId: 1005, value: 73.90, type: "Crédito", time: "11:45", status: "completed" },
+  { id: "T1006", orderId: 1006, value: 25.50, type: "Dinheiro", time: "12:00", status: "completed" },
+  { id: "T1007", orderId: 1007, value: 67.80, type: "Pix", time: "12:15", status: "completed" },
+  { id: "T1008", orderId: 1008, value: 42.90, type: "Débito", time: "12:30", status: "completed" },
+  { id: "T1009", orderId: 1009, value: 105.70, type: "Crédito", time: "13:00", status: "pending" },
+];
+
+// Calculate totals
+const totalCash = mockTransactions
+  .filter(t => t.status === "completed" && t.type === "Dinheiro")
+  .reduce((sum, t) => sum + t.value, 0);
+
+const totalCard = mockTransactions
+  .filter(t => t.status === "completed" && (t.type === "Crédito" || t.type === "Débito"))
+  .reduce((sum, t) => sum + t.value, 0);
+
+const totalPix = mockTransactions
+  .filter(t => t.status === "completed" && t.type === "Pix")
+  .reduce((sum, t) => sum + t.value, 0);
+
+const totalSales = mockTransactions
+  .filter(t => t.status === "completed")
+  .reduce((sum, t) => sum + t.value, 0);
+
+const Cashier = () => {
+  const [activeTab, setActiveTab] = useState("summary");
+
+  return (
+    <div className="flex h-screen bg-background">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header title="Caixa" subtitle="Controle Financeiro" />
+        <main className="flex-1 p-6 overflow-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total do Dia</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">R$ {totalSales.toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {mockTransactions.filter(t => t.status === "completed").length} transações
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Dinheiro</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-pdv-secondary">R$ {totalCash.toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {mockTransactions.filter(t => t.status === "completed" && t.type === "Dinheiro").length} transações
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Cartão</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-pdv-primary">R$ {totalCard.toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {mockTransactions.filter(t => t.status === "completed" && (t.type === "Crédito" || t.type === "Débito")).length} transações
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Pix</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-pdv-accent">R$ {totalPix.toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {mockTransactions.filter(t => t.status === "completed" && t.type === "Pix").length} transações
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-between items-center mb-4">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList>
+                <TabsTrigger value="summary">Resumo</TabsTrigger>
+                <TabsTrigger value="transactions">Transações</TabsTrigger>
+                <TabsTrigger value="reports">Relatórios</TabsTrigger>
+                <TabsTrigger value="shifts">Turnos</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            
+            <div className="flex gap-2">
+              <Button>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                Abrir Caixa
+              </Button>
+            </div>
+          </div>
+          
+          <Card className="mb-6">
+            <TabsContent value="summary" className="m-0">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Resumo de Vendas</h3>
+                    <div className="space-y-4">
+                      <div className="flex justify-between pb-2 border-b">
+                        <span className="text-muted-foreground">Total Bruto</span>
+                        <span className="font-medium">R$ {totalSales.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between pb-2 border-b">
+                        <span className="text-muted-foreground">Descontos</span>
+                        <span className="font-medium">R$ 0.00</span>
+                      </div>
+                      <div className="flex justify-between pb-2 border-b">
+                        <span className="text-muted-foreground">Taxa de Serviço (10%)</span>
+                        <span className="font-medium">R$ {(totalSales * 0.1).toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between font-bold">
+                        <span>Total Líquido</span>
+                        <span>R$ {(totalSales * 1.1).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Formas de Pagamento</h3>
+                    <div className="space-y-1">
+                      <div className="flex items-center h-8">
+                        <div className="w-3 h-3 bg-pdv-primary rounded-full mr-3"></div>
+                        <span className="w-24">Cartão</span>
+                        <div className="flex-1 bg-gray-200 rounded-full h-2">
+                          <div className="bg-pdv-primary h-2 rounded-full" style={{ width: `${(totalCard / totalSales) * 100}%` }}></div>
+                        </div>
+                        <span className="ml-4 font-medium w-24 text-right">
+                          {Math.round((totalCard / totalSales) * 100)}%
+                        </span>
+                      </div>
+                      <div className="flex items-center h-8">
+                        <div className="w-3 h-3 bg-pdv-secondary rounded-full mr-3"></div>
+                        <span className="w-24">Dinheiro</span>
+                        <div className="flex-1 bg-gray-200 rounded-full h-2">
+                          <div className="bg-pdv-secondary h-2 rounded-full" style={{ width: `${(totalCash / totalSales) * 100}%` }}></div>
+                        </div>
+                        <span className="ml-4 font-medium w-24 text-right">
+                          {Math.round((totalCash / totalSales) * 100)}%
+                        </span>
+                      </div>
+                      <div className="flex items-center h-8">
+                        <div className="w-3 h-3 bg-pdv-accent rounded-full mr-3"></div>
+                        <span className="w-24">Pix</span>
+                        <div className="flex-1 bg-gray-200 rounded-full h-2">
+                          <div className="bg-pdv-accent h-2 rounded-full" style={{ width: `${(totalPix / totalSales) * 100}%` }}></div>
+                        </div>
+                        <span className="ml-4 font-medium w-24 text-right">
+                          {Math.round((totalPix / totalSales) * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </TabsContent>
+            
+            <TabsContent value="transactions" className="m-0">
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Pedido</TableHead>
+                      <TableHead>Horário</TableHead>
+                      <TableHead>Tipo</TableHead>
+                      <TableHead className="text-right">Valor</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {mockTransactions.map((transaction) => (
+                      <TableRow key={transaction.id}>
+                        <TableCell className="font-medium">{transaction.id}</TableCell>
+                        <TableCell>#{transaction.orderId}</TableCell>
+                        <TableCell>{transaction.time}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="bg-muted">
+                            {transaction.type}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          R$ {transaction.value.toFixed(2)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={transaction.status === "completed" ? "bg-pdv-secondary" : "bg-pdv-accent text-black"}>
+                            {transaction.status === "completed" ? "Concluído" : "Pendente"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button variant="ghost" size="icon">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                              </svg>
+                            </Button>
+                            <Button variant="ghost" size="icon">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                              </svg>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </TabsContent>
+            
+            <TabsContent value="reports" className="p-6">
+              <div className="flex items-center justify-center h-40 border rounded-md border-dashed">
+                <p className="text-muted-foreground">Relatórios serão exibidos aqui</p>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="shifts" className="p-6">
+              <div className="flex items-center justify-center h-40 border rounded-md border-dashed">
+                <p className="text-muted-foreground">Informações de turnos serão exibidas aqui</p>
+              </div>
+            </TabsContent>
+          </Card>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default Cashier;
