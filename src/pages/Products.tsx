@@ -19,6 +19,7 @@ import {
   AlertDialogTitle 
 } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Pencil, EyeIcon, Trash2 } from "lucide-react";
@@ -35,6 +36,17 @@ const mockProducts = [
   { id: 8, name: "Coca-Cola 600ml", category: "Bebidas", price: 9.9, stock: 24, active: true },
   { id: 9, name: "Água Mineral", category: "Bebidas", price: 4.5, stock: 36, active: true },
   { id: 10, name: "Hamburguer Veggie", category: "Lanches", price: 22.5, stock: 5, active: false },
+];
+
+// Mock data para categorias (extraído das categorias usadas nos produtos)
+const mockCategories = [
+  { id: 1, name: "Lanches", productsCount: 12, active: true },
+  { id: 2, name: "Porções", productsCount: 8, active: true },
+  { id: 3, name: "Bebidas", productsCount: 15, active: true },
+  { id: 4, name: "Combos", productsCount: 6, active: true },
+  { id: 5, name: "Sobremesas", productsCount: 9, active: true },
+  { id: 6, name: "Entradas", productsCount: 4, active: false },
+  { id: 7, name: "Vegano", productsCount: 3, active: true },
 ];
 
 const Products = () => {
@@ -342,11 +354,23 @@ const Products = () => {
             
             <div className="grid grid-cols-4 items-center gap-4">
               <label className="text-right font-medium">Categoria</label>
-              <Input 
-                className="col-span-3" 
-                value={newProduct.category} 
-                onChange={(e) => handleNewProductFieldChange("category", e.target.value)}
-              />
+              <Select 
+                value={newProduct.category}
+                onValueChange={(value) => handleNewProductFieldChange("category", value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockCategories
+                    .filter(category => category.active)
+                    .map((category) => (
+                      <SelectItem key={category.id} value={category.name}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
@@ -413,11 +437,23 @@ const Products = () => {
             
             <div className="grid grid-cols-4 items-center gap-4">
               <label className="text-right font-medium">Categoria</label>
-              <Input 
-                className="col-span-3" 
-                value={editedProduct.category} 
-                onChange={(e) => handleEditFieldChange("category", e.target.value)}
-              />
+              <Select 
+                value={editedProduct.category}
+                onValueChange={(value) => handleEditFieldChange("category", value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockCategories
+                    .filter(category => category.active)
+                    .map((category) => (
+                      <SelectItem key={category.id} value={category.name}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">

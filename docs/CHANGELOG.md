@@ -1,6 +1,13 @@
 
 # Changelog
 
+## [0.6.0] - 2025-05-18
+### Adicionado
+- Menu suspenso (dropdown) de categorias nos formulários de produtos:
+  - Adicionado seletor de categorias no formulário de adicionar novo produto
+  - Adicionado seletor de categorias no formulário de editar produto
+  - Apenas categorias ativas são exibidas nas opções
+
 ## [0.5.0] - 2025-05-18
 ### Adicionado
 - Implementação completa da funcionalidade de adicionar produtos:

@@ -30,12 +30,14 @@ O módulo de produtos permite o gerenciamento completo do catálogo de produtos 
 
 #### 4. Diálogos de Gerenciamento
 - **Diálogo de Adição**:
-  - Permite informar nome, categoria, preço, estoque e status
+  - Permite informar nome, categoria (selecionável da lista), preço, estoque e status
+  - Exibe apenas categorias ativas no menu suspenso
   - Botões para cancelar ou salvar o novo produto
   - Exibe feedback em notificação toast após salvar
   
 - **Diálogo de Edição**:
-  - Permite editar nome, categoria, preço, estoque e status
+  - Permite editar nome, categoria (selecionável da lista), preço, estoque e status
+  - Exibe apenas categorias ativas no menu suspenso
   - Botões para cancelar ou salvar as alterações
   - Exibe feedback em notificação toast após salvar
   
@@ -55,11 +57,20 @@ O módulo de produtos permite o gerenciamento completo do catálogo de produtos 
 
 ### Como Usar
 1. **Adicionar Produto**: Clique no botão "Novo Produto" no canto superior direito e preencha o formulário
+   - Selecione uma categoria da lista suspensa de categorias ativas
+   - Preencha os demais campos obrigatórios
+   - Clique em Salvar
 2. **Buscar Produto**: Digite o nome ou categoria no campo de busca
 3. **Filtrar Produtos**: Use o dropdown "Filtrar por" para selecionar o status desejado
 4. **Editar Produto**: Clique no ícone de lápis na linha do produto desejado e faça as alterações no diálogo que se abre
+   - Você pode alterar a categoria selecionando uma nova opção na lista suspensa
 5. **Visualizar Detalhes**: Clique no ícone de olho na linha do produto desejado para ver todos os detalhes
 6. **Excluir Produto**: Clique no ícone de lixeira e confirme no diálogo exibido
+
+### Integração com Categorias
+- Os formulários de adicionar e editar produtos exibem automaticamente as categorias disponíveis e ativas
+- Apenas categorias marcadas como ativas são exibidas nos menus suspensos
+- A seleção de categoria é fácil e evita erros de digitação
 
 ### Correções Implementadas
 - Substituição dos ícones SVG inline por componentes importados do lucide-react
