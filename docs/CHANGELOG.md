@@ -1,6 +1,15 @@
 
 # Changelog
 
+## [0.8.0] - 2025-05-18
+### Adicionado
+- Implementação de observações para produtos no PDV:
+  - Adicionado diálogo para inserção de observações ao adicionar produtos
+  - Campo para informar observações como "Sem cebola", "Sem tomate", etc
+  - Campo para editar observações para itens já adicionados ao carrinho
+  - Produtos com mesma identificação, mas observações diferentes são listados separadamente
+  - Feedback visual através de notificação toast ao adicionar item
+
 ## [0.7.0] - 2025-05-18
 ### Adicionado
 - Implementada funcionalidade do botão "Abrir Caixa" na página de Caixa:

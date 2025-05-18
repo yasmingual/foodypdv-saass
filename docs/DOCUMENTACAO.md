@@ -1,6 +1,76 @@
 
 # Documentação do Sistema PDV
 
+## Módulo de PDV (Ponto de Venda)
+
+### Visão Geral
+O módulo PDV (Ponto de Venda) permite realizar vendas, gerenciar pedidos e processar pagamentos de forma rápida e eficiente. Através da interface intuitiva, é possível adicionar produtos ao carrinho, incluir observações específicas para cada item, selecionar a forma de atendimento e finalizar o pedido.
+
+### Funcionalidades Implementadas
+
+#### 1. Catálogo de Produtos
+- Exibição de produtos organizados por categorias
+- Busca rápida por nome de produto
+- Filtragem por categoria (Lanches, Porções, Bebidas, etc.)
+- Exibição clara de preço e informações básicas do produto
+
+#### 2. Carrinho de Compras
+- Adição de produtos ao carrinho com opção de observações individuais
+- Ajuste de quantidade diretamente no carrinho (aumentar/diminuir)
+- Remoção de itens do carrinho
+- Edição de observações para itens já adicionados
+- Cálculo automático de valores (subtotal, taxa de serviço, total)
+
+#### 3. Observações nos Itens
+- Diálogo para adicionar observações ao incluir um item no carrinho
+  - Campo para informar especificações como "Sem cebola", "Sem tomate", etc.
+  - Produtos com mesma identificação mas observações diferentes são listados separadamente
+  - Possibilidade de editar a observação após o item já estar no carrinho
+
+#### 4. Tipos de Atendimento
+- Opções para diferentes tipos de pedido:
+  - Mesa (com campo para informar número)
+  - Retirada no balcão
+  - Delivery (preparado para coleta de endereço)
+
+#### 5. Finalização de Pedido
+- Botão de finalização com cálculo completo
+- Exibição clara dos valores totais
+- Feedback visual através de notificações toast
+- Preparação para integração com sistema de pagamento
+
+### Como Usar
+1. **Selecionar Produtos**:
+   - Navegue pelas categorias ou use a barra de pesquisa
+   - Clique no produto desejado para adicioná-lo ao carrinho
+
+2. **Adicionar Observações**:
+   - Ao clicar em um produto, um diálogo será exibido
+   - Informe qualquer observação necessária (ex: "Sem cebola", "Molho à parte")
+   - Clique em "Adicionar ao Pedido"
+
+3. **Gerenciar Carrinho**:
+   - Ajuste a quantidade usando os botões + e -
+   - Edite a observação diretamente no campo disponível em cada item
+   - Remova itens usando o botão de lixeira
+
+4. **Definir Tipo de Atendimento**:
+   - Selecione entre Mesa, Retirada ou Delivery
+   - Para Mesa, informe o número correspondente
+
+5. **Finalizar Pedido**:
+   - Confira os valores (subtotal, taxa de serviço, total)
+   - Clique em "Finalizar Pedido"
+   - O sistema exibirá uma notificação de confirmação
+
+### Próximas Implementações Previstas
+- Integração com sistema de pagamento
+- Tela de confirmação de pedido
+- Impressão de comanda
+- Histórico de pedidos
+- Opções para aplicação de descontos
+- Cupons promocionais
+
 ## Módulo de Caixa (Cashier)
 
 ### Visão Geral

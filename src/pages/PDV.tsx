@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 // Mock data for products
 const mockProducts = [
@@ -28,6 +31,7 @@ type CartItem = {
   name: string;
   price: number;
   quantity: number;
+  observation: string;
 };
 
 const PDV = () => {
@@ -36,6 +40,9 @@ const PDV = () => {
   const [orderType, setOrderType] = useState("mesa");
   const [tableNumber, setTableNumber] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [observationDialogOpen, setObservationDialogOpen] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState<typeof mockProducts[0] | null>(null);
+  const [observation, setObservation] = useState("");
 
   // Filter products based on active category and search query
   const filteredProducts = mockProducts.filter((product) => {
@@ -44,34 +51,66 @@ const PDV = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const addToCart = (product: typeof mockProducts[0]) => {
+  const openObservationDialog = (product: typeof mockProducts[0]) => {
+    setCurrentProduct(product);
+    setObservation("");
+    setObservationDialogOpen(true);
+  };
+
+  const addToCartWithObservation = () => {
+    if (!currentProduct) return;
+    
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
+      const existingItemIndex = prevCart.findIndex(
+        (item) => 
+          item.id === currentProduct.id && 
+          item.observation === observation
+      );
       
-      if (existingItem) {
-        return prevCart.map((item) =>
-          item.id === product.id
+      if (existingItemIndex >= 0) {
+        // Se o item já existe com a mesma observação, aumente a quantidade
+        return prevCart.map((item, index) =>
+          index === existingItemIndex
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
       
-      return [...prevCart, { ...product, quantity: 1 }];
+      // Adicionar novo item com observação
+      return [
+        ...prevCart, 
+        { 
+          ...currentProduct, 
+          quantity: 1, 
+          observation 
+        }
+      ];
     });
+    
+    setObservationDialogOpen(false);
+    toast.success(`${currentProduct.name} adicionado ao carrinho`);
   };
 
-  const removeFromCart = (id: number) => {
+  const removeFromCart = (index: number) => {
     setCart((prevCart) =>
-      prevCart.filter((item) => item.id !== id)
+      prevCart.filter((_, i) => i !== index)
     );
   };
 
-  const updateQuantity = (id: number, newQuantity: number) => {
+  const updateQuantity = (index: number, newQuantity: number) => {
     if (newQuantity < 1) return;
     
     setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
+      prevCart.map((item, i) =>
+        i === index ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
+
+  const updateObservation = (index: number, newObservation: string) => {
+    setCart((prevCart) =>
+      prevCart.map((item, i) =>
+        i === index ? { ...item, observation: newObservation } : item
       )
     );
   };
@@ -91,6 +130,8 @@ const PDV = () => {
     
     // Limpa o carrinho após finalizar o pedido
     setCart([]);
+    
+    toast.success("Pedido finalizado com sucesso!");
   };
 
   return (
@@ -136,7 +177,7 @@ const PDV = () => {
                   <Card 
                     key={product.id} 
                     className="cursor-pointer hover:border-primary transition-colors"
-                    onClick={() => addToCart(product)}
+                    onClick={() => openObservationDialog(product)}
                   >
                     <CardContent className="p-4 flex flex-col items-center">
                       <div className="w-full aspect-square bg-muted rounded-md mb-3 flex items-center justify-center">
@@ -204,53 +245,69 @@ const PDV = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {cart.map((item) => (
-                    <div key={item.id} className="flex justify-between pb-4 border-b">
-                      <div className="flex-1">
-                        <div className="flex justify-between">
-                          <p className="font-medium">{item.name}</p>
-                          <button 
-                            onClick={() => removeFromCart(item.id)}
-                            className="text-pdv-danger hover:text-red-700 transition-colors"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M3 6h18"></path>
-                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
-                          </button>
+                  {cart.map((item, index) => (
+                    <div key={index} className="flex flex-col pb-4 border-b">
+                      <div className="flex justify-between">
+                        <div className="flex-1">
+                          <div className="flex justify-between">
+                            <p className="font-medium">{item.name}</p>
+                            <button 
+                              onClick={() => removeFromCart(index)}
+                              className="text-pdv-danger hover:text-red-700 transition-colors"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M3 6h18"></path>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                              </svg>
+                            </button>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            R$ {item.price.toFixed(2)} x {item.quantity}
+                          </p>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          R$ {item.price.toFixed(2)} x {item.quantity}
-                        </p>
+                        <div className="flex items-center ml-4">
+                          <div className="flex items-center border rounded-md">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => updateQuantity(index, item.quantity - 1)}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                              </svg>
+                            </Button>
+                            <span className="w-8 text-center">{item.quantity}</span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => updateQuantity(index, item.quantity + 1)}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                              </svg>
+                            </Button>
+                          </div>
+                          <p className="ml-4 font-medium">
+                            R$ {(item.price * item.quantity).toFixed(2)}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex items-center ml-4">
-                        <div className="flex items-center border rounded-md">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                          </Button>
-                          <span className="w-8 text-center">{item.quantity}</span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <line x1="12" y1="5" x2="12" y2="19"></line>
-                              <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                          </Button>
-                        </div>
-                        <p className="ml-4 font-medium">
-                          R$ {(item.price * item.quantity).toFixed(2)}
-                        </p>
+                      
+                      {/* Área de observação */}
+                      <div className="mt-2 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
+                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        
+                        <Input 
+                          placeholder="Adicionar observação" 
+                          value={item.observation} 
+                          onChange={(e) => updateObservation(index, e.target.value)}
+                          className="text-sm h-8 flex-1"
+                        />
                       </div>
                     </div>
                   ))}
@@ -282,6 +339,44 @@ const PDV = () => {
           </div>
         </div>
       </div>
+
+      {/* Diálogo de Observação */}
+      <Dialog open={observationDialogOpen} onOpenChange={setObservationDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{currentProduct?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex items-center justify-between">
+              <span>Preço</span>
+              <span className="font-medium">R$ {currentProduct?.price.toFixed(2)}</span>
+            </div>
+            <div>
+              <label htmlFor="observation" className="text-sm font-medium">
+                Alguma observação?
+              </label>
+              <Textarea
+                id="observation"
+                placeholder="Ex: Sem cebola, sem tomate, molho à parte, etc."
+                className="mt-1"
+                value={observation}
+                onChange={(e) => setObservation(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter className="sm:justify-between">
+            <Button 
+              variant="outline" 
+              onClick={() => setObservationDialogOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={addToCartWithObservation}>
+              Adicionar ao Pedido
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
