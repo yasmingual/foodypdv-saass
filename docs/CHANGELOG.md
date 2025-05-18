@@ -1,6 +1,16 @@
 
 # Changelog
 
+## [1.0.0] - 2025-05-18
+### Adicionado
+- Nova tela de Pedidos para garçons/atendentes:
+  - Visualização de pedidos em aberto (pendentes, em preparo e prontos)
+  - Visualização de pedidos finalizados (entregues)
+  - Funcionalidade para marcar pedidos como entregues
+  - Visualização detalhada de cada pedido
+  - Filtros para alternar entre pedidos em aberto e finalizados
+  - Indicadores visuais do status de cada pedido
+
 ## [0.9.0] - 2025-05-18
 ### Adicionado
 - Integração entre PDV e KDS:
