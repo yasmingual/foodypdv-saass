@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -9,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { useOrders } from "@/context/OrderContext";
+import { useOrders, DeliveryInfo } from "@/context/OrderContext";
 import { Form, FormItem, FormLabel, FormControl, FormField } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -196,12 +195,27 @@ const PDV = () => {
         identifier = "N/A";
     }
     
+    // Adaptar os dados de entrega para o formato DeliveryInfo
+    let deliveryInfo: DeliveryInfo | undefined = undefined;
+    
+    if (orderType === "delivery" && deliveryData) {
+      deliveryInfo = {
+        clientName: deliveryData.clientName,
+        phone: deliveryData.phone,
+        address: deliveryData.address,
+        number: deliveryData.number,
+        complement: deliveryData.complement,
+        neighborhood: deliveryData.neighborhood,
+        reference: deliveryData.reference
+      };
+    }
+    
     // Adicionar o pedido ao contexto para aparecer no KDS
     addOrder({
       type: orderTypeKDS,
       identifier,
       items: kdsItems,
-      deliveryInfo: orderType === "delivery" ? deliveryData : undefined
+      deliveryInfo
     });
     
     console.log("Pedido finalizado:", {

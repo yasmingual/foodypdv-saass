@@ -1,6 +1,13 @@
 
 # Changelog
 
+## [1.0.4] - 2025-05-18
+### Adicionado
+- Funcionalidade de impressão de cupons para pedidos
+- Componente OrderReceipt para exibição e impressão de detalhes do pedido 
+- Botão de impressão para todos os tipos de pedido (Mesa, Retirada, Delivery)
+- Layout completo de cupom fiscal não oficial com dados do estabelecimento
+
 ## [1.0.3] - 2025-05-18
 ### Adicionado
 - Implementação do formulário de dados de entrega para pedidos do tipo Delivery

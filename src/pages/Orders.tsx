@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -12,6 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import OrderReceipt from "@/components/order/OrderReceipt";
+import { Printer } from "lucide-react";
 
 // Mock data para produtos
 const mockProducts = [
@@ -37,6 +38,7 @@ const Orders = () => {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [searchQuery, setSearchQuery] = useState("");
   const [addProductDialogOpen, setAddProductDialogOpen] = useState(false);
+  const [receiptDialogOpen, setReceiptDialogOpen] = useState(false);
 
   // Filtrar pedidos por status
   const pendingOrders = orders.filter(order => order.status === "pending" || order.status === "in-progress" || order.status === "ready");
@@ -65,6 +67,11 @@ const Orders = () => {
   const handleEditOrder = (order: Order) => {
     setSelectedOrder(order);
     setEditOrderOpen(true);
+  };
+
+  const handlePrintReceipt = (order: Order) => {
+    setSelectedOrder(order);
+    setReceiptDialogOpen(true);
   };
 
   const handleOpenAddProductDialog = () => {
@@ -160,16 +167,25 @@ const Orders = () => {
       <CardFooter className="bg-muted/20 px-4 py-3 flex justify-between gap-2">
         <Button 
           variant="outline" 
-          className="w-1/3"
+          className="w-1/4"
           onClick={() => handleViewDetails(order)}
         >
           Ver Detalhes
         </Button>
         
+        <Button
+          variant="outline"
+          className="w-1/4"
+          onClick={() => handlePrintReceipt(order)}
+        >
+          <Printer className="h-4 w-4 mr-2" />
+          Imprimir
+        </Button>
+        
         {(order.status === "pending" || order.status === "in-progress") && (
           <Button 
             variant="default"
-            className="w-1/3 bg-pdv-primary hover:bg-pdv-primary/80"
+            className="w-1/4 bg-pdv-primary hover:bg-pdv-primary/80"
             onClick={() => handleEditOrder(order)}
           >
             Editar
@@ -179,7 +195,7 @@ const Orders = () => {
         {order.status === "ready" && (
           <Button 
             variant="default" 
-            className="bg-pdv-secondary hover:bg-pdv-secondary/80 w-1/3"
+            className="bg-pdv-secondary hover:bg-pdv-secondary/80 w-1/4"
             onClick={() => handleMarkAsDelivered(order.id)}
           >
             Entregar
@@ -189,7 +205,7 @@ const Orders = () => {
         {(order.status === "pending" || order.status === "in-progress") && (
           <Button 
             variant="outline" 
-            className="w-1/3"
+            className="w-1/4"
             disabled
           >
             {translateStatus(order.status)}
@@ -486,6 +502,18 @@ const Orders = () => {
               Adicionar ao Pedido
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo do Cupom do Pedido */}
+      <Dialog open={receiptDialogOpen} onOpenChange={setReceiptDialogOpen}>
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+          {selectedOrder && (
+            <OrderReceipt 
+              order={selectedOrder} 
+              onClose={() => setReceiptDialogOpen(false)} 
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
