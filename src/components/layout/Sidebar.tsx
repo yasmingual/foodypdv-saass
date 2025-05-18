@@ -4,13 +4,13 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { 
-  Home,
-  Cashier,
-  Category,
-  Kds,
-  Pdv,
-  Product,
-  Stock
+  LayoutDashboard,
+  ShoppingCart,
+  FolderTree,
+  ClipboardList,
+  DollarSign,
+  Package,
+  Tag
 } from "lucide-react";
 
 type NavItem = {
@@ -20,13 +20,13 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { icon: Home, label: "Dashboard", path: "/dashboard" },
-  { icon: Pdv, label: "PDV", path: "/pdv" },
-  { icon: Kds, label: "KDS", path: "/kds" },
-  { icon: Stock, label: "Estoque", path: "/stock" },
-  { icon: Cashier, label: "Caixa", path: "/cashier" },
-  { icon: Product, label: "Produtos", path: "/products" },
-  { icon: Category, label: "Categorias", path: "/categories" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+  { icon: ShoppingCart, label: "PDV", path: "/pdv" },
+  { icon: ClipboardList, label: "KDS", path: "/kds" },
+  { icon: Package, label: "Estoque", path: "/stock" },
+  { icon: DollarSign, label: "Caixa", path: "/cashier" },
+  { icon: FolderTree, label: "Produtos", path: "/products" },
+  { icon: Tag, label: "Categorias", path: "/categories" },
 ];
 
 export function Sidebar() {
