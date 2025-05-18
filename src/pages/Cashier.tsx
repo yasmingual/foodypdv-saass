@@ -105,9 +105,155 @@ const Cashier = () => {
                 <TabsTrigger value="reports">Relatórios</TabsTrigger>
                 <TabsTrigger value="shifts">Turnos</TabsTrigger>
               </TabsList>
+            
+              <div className="mt-4">
+                <TabsContent value="summary">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <h3 className="text-lg font-medium mb-4">Resumo de Vendas</h3>
+                          <div className="space-y-4">
+                            <div className="flex justify-between pb-2 border-b">
+                              <span className="text-muted-foreground">Total Bruto</span>
+                              <span className="font-medium">R$ {totalSales.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between pb-2 border-b">
+                              <span className="text-muted-foreground">Descontos</span>
+                              <span className="font-medium">R$ 0.00</span>
+                            </div>
+                            <div className="flex justify-between pb-2 border-b">
+                              <span className="text-muted-foreground">Taxa de Serviço (10%)</span>
+                              <span className="font-medium">R$ {(totalSales * 0.1).toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between font-bold">
+                              <span>Total Líquido</span>
+                              <span>R$ {(totalSales * 1.1).toFixed(2)}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-medium mb-4">Formas de Pagamento</h3>
+                          <div className="space-y-1">
+                            <div className="flex items-center h-8">
+                              <div className="w-3 h-3 bg-pdv-primary rounded-full mr-3"></div>
+                              <span className="w-24">Cartão</span>
+                              <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                <div className="bg-pdv-primary h-2 rounded-full" style={{ width: `${(totalCard / totalSales) * 100}%` }}></div>
+                              </div>
+                              <span className="ml-4 font-medium w-24 text-right">
+                                {Math.round((totalCard / totalSales) * 100)}%
+                              </span>
+                            </div>
+                            <div className="flex items-center h-8">
+                              <div className="w-3 h-3 bg-pdv-secondary rounded-full mr-3"></div>
+                              <span className="w-24">Dinheiro</span>
+                              <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                <div className="bg-pdv-secondary h-2 rounded-full" style={{ width: `${(totalCash / totalSales) * 100}%` }}></div>
+                              </div>
+                              <span className="ml-4 font-medium w-24 text-right">
+                                {Math.round((totalCash / totalSales) * 100)}%
+                              </span>
+                            </div>
+                            <div className="flex items-center h-8">
+                              <div className="w-3 h-3 bg-pdv-accent rounded-full mr-3"></div>
+                              <span className="w-24">Pix</span>
+                              <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                <div className="bg-pdv-accent h-2 rounded-full" style={{ width: `${(totalPix / totalSales) * 100}%` }}></div>
+                              </div>
+                              <span className="ml-4 font-medium w-24 text-right">
+                                {Math.round((totalPix / totalSales) * 100)}%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="transactions">
+                  <Card>
+                    <CardContent className="p-0">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>ID</TableHead>
+                            <TableHead>Pedido</TableHead>
+                            <TableHead>Horário</TableHead>
+                            <TableHead>Tipo</TableHead>
+                            <TableHead className="text-right">Valor</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Ações</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {mockTransactions.map((transaction) => (
+                            <TableRow key={transaction.id}>
+                              <TableCell className="font-medium">{transaction.id}</TableCell>
+                              <TableCell>#{transaction.orderId}</TableCell>
+                              <TableCell>{transaction.time}</TableCell>
+                              <TableCell>
+                                <Badge variant="secondary" className="bg-muted">
+                                  {transaction.type}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                R$ {transaction.value.toFixed(2)}
+                              </TableCell>
+                              <TableCell>
+                                <Badge className={transaction.status === "completed" ? "bg-pdv-secondary" : "bg-pdv-accent text-black"}>
+                                  {transaction.status === "completed" ? "Concluído" : "Pendente"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex justify-end gap-2">
+                                  <Button variant="ghost" size="icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                      <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                  </Button>
+                                  <Button variant="ghost" size="icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                      <polyline points="7 10 12 15 17 10"></polyline>
+                                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="reports">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-center h-40 border rounded-md border-dashed">
+                        <p className="text-muted-foreground">Relatórios serão exibidos aqui</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="shifts">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-center h-40 border rounded-md border-dashed">
+                        <p className="text-muted-foreground">Informações de turnos serão exibidas aqui</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </div>
             </Tabs>
             
-            <div className="flex gap-2">
+            <div className="flex gap-2 ml-4">
               <Button>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -117,140 +263,6 @@ const Cashier = () => {
               </Button>
             </div>
           </div>
-          
-          <Card className="mb-6">
-            <TabsContent value="summary" className="m-0">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">Resumo de Vendas</h3>
-                    <div className="space-y-4">
-                      <div className="flex justify-between pb-2 border-b">
-                        <span className="text-muted-foreground">Total Bruto</span>
-                        <span className="font-medium">R$ {totalSales.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between pb-2 border-b">
-                        <span className="text-muted-foreground">Descontos</span>
-                        <span className="font-medium">R$ 0.00</span>
-                      </div>
-                      <div className="flex justify-between pb-2 border-b">
-                        <span className="text-muted-foreground">Taxa de Serviço (10%)</span>
-                        <span className="font-medium">R$ {(totalSales * 0.1).toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between font-bold">
-                        <span>Total Líquido</span>
-                        <span>R$ {(totalSales * 1.1).toFixed(2)}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">Formas de Pagamento</h3>
-                    <div className="space-y-1">
-                      <div className="flex items-center h-8">
-                        <div className="w-3 h-3 bg-pdv-primary rounded-full mr-3"></div>
-                        <span className="w-24">Cartão</span>
-                        <div className="flex-1 bg-gray-200 rounded-full h-2">
-                          <div className="bg-pdv-primary h-2 rounded-full" style={{ width: `${(totalCard / totalSales) * 100}%` }}></div>
-                        </div>
-                        <span className="ml-4 font-medium w-24 text-right">
-                          {Math.round((totalCard / totalSales) * 100)}%
-                        </span>
-                      </div>
-                      <div className="flex items-center h-8">
-                        <div className="w-3 h-3 bg-pdv-secondary rounded-full mr-3"></div>
-                        <span className="w-24">Dinheiro</span>
-                        <div className="flex-1 bg-gray-200 rounded-full h-2">
-                          <div className="bg-pdv-secondary h-2 rounded-full" style={{ width: `${(totalCash / totalSales) * 100}%` }}></div>
-                        </div>
-                        <span className="ml-4 font-medium w-24 text-right">
-                          {Math.round((totalCash / totalSales) * 100)}%
-                        </span>
-                      </div>
-                      <div className="flex items-center h-8">
-                        <div className="w-3 h-3 bg-pdv-accent rounded-full mr-3"></div>
-                        <span className="w-24">Pix</span>
-                        <div className="flex-1 bg-gray-200 rounded-full h-2">
-                          <div className="bg-pdv-accent h-2 rounded-full" style={{ width: `${(totalPix / totalSales) * 100}%` }}></div>
-                        </div>
-                        <span className="ml-4 font-medium w-24 text-right">
-                          {Math.round((totalPix / totalSales) * 100)}%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </TabsContent>
-            
-            <TabsContent value="transactions" className="m-0">
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>ID</TableHead>
-                      <TableHead>Pedido</TableHead>
-                      <TableHead>Horário</TableHead>
-                      <TableHead>Tipo</TableHead>
-                      <TableHead className="text-right">Valor</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockTransactions.map((transaction) => (
-                      <TableRow key={transaction.id}>
-                        <TableCell className="font-medium">{transaction.id}</TableCell>
-                        <TableCell>#{transaction.orderId}</TableCell>
-                        <TableCell>{transaction.time}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary" className="bg-muted">
-                            {transaction.type}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          R$ {transaction.value.toFixed(2)}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={transaction.status === "completed" ? "bg-pdv-secondary" : "bg-pdv-accent text-black"}>
-                            {transaction.status === "completed" ? "Concluído" : "Pendente"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="icon">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                              </svg>
-                            </Button>
-                            <Button variant="ghost" size="icon">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                              </svg>
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </TabsContent>
-            
-            <TabsContent value="reports" className="p-6">
-              <div className="flex items-center justify-center h-40 border rounded-md border-dashed">
-                <p className="text-muted-foreground">Relatórios serão exibidos aqui</p>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="shifts" className="p-6">
-              <div className="flex items-center justify-center h-40 border rounded-md border-dashed">
-                <p className="text-muted-foreground">Informações de turnos serão exibidas aqui</p>
-              </div>
-            </TabsContent>
-          </Card>
         </main>
       </div>
     </div>
