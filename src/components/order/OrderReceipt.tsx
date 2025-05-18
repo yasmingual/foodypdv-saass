@@ -130,13 +130,15 @@ const OrderReceipt: React.FC<OrderReceiptProps> = ({ order, onClose }) => {
                 <span>Subtotal:</span>
                 <span>R$ ${calculateSubtotal(order).toFixed(2)}</span>
               </div>
+              ${order.hasServiceFee ? `
               <div class="item">
                 <span>Taxa de Serviço (10%):</span>
                 <span>R$ ${(calculateSubtotal(order) * 0.1).toFixed(2)}</span>
               </div>
+              ` : ''}
               <div class="item">
                 <span>TOTAL:</span>
-                <span>R$ ${(calculateSubtotal(order) * 1.1).toFixed(2)}</span>
+                <span>R$ ${(calculateSubtotal(order) * (order.hasServiceFee ? 1.1 : 1)).toFixed(2)}</span>
               </div>
             </div>
             
@@ -271,13 +273,15 @@ const OrderReceipt: React.FC<OrderReceiptProps> = ({ order, onClose }) => {
               <span>Subtotal:</span>
               <span>R$ {calculateSubtotal(order).toFixed(2)}</span>
             </div>
-            <div className="flex justify-between">
-              <span>Taxa de Serviço (10%):</span>
-              <span>R$ {(calculateSubtotal(order) * 0.1).toFixed(2)}</span>
-            </div>
+            {order.hasServiceFee && (
+              <div className="flex justify-between">
+                <span>Taxa de Serviço (10%):</span>
+                <span>R$ {(calculateSubtotal(order) * 0.1).toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-lg">
               <span>TOTAL:</span>
-              <span>R$ {(calculateSubtotal(order) * 1.1).toFixed(2)}</span>
+              <span>R$ {(calculateSubtotal(order) * (order.hasServiceFee ? 1.1 : 1)).toFixed(2)}</span>
             </div>
           </div>
           

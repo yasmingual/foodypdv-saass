@@ -13,6 +13,7 @@ import { Form, FormItem, FormLabel, FormControl, FormField } from "@/components/
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Mock data for products
 const mockProducts = [
@@ -62,6 +63,7 @@ const PDV = () => {
   const [currentProduct, setCurrentProduct] = useState<typeof mockProducts[0] | null>(null);
   const [observation, setObservation] = useState("");
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
+  const [applyServiceFee, setApplyServiceFee] = useState(false);
 
   // Form de entrega com react-hook-form
   const deliveryForm = useForm<DeliveryFormData>({
@@ -149,7 +151,17 @@ const PDV = () => {
   };
 
   const calculateTotal = () => {
+    const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    const serviceFee = applyServiceFee ? subtotal * 0.1 : 0;
+    return subtotal + serviceFee;
+  };
+
+  const calculateSubtotal = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  };
+
+  const calculateServiceFee = () => {
+    return applyServiceFee ? calculateSubtotal() * 0.1 : 0;
   };
 
   const handleFinishOrder = () => {
@@ -215,7 +227,8 @@ const PDV = () => {
       type: orderTypeKDS,
       identifier,
       items: kdsItems,
-      deliveryInfo
+      deliveryInfo,
+      hasServiceFee: applyServiceFee
     });
     
     console.log("Pedido finalizado:", {
@@ -224,6 +237,7 @@ const PDV = () => {
       table: tableNumber,
       deliveryData,
       total: calculateTotal(),
+      hasServiceFee: applyServiceFee
     });
     
     // Limpa o carrinho após finalizar o pedido
@@ -421,15 +435,26 @@ const PDV = () => {
             <div className="border-t p-4 space-y-4">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span>R$ {calculateTotal().toFixed(2)}</span>
+                <span>R$ {calculateSubtotal().toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Taxa de serviço (10%)</span>
-                <span>R$ {(calculateTotal() * 0.1).toFixed(2)}</span>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="service-fee" 
+                  checked={applyServiceFee}
+                  onCheckedChange={(checked) => setApplyServiceFee(checked === true)}
+                />
+                <label htmlFor="service-fee" className="text-sm text-muted-foreground cursor-pointer">
+                  Aplicar taxa de serviço (10%)
+                </label>
+                <span className="text-sm ml-auto">
+                  R$ {calculateServiceFee().toFixed(2)}
+                </span>
               </div>
+
               <div className="flex justify-between font-medium text-lg pt-2 border-t">
                 <span>Total</span>
-                <span>R$ {(calculateTotal() * 1.1).toFixed(2)}</span>
+                <span>R$ {calculateTotal().toFixed(2)}</span>
               </div>
               <Button 
                 className="w-full"

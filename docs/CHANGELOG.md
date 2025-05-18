@@ -1,6 +1,13 @@
 
 # Changelog
 
+## [1.0.5] - 2025-05-18
+### Adicionado
+- Taxa de serviço opcional (10%) nos pedidos
+- Checkbox para habilitar/desabilitar a taxa de serviço
+- Atualização no cupom fiscal para refletir se a taxa foi aplicada
+- Cálculo automático do total com ou sem a taxa de serviço
+
 ## [1.0.4] - 2025-05-18
 ### Adicionado
 - Funcionalidade de impressão de cupons para pedidos
