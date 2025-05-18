@@ -1,6 +1,13 @@
 
 # Changelog
 
+## [0.2.0] - 2025-05-18
+### Corrigido
+- Botões de ações na página de produtos agora funcionam corretamente:
+  - Substituídos ícones SVG inline por componentes importados do lucide-react
+  - Corrigido o funcionamento dos botões de editar, visualizar e excluir
+  - Mantida a funcionalidade das notificações toast para cada ação
+
 ## [0.1.0] - 2025-05-18
 ### Adicionado
 - Funcionalidade para os botões na página de produtos:

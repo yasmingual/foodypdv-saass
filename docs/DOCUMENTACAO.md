@@ -42,6 +42,11 @@ O módulo de produtos permite o gerenciamento completo do catálogo de produtos 
 5. **Visualizar Detalhes**: Clique no ícone de lupa na linha do produto desejado
 6. **Excluir Produto**: Clique no ícone de lixeira e confirme no diálogo exibido
 
+### Correções Implementadas
+- Substituição dos ícones SVG inline por componentes importados do lucide-react
+- Correção do funcionamento dos botões de editar, visualizar e excluir
+- Melhoria na visualização dos ícones para maior clareza de uso
+
 ### Próximos Passos para Implementação
 - Criar página de detalhes do produto
 - Implementar formulário de criação/edição de produtos
