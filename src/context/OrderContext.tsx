@@ -22,6 +22,7 @@ type OrderContextType = {
   addOrder: (order: Omit<Order, "id" | "time" | "status">) => void;
   updateOrderStatus: (orderId: number, newStatus: Order["status"]) => void;
   getNextOrderId: () => number;
+  addItemsToOrder: (orderId: number, newItems: OrderItem[]) => void;
 };
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -119,12 +120,45 @@ export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children 
     );
   };
 
+  // Adicionar itens a um pedido existente
+  const addItemsToOrder = (orderId: number, newItems: OrderItem[]) => {
+    setOrders(prevOrders => 
+      prevOrders.map(order => {
+        if (order.id !== orderId) return order;
+        
+        // Combinar itens existentes com novos itens
+        const updatedItems = [...order.items];
+        
+        newItems.forEach(newItem => {
+          // Verificar se o item já existe com a mesma observação
+          const existingItemIndex = updatedItems.findIndex(
+            item => item.name === newItem.name && item.notes === newItem.notes
+          );
+          
+          if (existingItemIndex >= 0) {
+            // Se existe, apenas incrementa a quantidade
+            updatedItems[existingItemIndex] = {
+              ...updatedItems[existingItemIndex],
+              quantity: updatedItems[existingItemIndex].quantity + newItem.quantity
+            };
+          } else {
+            // Se não existe, adiciona o novo item
+            updatedItems.push(newItem);
+          }
+        });
+        
+        return { ...order, items: updatedItems };
+      })
+    );
+  };
+
   return (
     <OrderContext.Provider value={{ 
       orders, 
       addOrder, 
       updateOrderStatus,
-      getNextOrderId
+      getNextOrderId,
+      addItemsToOrder
     }}>
       {children}
     </OrderContext.Provider>

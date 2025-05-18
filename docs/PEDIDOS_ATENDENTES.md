@@ -24,22 +24,36 @@ A tela de Pedidos para Atendentes foi desenvolvida para permitir que garçons e 
 - Exibe histórico de pedidos que já foram entregues aos clientes
 - Mantém o mesmo formato de card para consistência visual
 
-### 3. Ações Disponíveis
+### 3. Edição de Pedidos
+- Possibilidade de adicionar novos itens a pedidos em status "Pendente" ou "Em Preparo"
+- Interface intuitiva para seleção de produtos adicionais
+- Suporte para adicionar quantidades e observações aos novos itens
+- Não permite edição de pedidos já prontos ou entregues
+
+### 4. Ações Disponíveis
 - **Ver Detalhes**: Abre um diálogo com informações detalhadas do pedido
+- **Editar**: Para pedidos pendentes ou em preparo, permite adicionar novos itens
 - **Entregar**: Para pedidos prontos, permite que o atendente marque como entregue
 - A ação de entrega move o pedido automaticamente para a aba de "Finalizados"
 
-### 4. Diálogo de Detalhes
+### 5. Diálogo de Detalhes
 - Informações completas sobre o pedido
 - Tabela com itens, quantidades e observações
 - Botão para marcar como entregue (quando aplicável)
+- Botão para editar pedido (quando aplicável)
+
+### 6. Diálogo de Edição
+- Lista de itens atuais do pedido
+- Botão para adicionar novos itens
+- Interface de seleção de produtos com filtros e busca
 
 ## Fluxo de Trabalho
 
 1. O atendente monitora a aba "Em Aberto" para visualizar novos pedidos
-2. Quando um pedido aparece com status "Pronto", significa que a cozinha finalizou o preparo
-3. O atendente entrega o pedido ao cliente e marca como "Entregue" no sistema
-4. O pedido move-se para a aba "Finalizados"
+2. Se necessário, pode adicionar itens a pedidos pendentes ou em preparo
+3. Quando um pedido aparece com status "Pronto", significa que a cozinha finalizou o preparo
+4. O atendente entrega o pedido ao cliente e marca como "Entregue" no sistema
+5. O pedido move-se para a aba "Finalizados"
 
 ## Códigos de Cores para Status
 
