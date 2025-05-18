@@ -8,6 +8,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle 
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 // Mock data for products
 const mockProducts = [
@@ -24,11 +36,15 @@ const mockProducts = [
 ];
 
 const Products = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
+  const [products, setProducts] = useState(mockProducts);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Filter products based on search query and active filter
-  const filteredProducts = mockProducts.filter(
+  const filteredProducts = products.filter(
     (product) => {
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            product.category.toLowerCase().includes(searchQuery.toLowerCase());
@@ -41,6 +57,52 @@ const Products = () => {
       return matchesSearch && matchesFilter;
     }
   );
+
+  // Handler para o botão Novo Produto
+  const handleNewProduct = () => {
+    toast.success("Novo produto", {
+      description: "Função para adicionar novo produto acionada",
+    });
+    // Aqui seria redirecionado para o formulário de novo produto
+    // navigate("/products/new");
+  };
+
+  // Handler para o botão de Editar
+  const handleEdit = (product: any) => {
+    setSelectedProduct(product);
+    toast.info("Editar produto", {
+      description: `Editando produto: ${product.name}`,
+    });
+    // Aqui seria redirecionado para o formulário de edição
+    // navigate(`/products/edit/${product.id}`);
+  };
+
+  // Handler para o botão de Visualizar
+  const handleView = (product: any) => {
+    setSelectedProduct(product);
+    toast.info("Visualizar produto", {
+      description: `Visualizando detalhes do produto: ${product.name}`,
+    });
+    // Aqui seria redirecionado para a página de detalhes
+    // navigate(`/products/${product.id}`);
+  };
+
+  // Handler para o botão de Excluir
+  const handleDeleteClick = (product: any) => {
+    setSelectedProduct(product);
+    setIsDeleteDialogOpen(true);
+  };
+
+  // Handler para confirmar exclusão
+  const handleConfirmDelete = () => {
+    if (selectedProduct) {
+      setProducts(products.filter(p => p.id !== selectedProduct.id));
+      toast.success("Produto excluído", {
+        description: `O produto ${selectedProduct.name} foi removido com sucesso.`,
+      });
+      setIsDeleteDialogOpen(false);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-background">
@@ -87,7 +149,7 @@ const Products = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Button>
+              <Button onClick={handleNewProduct}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -144,19 +206,35 @@ const Products = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleEdit(product)}
+                          title="Editar produto"
+                        >
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                           </svg>
                         </Button>
-                        <Button variant="ghost" size="icon">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleView(product)}
+                          title="Visualizar produto"
+                        >
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                           </svg>
                         </Button>
-                        <Button variant="ghost" size="icon" className="text-pdv-danger">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-pdv-danger"
+                          onClick={() => handleDeleteClick(product)}
+                          title="Excluir produto"
+                        >
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M3 6h18"></path>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -171,6 +249,28 @@ const Products = () => {
           </Card>
         </main>
       </div>
+
+      {/* Diálogo de confirmação de exclusão */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o produto "{selectedProduct?.name}"? 
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmDelete}
+              className="bg-pdv-danger hover:bg-pdv-danger/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
