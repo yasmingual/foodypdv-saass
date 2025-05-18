@@ -23,19 +23,29 @@ O módulo de produtos permite o gerenciamento completo do catálogo de produtos 
   - Sem estoque: exibe produtos com estoque zero
 
 #### 3. Ações de Gerenciamento
-- **Adicionar Produto**: permite criar um novo produto (mostra notificação demonstrativa)
+- **Adicionar Produto**: abre um diálogo com formulário para criar um novo produto
 - **Editar Produto**: abre um diálogo de edição com formulário completo para modificação dos dados
 - **Visualizar Produto**: abre um diálogo com todos os detalhes do produto
 - **Excluir Produto**: remove um produto após confirmação em diálogo
 
-#### 4. Diálogos de Edição e Visualização
+#### 4. Diálogos de Gerenciamento
+- **Diálogo de Adição**:
+  - Permite informar nome, categoria, preço, estoque e status
+  - Botões para cancelar ou salvar o novo produto
+  - Exibe feedback em notificação toast após salvar
+  
 - **Diálogo de Edição**:
   - Permite editar nome, categoria, preço, estoque e status
   - Botões para cancelar ou salvar as alterações
   - Exibe feedback em notificação toast após salvar
+  
 - **Diálogo de Visualização**:
   - Exibe todos os detalhes do produto selecionado
   - Formatação visual adequada para melhor leitura dos dados
+  
+- **Diálogo de Exclusão**:
+  - Pede confirmação antes de remover o produto
+  - Exibe mensagem de alerta sobre a ação ser irreversível
 
 #### 5. Feedback Visual
 - Notificações toast para confirmar ações realizadas
@@ -44,7 +54,7 @@ O módulo de produtos permite o gerenciamento completo do catálogo de produtos 
 - Badges coloridas para indicar status (ativo/inativo)
 
 ### Como Usar
-1. **Adicionar Produto**: Clique no botão "Novo Produto" no canto superior direito
+1. **Adicionar Produto**: Clique no botão "Novo Produto" no canto superior direito e preencha o formulário
 2. **Buscar Produto**: Digite o nome ou categoria no campo de busca
 3. **Filtrar Produtos**: Use o dropdown "Filtrar por" para selecionar o status desejado
 4. **Editar Produto**: Clique no ícone de lápis na linha do produto desejado e faça as alterações no diálogo que se abre
@@ -56,10 +66,11 @@ O módulo de produtos permite o gerenciamento completo do catálogo de produtos 
 - Substituição de componentes FormLabel por labels HTML padrão para resolver erros de contexto de formulário
 - Correção do funcionamento dos diálogos de edição e visualização de produtos
 - Melhoria na visualização dos ícones para maior clareza de uso
+- Implementação completa do botão "Novo Produto" com diálogo para adicionar produtos
 
 ### Próximos Passos para Implementação
 - Criar página de detalhes do produto
-- Implementar formulário de criação/edição de produtos
+- Implementar formulário de criação/edição de produtos em páginas separadas
 - Adicionar upload de imagens para produtos
 - Conectar com API backend/Supabase para persistência de dados
 - Implementar controle de permissões por usuário

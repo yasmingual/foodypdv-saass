@@ -1,6 +1,14 @@
 
 # Changelog
 
+## [0.5.0] - 2025-05-18
+### Adicionado
+- Implementação completa da funcionalidade de adicionar produtos:
+  - Adicionado diálogo com formulário para criar novos produtos
+  - Adicionados campos para nome, categoria, preço, estoque e status
+  - Botão para salvar o novo produto
+  - Feedback visual através de notificação toast após sucesso
+
 ## [0.4.0] - 2025-05-18
 ### Corrigido
 - Corrigido erro de renderização relacionado ao uso de componentes de formulário:

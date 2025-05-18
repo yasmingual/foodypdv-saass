@@ -46,7 +46,15 @@ const Products = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isNewProductDialogOpen, setIsNewProductDialogOpen] = useState(false);
   const [editedProduct, setEditedProduct] = useState<any>({
+    name: "",
+    category: "",
+    price: 0,
+    stock: 0,
+    active: true
+  });
+  const [newProduct, setNewProduct] = useState({
     name: "",
     category: "",
     price: 0,
@@ -71,11 +79,32 @@ const Products = () => {
 
   // Handler para o botão Novo Produto
   const handleNewProduct = () => {
-    toast.success("Novo produto", {
-      description: "Função para adicionar novo produto acionada",
+    setNewProduct({
+      name: "",
+      category: "",
+      price: 0,
+      stock: 0,
+      active: true
     });
-    // Aqui seria redirecionado para o formulário de novo produto
-    // navigate("/products/new");
+    setIsNewProductDialogOpen(true);
+    toast.info("Novo produto", {
+      description: "Adicionando um novo produto ao catálogo",
+    });
+  };
+
+  // Handler para salvar novo produto
+  const handleSaveNewProduct = () => {
+    const newId = Math.max(...products.map(p => p.id)) + 1;
+    const productToAdd = {
+      ...newProduct,
+      id: newId
+    };
+    
+    setProducts([...products, productToAdd]);
+    setIsNewProductDialogOpen(false);
+    toast.success("Produto adicionado", {
+      description: `O produto ${newProduct.name} foi adicionado com sucesso.`,
+    });
   };
 
   // Handler para o botão de Editar
@@ -142,6 +171,14 @@ const Products = () => {
   const handleEditFieldChange = (field: string, value: any) => {
     setEditedProduct({
       ...editedProduct,
+      [field]: value
+    });
+  };
+
+  // Handler para mudança de campo do novo produto
+  const handleNewProductFieldChange = (field: string, value: any) => {
+    setNewProduct({
+      ...newProduct,
       [field]: value
     });
   };
@@ -282,6 +319,77 @@ const Products = () => {
           </Card>
         </main>
       </div>
+
+      {/* Diálogo de adição de novo produto */}
+      <Dialog open={isNewProductDialogOpen} onOpenChange={setIsNewProductDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Adicionar Novo Produto</DialogTitle>
+            <DialogDescription>
+              Preencha os campos abaixo para adicionar um novo produto ao catálogo.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label className="text-right font-medium">Nome</label>
+              <Input 
+                className="col-span-3" 
+                value={newProduct.name} 
+                onChange={(e) => handleNewProductFieldChange("name", e.target.value)}
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label className="text-right font-medium">Categoria</label>
+              <Input 
+                className="col-span-3" 
+                value={newProduct.category} 
+                onChange={(e) => handleNewProductFieldChange("category", e.target.value)}
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label className="text-right font-medium">Preço (R$)</label>
+              <Input 
+                type="number" 
+                step="0.01" 
+                className="col-span-3" 
+                value={newProduct.price} 
+                onChange={(e) => handleNewProductFieldChange("price", parseFloat(e.target.value))}
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label className="text-right font-medium">Estoque</label>
+              <Input 
+                type="number" 
+                className="col-span-3" 
+                value={newProduct.stock} 
+                onChange={(e) => handleNewProductFieldChange("stock", parseInt(e.target.value))}
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label className="text-right font-medium">Status</label>
+              <div className="col-span-3 flex items-center space-x-2">
+                <input
+                  type="checkbox" 
+                  checked={newProduct.active}
+                  onChange={(e) => handleNewProductFieldChange("active", e.target.checked)}
+                  className="h-4 w-4"
+                />
+                <span>Ativo</span>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsNewProductDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSaveNewProduct}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Diálogo de edição de produto */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
