@@ -10,7 +10,8 @@ import {
   ClipboardList,
   DollarSign,
   Package,
-  Tag
+  Tag,
+  Menu
 } from "lucide-react";
 
 type NavItem = {
@@ -23,6 +24,7 @@ const navItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: ShoppingCart, label: "PDV", path: "/pdv" },
   { icon: ClipboardList, label: "KDS", path: "/kds" },
+  { icon: Menu, label: "Pedidos", path: "/orders" },
   { icon: Package, label: "Estoque", path: "/stock" },
   { icon: DollarSign, label: "Caixa", path: "/cashier" },
   { icon: FolderTree, label: "Produtos", path: "/products" },

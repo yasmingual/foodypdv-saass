@@ -52,6 +52,7 @@ A tela de Pedidos para Atendentes foi desenvolvida para permitir que garçons e 
 
 - **PDV**: Os pedidos criados no PDV são automaticamente exibidos nesta tela
 - **KDS**: As atualizações de status feitas pela cozinha são refletidas em tempo real
+- **Navegação**: Acesso rápido através do menu lateral (sidebar) com ícone de "Pedidos"
 - **Contexto Global**: Compartilhamento de dados entre as páginas usando OrderContext
 
 ## Notas Importantes
@@ -59,3 +60,4 @@ A tela de Pedidos para Atendentes foi desenvolvida para permitir que garçons e 
 - O sistema atualiza automaticamente os pedidos quando há mudança de status
 - A tela é responsiva e se adapta a diferentes tamanhos de dispositivos
 - Os pedidos são organizados por ordem cronológica, com os mais recentes no topo
+- A área de pedidos pode ser acessada através do link "Pedidos" na barra lateral

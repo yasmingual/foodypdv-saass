@@ -1,6 +1,11 @@
 
 # Changelog
 
+## [1.0.1] - 2025-05-18
+### Corrigido
+- Adicionado link para a página de Pedidos na sidebar para fácil acesso
+- Corrigida integração entre PDV e a página de Pedidos para garçons/atendentes
+
 ## [1.0.0] - 2025-05-18
 ### Adicionado
 - Nova tela de Pedidos para garçons/atendentes:
