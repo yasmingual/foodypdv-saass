@@ -1,6 +1,15 @@
 
 # Changelog
 
+## [0.3.0] - 2025-05-18
+### Adicionado
+- Implementação completa da funcionalidade de edição de produtos:
+  - Adicionado diálogo de edição com formulário
+  - Campos editáveis: nome, categoria, preço, estoque e status
+  - Botão para salvar alterações
+- Implementação da funcionalidade de visualização de produtos:
+  - Adicionado diálogo para exibição detalhada das informações do produto
+
 ## [0.2.0] - 2025-05-18
 ### Corrigido
 - Botões de ações na página de produtos agora funcionam corretamente:

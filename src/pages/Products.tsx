@@ -18,9 +18,11 @@ import {
   AlertDialogHeader, 
   AlertDialogTitle 
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Pencil, EyeIcon, Trash2 } from "lucide-react";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 
 // Mock data for products
 const mockProducts = [
@@ -43,6 +45,15 @@ const Products = () => {
   const [products, setProducts] = useState(mockProducts);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [editedProduct, setEditedProduct] = useState<any>({
+    name: "",
+    category: "",
+    price: 0,
+    stock: 0,
+    active: true
+  });
 
   // Filter products based on search query and active filter
   const filteredProducts = products.filter(
@@ -71,21 +82,44 @@ const Products = () => {
   // Handler para o botão de Editar
   const handleEdit = (product: any) => {
     setSelectedProduct(product);
+    setEditedProduct({
+      name: product.name,
+      category: product.category,
+      price: product.price,
+      stock: product.stock,
+      active: product.active
+    });
+    setIsEditDialogOpen(true);
     toast.info("Editar produto", {
       description: `Editando produto: ${product.name}`,
     });
-    // Aqui seria redirecionado para o formulário de edição
-    // navigate(`/products/edit/${product.id}`);
+  };
+
+  // Handler para salvar edição de produto
+  const handleSaveEdit = () => {
+    if (!selectedProduct) return;
+    
+    const updatedProducts = products.map(p => {
+      if (p.id === selectedProduct.id) {
+        return { ...p, ...editedProduct };
+      }
+      return p;
+    });
+    
+    setProducts(updatedProducts);
+    setIsEditDialogOpen(false);
+    toast.success("Produto atualizado", {
+      description: `O produto ${editedProduct.name} foi atualizado com sucesso.`,
+    });
   };
 
   // Handler para o botão de Visualizar
   const handleView = (product: any) => {
     setSelectedProduct(product);
+    setIsViewDialogOpen(true);
     toast.info("Visualizar produto", {
       description: `Visualizando detalhes do produto: ${product.name}`,
     });
-    // Aqui seria redirecionado para a página de detalhes
-    // navigate(`/products/${product.id}`);
   };
 
   // Handler para o botão de Excluir
@@ -103,6 +137,14 @@ const Products = () => {
       });
       setIsDeleteDialogOpen(false);
     }
+  };
+
+  // Handler para mudança de campo de edição
+  const handleEditFieldChange = (field: string, value: any) => {
+    setEditedProduct({
+      ...editedProduct,
+      [field]: value
+    });
   };
 
   return (
@@ -241,6 +283,128 @@ const Products = () => {
           </Card>
         </main>
       </div>
+
+      {/* Diálogo de edição de produto */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Editar Produto</DialogTitle>
+            <DialogDescription>
+              Faça as alterações desejadas no produto e clique em Salvar para aplicá-las.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <FormLabel className="text-right">Nome</FormLabel>
+              <Input 
+                className="col-span-3" 
+                value={editedProduct.name} 
+                onChange={(e) => handleEditFieldChange("name", e.target.value)}
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <FormLabel className="text-right">Categoria</FormLabel>
+              <Input 
+                className="col-span-3" 
+                value={editedProduct.category} 
+                onChange={(e) => handleEditFieldChange("category", e.target.value)}
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <FormLabel className="text-right">Preço (R$)</FormLabel>
+              <Input 
+                type="number" 
+                step="0.01" 
+                className="col-span-3" 
+                value={editedProduct.price} 
+                onChange={(e) => handleEditFieldChange("price", parseFloat(e.target.value))}
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <FormLabel className="text-right">Estoque</FormLabel>
+              <Input 
+                type="number" 
+                className="col-span-3" 
+                value={editedProduct.stock} 
+                onChange={(e) => handleEditFieldChange("stock", parseInt(e.target.value))}
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <FormLabel className="text-right">Status</FormLabel>
+              <div className="col-span-3 flex items-center space-x-2">
+                <input
+                  type="checkbox" 
+                  checked={editedProduct.active}
+                  onChange={(e) => handleEditFieldChange("active", e.target.checked)}
+                  className="h-4 w-4"
+                />
+                <span>Ativo</span>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSaveEdit}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo de visualização de produto */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Produto</DialogTitle>
+          </DialogHeader>
+          
+          {selectedProduct && (
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <span className="text-right font-medium">ID:</span>
+                <span className="col-span-3">{selectedProduct.id}</span>
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <span className="text-right font-medium">Nome:</span>
+                <span className="col-span-3">{selectedProduct.name}</span>
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <span className="text-right font-medium">Categoria:</span>
+                <span className="col-span-3">{selectedProduct.category}</span>
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <span className="text-right font-medium">Preço:</span>
+                <span className="col-span-3">R$ {selectedProduct.price.toFixed(2)}</span>
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <span className="text-right font-medium">Estoque:</span>
+                <span className="col-span-3">{selectedProduct.stock}</span>
+              </div>
+              
+              <div className="grid grid-cols-4 items-center gap-4">
+                <span className="text-right font-medium">Status:</span>
+                <span className="col-span-3">
+                  <Badge className={selectedProduct.active ? "bg-pdv-secondary" : "bg-muted"}>
+                    {selectedProduct.active ? "Ativo" : "Inativo"}
+                  </Badge>
+                </span>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button onClick={() => setIsViewDialogOpen(false)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Diálogo de confirmação de exclusão */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

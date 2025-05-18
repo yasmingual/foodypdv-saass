@@ -24,11 +24,20 @@ O módulo de produtos permite o gerenciamento completo do catálogo de produtos 
 
 #### 3. Ações de Gerenciamento
 - **Adicionar Produto**: permite criar um novo produto (mostra notificação demonstrativa)
-- **Editar Produto**: permite modificar um produto existente (mostra notificação demonstrativa)
-- **Visualizar Produto**: permite ver detalhes de um produto (mostra notificação demonstrativa)
+- **Editar Produto**: abre um diálogo de edição com formulário completo para modificação dos dados
+- **Visualizar Produto**: abre um diálogo com todos os detalhes do produto
 - **Excluir Produto**: remove um produto após confirmação em diálogo
 
-#### 4. Feedback Visual
+#### 4. Diálogos de Edição e Visualização
+- **Diálogo de Edição**:
+  - Permite editar nome, categoria, preço, estoque e status
+  - Botões para cancelar ou salvar as alterações
+  - Exibe feedback em notificação toast após salvar
+- **Diálogo de Visualização**:
+  - Exibe todos os detalhes do produto selecionado
+  - Formatação visual adequada para melhor leitura dos dados
+
+#### 5. Feedback Visual
 - Notificações toast para confirmar ações realizadas
 - Diálogo de confirmação para ações destrutivas (exclusão)
 - Indicadores visuais para status de produtos e níveis de estoque
@@ -38,14 +47,15 @@ O módulo de produtos permite o gerenciamento completo do catálogo de produtos 
 1. **Adicionar Produto**: Clique no botão "Novo Produto" no canto superior direito
 2. **Buscar Produto**: Digite o nome ou categoria no campo de busca
 3. **Filtrar Produtos**: Use o dropdown "Filtrar por" para selecionar o status desejado
-4. **Editar Produto**: Clique no ícone de lápis na linha do produto desejado
-5. **Visualizar Detalhes**: Clique no ícone de lupa na linha do produto desejado
+4. **Editar Produto**: Clique no ícone de lápis na linha do produto desejado e faça as alterações no diálogo que se abre
+5. **Visualizar Detalhes**: Clique no ícone de olho na linha do produto desejado para ver todos os detalhes
 6. **Excluir Produto**: Clique no ícone de lixeira e confirme no diálogo exibido
 
 ### Correções Implementadas
 - Substituição dos ícones SVG inline por componentes importados do lucide-react
 - Correção do funcionamento dos botões de editar, visualizar e excluir
 - Melhoria na visualização dos ícones para maior clareza de uso
+- Implementação de diálogos completos para edição e visualização dos produtos
 
 ### Próximos Passos para Implementação
 - Criar página de detalhes do produto
