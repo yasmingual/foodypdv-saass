@@ -1,4 +1,5 @@
 
+
 # Documentação: Tela de Pedidos para Atendentes
 
 ## Visão Geral
@@ -19,6 +20,7 @@ A tela de Pedidos para Atendentes foi desenvolvida para permitir que garçons e 
   - Status atual (com código de cores)
   - Lista de itens do pedido
   - Observações para cada item (quando existirem)
+  - Dados de entrega para pedidos de delivery
 
 ### 2. Visualização de Pedidos Finalizados
 - Exibe histórico de pedidos que já foram entregues aos clientes
@@ -39,6 +41,7 @@ A tela de Pedidos para Atendentes foi desenvolvida para permitir que garçons e 
 ### 5. Diálogo de Detalhes
 - Informações completas sobre o pedido
 - Tabela com itens, quantidades e observações
+- Dados de entrega para pedidos tipo Delivery
 - Botão para marcar como entregue (quando aplicável)
 - Botão para editar pedido (quando aplicável)
 
@@ -46,6 +49,11 @@ A tela de Pedidos para Atendentes foi desenvolvida para permitir que garçons e 
 - Lista de itens atuais do pedido
 - Botão para adicionar novos itens
 - Interface de seleção de produtos com filtros e busca
+
+### 7. Dados de Entrega para Delivery
+- Integração com formulário de dados do cliente no PDV
+- Exibição dos dados completos do cliente no diálogo de detalhes
+- Informações essenciais como nome, telefone, endereço e ponto de referência
 
 ## Fluxo de Trabalho
 
@@ -74,4 +82,6 @@ A tela de Pedidos para Atendentes foi desenvolvida para permitir que garçons e 
 - O sistema atualiza automaticamente os pedidos quando há mudança de status
 - A tela é responsiva e se adapta a diferentes tamanhos de dispositivos
 - Os pedidos são organizados por ordem cronológica, com os mais recentes no topo
+- Para pedidos de delivery, as informações do cliente são armazenadas e exibidas
 - A área de pedidos pode ser acessada através do link "Pedidos" na barra lateral
+

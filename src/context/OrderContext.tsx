@@ -8,6 +8,16 @@ export type OrderItem = {
   notes: string;
 };
 
+export type DeliveryInfo = {
+  clientName: string;
+  phone: string;
+  address: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  reference?: string;
+};
+
 export type Order = {
   id: number;
   type: "Mesa" | "Retirada" | "Delivery";
@@ -15,6 +25,7 @@ export type Order = {
   time: string;
   status: "pending" | "in-progress" | "ready" | "completed";
   items: OrderItem[];
+  deliveryInfo?: DeliveryInfo;
 };
 
 type OrderContextType = {
@@ -72,7 +83,16 @@ const initialOrders: Order[] = [
       { name: "X-Bacon", quantity: 1, notes: "" },
       { name: "Batata Frita P", quantity: 2, notes: "" },
       { name: "Coca-Cola Lata", quantity: 2, notes: "" }
-    ]
+    ],
+    deliveryInfo: {
+      clientName: "Maria Silva",
+      phone: "(11) 98765-4321",
+      address: "Rua das Flores",
+      number: "123",
+      complement: "Apto 45",
+      neighborhood: "Centro",
+      reference: "Próximo à farmácia"
+    }
   },
   {
     id: 1004,

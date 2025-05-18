@@ -1,6 +1,13 @@
 
 # Changelog
 
+## [1.0.3] - 2025-05-18
+### Adicionado
+- Implementação do formulário de dados de entrega para pedidos do tipo Delivery
+- Armazenamento dos dados do cliente para referência e entrega
+- Exibição dos dados de entrega na tela de pedidos
+- Validação de campos no formulário de entrega
+
 ## [1.0.2] - 2025-05-18
 ### Adicionado
 - Funcionalidade para editar pedidos em aberto adicionando novos produtos

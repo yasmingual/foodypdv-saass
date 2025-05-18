@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -5,10 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useOrders } from "@/context/OrderContext";
+import { Form, FormItem, FormLabel, FormControl, FormField } from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 // Mock data for products
 const mockProducts = [
@@ -34,6 +39,19 @@ type CartItem = {
   observation: string;
 };
 
+// Schema para os dados de entrega
+const deliveryFormSchema = z.object({
+  clientName: z.string().min(3, "Nome do cliente deve ter pelo menos 3 caracteres"),
+  phone: z.string().min(8, "Telefone deve ter pelo menos 8 dígitos"),
+  address: z.string().min(5, "Endereço deve ter pelo menos 5 caracteres"),
+  number: z.string().min(1, "Número é obrigatório"),
+  complement: z.string().optional(),
+  neighborhood: z.string().min(2, "Bairro é obrigatório"),
+  reference: z.string().optional(),
+});
+
+type DeliveryFormData = z.infer<typeof deliveryFormSchema>;
+
 const PDV = () => {
   const { addOrder } = useOrders();
   const [activeCategory, setActiveCategory] = useState("Todos");
@@ -44,6 +62,21 @@ const PDV = () => {
   const [observationDialogOpen, setObservationDialogOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<typeof mockProducts[0] | null>(null);
   const [observation, setObservation] = useState("");
+  const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
+
+  // Form de entrega com react-hook-form
+  const deliveryForm = useForm<DeliveryFormData>({
+    resolver: zodResolver(deliveryFormSchema),
+    defaultValues: {
+      clientName: "",
+      phone: "",
+      address: "",
+      number: "",
+      complement: "",
+      neighborhood: "",
+      reference: "",
+    },
+  });
 
   // Filter products based on active category and search query
   const filteredProducts = mockProducts.filter((product) => {
@@ -123,6 +156,17 @@ const PDV = () => {
   const handleFinishOrder = () => {
     if (cart.length === 0) return;
     
+    // Se for um pedido de delivery, abra o modal de dados de entrega
+    if (orderType === "delivery") {
+      setDeliveryDialogOpen(true);
+      return;
+    }
+    
+    // Para outros tipos de pedido, finalize normalmente
+    finalizeOrder();
+  };
+  
+  const finalizeOrder = (deliveryData?: DeliveryFormData) => {
     // Converter itens do carrinho para o formato do KDS
     const kdsItems = cart.map(item => ({
       name: item.name,
@@ -145,7 +189,7 @@ const PDV = () => {
         break;
       case "delivery":
         orderTypeKDS = "Delivery";
-        identifier = "Cliente";
+        identifier = deliveryData ? `${deliveryData.clientName} - ${deliveryData.phone}` : "Cliente";
         break;
       default:
         orderTypeKDS = "Mesa";
@@ -156,20 +200,27 @@ const PDV = () => {
     addOrder({
       type: orderTypeKDS,
       identifier,
-      items: kdsItems
+      items: kdsItems,
+      deliveryInfo: orderType === "delivery" ? deliveryData : undefined
     });
     
     console.log("Pedido finalizado:", {
       items: cart,
       type: orderType,
       table: tableNumber,
+      deliveryData,
       total: calculateTotal(),
     });
     
     // Limpa o carrinho após finalizar o pedido
     setCart([]);
+    setDeliveryDialogOpen(false);
     
     toast.success("Pedido finalizado com sucesso e enviado para a cozinha!");
+  };
+  
+  const handleDeliveryFormSubmit = (data: DeliveryFormData) => {
+    finalizeOrder(data);
   };
 
   return (
@@ -413,6 +464,133 @@ const PDV = () => {
               Adicionar ao Pedido
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Diálogo de Dados de Entrega */}
+      <Dialog open={deliveryDialogOpen} onOpenChange={setDeliveryDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Dados para Entrega</DialogTitle>
+            <DialogDescription>
+              Preencha os dados do cliente para realizar a entrega
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...deliveryForm}>
+            <form onSubmit={deliveryForm.handleSubmit(handleDeliveryFormSubmit)} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={deliveryForm.control}
+                  name="clientName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome do Cliente</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nome completo" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={deliveryForm.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Telefone</FormLabel>
+                      <FormControl>
+                        <Input placeholder="(00) 00000-0000" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <FormField
+                control={deliveryForm.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Endereço</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Rua, Avenida, etc." {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField
+                  control={deliveryForm.control}
+                  name="number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Número</FormLabel>
+                      <FormControl>
+                        <Input placeholder="123" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={deliveryForm.control}
+                  name="complement"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Complemento</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Apto, Bloco, etc." {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={deliveryForm.control}
+                  name="neighborhood"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bairro</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Seu bairro" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <FormField
+                control={deliveryForm.control}
+                name="reference"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ponto de Referência</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Próximo à padaria, prédio azul, etc." 
+                        {...field} 
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  type="button"
+                  onClick={() => setDeliveryDialogOpen(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit">
+                  Finalizar Pedido
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>
