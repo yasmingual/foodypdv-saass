@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -9,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useOrders } from "@/context/OrderContext";
 
 // Mock data for products
 const mockProducts = [
@@ -35,6 +35,7 @@ type CartItem = {
 };
 
 const PDV = () => {
+  const { addOrder } = useOrders();
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orderType, setOrderType] = useState("mesa");
@@ -120,18 +121,55 @@ const PDV = () => {
   };
 
   const handleFinishOrder = () => {
+    if (cart.length === 0) return;
+    
+    // Converter itens do carrinho para o formato do KDS
+    const kdsItems = cart.map(item => ({
+      name: item.name,
+      quantity: item.quantity,
+      notes: item.observation
+    }));
+    
+    // Determinar o tipo de pedido e identificador para o KDS
+    let orderTypeKDS: "Mesa" | "Retirada" | "Delivery";
+    let identifier: string;
+    
+    switch (orderType) {
+      case "mesa":
+        orderTypeKDS = "Mesa";
+        identifier = `Mesa ${tableNumber || 'N/A'}`;
+        break;
+      case "retirada":
+        orderTypeKDS = "Retirada";
+        identifier = "Balcão";
+        break;
+      case "delivery":
+        orderTypeKDS = "Delivery";
+        identifier = "Cliente";
+        break;
+      default:
+        orderTypeKDS = "Mesa";
+        identifier = "N/A";
+    }
+    
+    // Adicionar o pedido ao contexto para aparecer no KDS
+    addOrder({
+      type: orderTypeKDS,
+      identifier,
+      items: kdsItems
+    });
+    
     console.log("Pedido finalizado:", {
       items: cart,
       type: orderType,
       table: tableNumber,
       total: calculateTotal(),
     });
-    // Aqui você adicionaria a lógica para enviar o pedido para o backend
     
     // Limpa o carrinho após finalizar o pedido
     setCart([]);
     
-    toast.success("Pedido finalizado com sucesso!");
+    toast.success("Pedido finalizado com sucesso e enviado para a cozinha!");
   };
 
   return (

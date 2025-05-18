@@ -1,6 +1,14 @@
 
 # Changelog
 
+## [0.9.0] - 2025-05-18
+### Adicionado
+- Integração entre PDV e KDS:
+  - Pedidos criados no PDV são automaticamente enviados para o KDS
+  - Contexto global para compartilhamento de dados entre as páginas
+  - Atualização em tempo real do status dos pedidos (pendente, em preparo, pronto, entregue)
+  - Mensagem de confirmação ao finalizar pedido informando que foi enviado para cozinha
+
 ## [0.8.0] - 2025-05-18
 ### Adicionado
 - Implementação de observações para produtos no PDV:

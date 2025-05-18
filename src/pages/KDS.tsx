@@ -6,68 +6,13 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-// Mock data for orders in the kitchen
-const mockOrders = [
-  {
-    id: 1001,
-    type: "Mesa",
-    identifier: "Mesa 3",
-    time: "10:15",
-    status: "pending",
-    items: [
-      { name: "X-Bacon", quantity: 1, notes: "Sem cebola" },
-      { name: "Batata Frita M", quantity: 1, notes: "" },
-      { name: "Coca-Cola 600ml", quantity: 2, notes: "" }
-    ]
-  },
-  {
-    id: 1002,
-    type: "Retirada",
-    identifier: "João",
-    time: "10:20",
-    status: "pending",
-    items: [
-      { name: "X-Tudo", quantity: 2, notes: "Um sem tomate" },
-      { name: "Batata Frita G", quantity: 1, notes: "Cheddar extra" },
-      { name: "Água Mineral", quantity: 2, notes: "" }
-    ]
-  },
-  {
-    id: 1003,
-    type: "Delivery",
-    identifier: "Maria",
-    time: "10:25",
-    status: "in-progress",
-    items: [
-      { name: "X-Salada", quantity: 1, notes: "" },
-      { name: "X-Bacon", quantity: 1, notes: "" },
-      { name: "Batata Frita P", quantity: 2, notes: "" },
-      { name: "Coca-Cola Lata", quantity: 2, notes: "" }
-    ]
-  },
-  {
-    id: 1004,
-    type: "Mesa",
-    identifier: "Mesa 5",
-    time: "10:30",
-    status: "ready",
-    items: [
-      { name: "X-Bacon", quantity: 2, notes: "" },
-      { name: "Coca-Cola 600ml", quantity: 2, notes: "" }
-    ]
-  }
-];
-
-type Order = typeof mockOrders[0];
+import { useOrders, Order } from "@/context/OrderContext";
 
 const KDS = () => {
-  const [orders, setOrders] = useState(mockOrders);
+  const { orders, updateOrderStatus } = useOrders();
   
-  const handleStatusChange = (orderId: number, newStatus: "pending" | "in-progress" | "ready" | "completed") => {
-    setOrders(orders.map(order => 
-      order.id === orderId ? { ...order, status: newStatus } : order
-    ));
+  const handleStatusChange = (orderId: number, newStatus: Order["status"]) => {
+    updateOrderStatus(orderId, newStatus);
   };
 
   const pendingOrders = orders.filter(order => order.status === "pending");
