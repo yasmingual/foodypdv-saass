@@ -7,6 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 // Mock data for transactions
 const mockTransactions = [
@@ -40,6 +43,20 @@ const totalSales = mockTransactions
 
 const Cashier = () => {
   const [activeTab, setActiveTab] = useState("summary");
+  const [isCashierOpen, setIsCashierOpen] = useState(false);
+  const [openCashDialogOpen, setOpenCashDialogOpen] = useState(false);
+  const [initialCashAmount, setInitialCashAmount] = useState("");
+
+  const handleOpenCashier = () => {
+    if (!initialCashAmount || isNaN(Number(initialCashAmount))) {
+      toast.error("Por favor, informe um valor inicial válido");
+      return;
+    }
+
+    setIsCashierOpen(true);
+    setOpenCashDialogOpen(false);
+    toast.success(`Caixa aberto com sucesso! Valor inicial: R$ ${Number(initialCashAmount).toFixed(2)}`);
+  };
 
   return (
     <div className="flex h-screen bg-background">
@@ -254,17 +271,66 @@ const Cashier = () => {
             </Tabs>
             
             <div className="flex gap-2 ml-4">
-              <Button>
+              <Button 
+                onClick={() => setOpenCashDialogOpen(true)} 
+                disabled={isCashierOpen}
+                className={isCashierOpen ? "bg-gray-400" : ""}
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                   <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
-                Abrir Caixa
+                {isCashierOpen ? "Caixa Aberto" : "Abrir Caixa"}
               </Button>
             </div>
           </div>
         </main>
       </div>
+
+      {/* Diálogo de Abertura de Caixa */}
+      <Dialog open={openCashDialogOpen} onOpenChange={setOpenCashDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Abrir Caixa</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="initialCash" className="text-sm font-medium">
+                  Valor Inicial em Caixa
+                </label>
+                <div className="relative mt-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">R$</span>
+                  <Input
+                    id="initialCash"
+                    type="text"
+                    placeholder="0,00"
+                    className="pl-9"
+                    value={initialCashAmount}
+                    onChange={(e) => {
+                      // Aceitar apenas números e vírgula
+                      const value = e.target.value.replace(/[^\d,]/g, '');
+                      setInitialCashAmount(value);
+                    }}
+                  />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="cashierName" className="text-sm font-medium">
+                  Operador
+                </label>
+                <Input id="cashierName" type="text" defaultValue="Administrador" className="mt-1" />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenCashDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleOpenCashier}>Confirmar Abertura</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

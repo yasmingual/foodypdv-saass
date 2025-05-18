@@ -1,6 +1,15 @@
 
 # Changelog
 
+## [0.7.0] - 2025-05-18
+### Adicionado
+- Implementada funcionalidade do botão "Abrir Caixa" na página de Caixa:
+  - Adicionado diálogo para abertura de caixa
+  - Campos para informar valor inicial em caixa e operador
+  - Feedback visual através de notificação toast após abertura bem-sucedida
+  - Validação de entrada para valor monetário
+  - Botão fica desabilitado e muda para "Caixa Aberto" após ser aberto
+
 ## [0.6.0] - 2025-05-18
 ### Adicionado
 - Menu suspenso (dropdown) de categorias nos formulários de produtos:

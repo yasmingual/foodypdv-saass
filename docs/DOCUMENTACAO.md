@@ -1,6 +1,68 @@
 
 # Documentação do Sistema PDV
 
+## Módulo de Caixa (Cashier)
+
+### Visão Geral
+O módulo de Caixa permite o gerenciamento completo do fluxo financeiro do estabelecimento. Através dele, é possível abrir o caixa, registrar transações, acompanhar o resumo de vendas e formas de pagamento, além de visualizar relatórios e turnos.
+
+### Funcionalidades Implementadas
+
+#### 1. Abertura de Caixa
+- Botão "Abrir Caixa" que exibe um diálogo para iniciar as operações financeiras
+- Campo para informar o valor inicial em caixa (com validação de entrada)
+- Campo para identificação do operador responsável
+- Feedback visual através de notificação toast após confirmação
+- Botão muda para "Caixa Aberto" após confirmação e fica desabilitado
+
+#### 2. Dashboard Financeiro
+- Cards com informações resumidas:
+  - Total de vendas do dia (valor e quantidade de transações)
+  - Total de vendas em dinheiro (valor e quantidade de transações)
+  - Total de vendas em cartão (valor e quantidade de transações)
+  - Total de vendas em Pix (valor e quantidade de transações)
+
+#### 3. Abas de Gerenciamento
+- **Resumo**: exibe informações consolidadas das vendas
+  - Resumo financeiro (total bruto, descontos, taxa de serviço, total líquido)
+  - Gráfico de distribuição das formas de pagamento
+
+- **Transações**: exibe todas as transações realizadas em uma tabela
+  - Informações como ID, número do pedido, horário, tipo de pagamento, valor e status
+  - Badges para indicar status da transação (concluída ou pendente)
+  - Botões de ação para visualizar detalhes ou baixar comprovante
+
+- **Relatórios**: área preparada para futura implementação de relatórios financeiros
+
+- **Turnos**: área preparada para futura implementação de gestão de turnos
+
+### Como Usar
+1. **Abrir o Caixa**: Clique no botão "Abrir Caixa" no canto superior direito
+   - Informe o valor inicial em caixa (apenas números e vírgula são aceitos)
+   - O campo de operador já vem preenchido por padrão com "Administrador"
+   - Clique em "Confirmar Abertura" para iniciar as operações
+
+2. **Visualizar Resumo Financeiro**: Acesse a aba "Resumo" para ver:
+   - Total bruto de vendas
+   - Valores de descontos aplicados
+   - Valor da taxa de serviço (10%)
+   - Total líquido
+   - Distribuição percentual das formas de pagamento com representação visual
+
+3. **Consultar Transações**: Acesse a aba "Transações" para visualizar:
+   - Lista completa de transações realizadas
+   - Filtrar e ordenar transações (funcionalidade a ser implementada)
+   - Acessar detalhes de uma transação específica através do botão de visualização
+   - Baixar comprovante de transação através do botão de download
+
+### Próximas Implementações Previstas
+- Fechamento de caixa com balanço e relatório
+- Sangria (retirada de valores do caixa)
+- Suprimento (adição de valores ao caixa)
+- Conciliação de valores físicos e sistema
+- Relatórios financeiros detalhados por período
+- Gestão de turnos com abertura e fechamento
+
 ## Módulo de Produtos
 
 ### Visão Geral
