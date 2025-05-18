@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [0.4.0] - 2025-05-18
+### Corrigido
+- Corrigido erro de renderização relacionado ao uso de componentes de formulário:
+  - Substituídos componentes FormLabel por labels HTML padrão
+  - O erro "Cannot destructure property 'getFieldState' of 'useFormContext(...)' as it is null" foi resolvido
+
 ## [0.3.0] - 2025-05-18
 ### Adicionado
 - Implementação completa da funcionalidade de edição de produtos:

@@ -22,7 +22,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Pencil, EyeIcon, Trash2 } from "lucide-react";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 
 // Mock data for products
 const mockProducts = [
@@ -296,7 +295,7 @@ const Products = () => {
           
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <FormLabel className="text-right">Nome</FormLabel>
+              <label className="text-right font-medium">Nome</label>
               <Input 
                 className="col-span-3" 
                 value={editedProduct.name} 
@@ -305,7 +304,7 @@ const Products = () => {
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
-              <FormLabel className="text-right">Categoria</FormLabel>
+              <label className="text-right font-medium">Categoria</label>
               <Input 
                 className="col-span-3" 
                 value={editedProduct.category} 
@@ -314,7 +313,7 @@ const Products = () => {
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
-              <FormLabel className="text-right">Preço (R$)</FormLabel>
+              <label className="text-right font-medium">Preço (R$)</label>
               <Input 
                 type="number" 
                 step="0.01" 
@@ -325,7 +324,7 @@ const Products = () => {
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
-              <FormLabel className="text-right">Estoque</FormLabel>
+              <label className="text-right font-medium">Estoque</label>
               <Input 
                 type="number" 
                 className="col-span-3" 
@@ -335,7 +334,7 @@ const Products = () => {
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
-              <FormLabel className="text-right">Status</FormLabel>
+              <label className="text-right font-medium">Status</label>
               <div className="col-span-3 flex items-center space-x-2">
                 <input
                   type="checkbox" 

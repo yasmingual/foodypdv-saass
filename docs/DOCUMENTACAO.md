@@ -53,9 +53,9 @@ O módulo de produtos permite o gerenciamento completo do catálogo de produtos 
 
 ### Correções Implementadas
 - Substituição dos ícones SVG inline por componentes importados do lucide-react
-- Correção do funcionamento dos botões de editar, visualizar e excluir
+- Substituição de componentes FormLabel por labels HTML padrão para resolver erros de contexto de formulário
+- Correção do funcionamento dos diálogos de edição e visualização de produtos
 - Melhoria na visualização dos ícones para maior clareza de uso
-- Implementação de diálogos completos para edição e visualização dos produtos
 
 ### Próximos Passos para Implementação
 - Criar página de detalhes do produto
@@ -63,3 +63,4 @@ O módulo de produtos permite o gerenciamento completo do catálogo de produtos 
 - Adicionar upload de imagens para produtos
 - Conectar com API backend/Supabase para persistência de dados
 - Implementar controle de permissões por usuário
+- Refatorar o arquivo Products.tsx em componentes menores para melhorar a manutenibilidade
