@@ -253,10 +253,21 @@ export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children 
 
   // Atualizar status do pedido
   const updateOrderStatus = (orderId: number, newStatus: Order["status"]) => {
+    console.log(`Atualizando pedido ${orderId} para status: ${newStatus}`);
+    
     setOrders(prevOrders => 
-      prevOrders.map(order => 
-        order.id === orderId ? { ...order, status: newStatus } : order
-      )
+      prevOrders.map(order => {
+        if (order.id === orderId) {
+          // Se o pedido estiver sendo marcado como completo (completed),
+          // automaticamente marca como pronto para pagamento (ready)
+          if (newStatus === "completed") {
+            console.log(`Pedido ${orderId} completo, marcando como pronto para pagamento`);
+            return { ...order, status: "ready" };
+          }
+          return { ...order, status: newStatus };
+        }
+        return order;
+      })
     );
   };
 
