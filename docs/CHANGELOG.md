@@ -7,6 +7,7 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 ### Corrigido
 - Corrigido erro de importação em Settings.tsx que impedia a página de configurações de carregar
+- Corrigido o sistema de impressão de cupom fiscal para mostrar apenas o cupom e não a tela inteira do sistema
 
 ## [0.4.0] - 2025-05-19
 

@@ -86,6 +86,13 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
             h1, h2 {
               margin: 5px 0;
             }
+            @media print {
+              body {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+              }
+            }
           </style>
         </head>
         <body>
