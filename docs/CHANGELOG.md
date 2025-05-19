@@ -5,6 +5,9 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 ## [Não lançado]
 
+### Corrigido
+- Corrigido erro de importação em Settings.tsx que impedia a página de configurações de carregar
+
 ## [0.4.0] - 2025-05-19
 
 ### Adicionado

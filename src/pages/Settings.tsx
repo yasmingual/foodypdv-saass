@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import { Layout } from "@/components/layout/Layout";
 import { Header } from "@/components/layout/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -14,51 +13,54 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState("general");
 
   return (
-    <Layout>
-      <Header 
-        title="Configurações do Sistema" 
-        subtitle="Personalize o sistema conforme suas necessidades" 
-      />
-      
-      <div className="p-6">
-        <Card className="p-6">
-          <Tabs 
-            defaultValue="general" 
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="w-full"
-          >
-            <TabsList className="grid grid-cols-5 mb-8">
-              <TabsTrigger value="general">Geral</TabsTrigger>
-              <TabsTrigger value="printer">Impressão</TabsTrigger>
-              <TabsTrigger value="appearance">Aparência</TabsTrigger>
-              <TabsTrigger value="integrations">Integrações</TabsTrigger>
-              <TabsTrigger value="backup">Backup</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="general">
-              <GeneralSettings />
-            </TabsContent>
-            
-            <TabsContent value="printer">
-              <PrinterSettings />
-            </TabsContent>
-            
-            <TabsContent value="appearance">
-              <AppearanceSettings />
-            </TabsContent>
-            
-            <TabsContent value="integrations">
-              <IntegrationSettings />
-            </TabsContent>
-            
-            <TabsContent value="backup">
-              <BackupSettings />
-            </TabsContent>
-          </Tabs>
-        </Card>
+    <div className="flex h-screen">
+      {/* Sidebar já está implementada globalmente */}
+      <div className="flex-1 flex flex-col">
+        <Header 
+          title="Configurações do Sistema" 
+          subtitle="Personalize o sistema conforme suas necessidades" 
+        />
+        
+        <div className="p-6 flex-1 overflow-y-auto">
+          <Card className="p-6">
+            <Tabs 
+              defaultValue="general" 
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
+              <TabsList className="grid grid-cols-5 mb-8">
+                <TabsTrigger value="general">Geral</TabsTrigger>
+                <TabsTrigger value="printer">Impressão</TabsTrigger>
+                <TabsTrigger value="appearance">Aparência</TabsTrigger>
+                <TabsTrigger value="integrations">Integrações</TabsTrigger>
+                <TabsTrigger value="backup">Backup</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="general">
+                <GeneralSettings />
+              </TabsContent>
+              
+              <TabsContent value="printer">
+                <PrinterSettings />
+              </TabsContent>
+              
+              <TabsContent value="appearance">
+                <AppearanceSettings />
+              </TabsContent>
+              
+              <TabsContent value="integrations">
+                <IntegrationSettings />
+              </TabsContent>
+              
+              <TabsContent value="backup">
+                <BackupSettings />
+              </TabsContent>
+            </Tabs>
+          </Card>
+        </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 
