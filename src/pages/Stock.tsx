@@ -1,304 +1,294 @@
 
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, PackagePlus, Filter, Search as SearchIcon, Edit, Trash, Plus, Minus, Eye } from "lucide-react";
-import { useStock, StockItem } from "@/context/StockContext";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddStockItemDialog } from "@/components/stock/AddStockItemDialog";
-import { UpdateQuantityDialog } from "@/components/stock/UpdateQuantityDialog";
 import { EditStockItemDialog } from "@/components/stock/EditStockItemDialog";
+import { UpdateQuantityDialog } from "@/components/stock/UpdateQuantityDialog";
 import { DeleteConfirmDialog } from "@/components/stock/DeleteConfirmDialog";
 import { StockItemDetailsDialog } from "@/components/stock/StockItemDetailsDialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useStock } from "@/context/StockContext";
+import { toast } from "sonner";
 
 const Stock = () => {
-  const { 
-    stockItems, 
-    addStockItem, 
-    updateStockItem, 
-    deleteStockItem, 
-    updateQuantity,
-    getStockStatus,
-    getLowStockItems,
-    getStockCategories,
-    getStockValue
-  } = useStock();
+  const { stockItems, categories, addStockItem, updateStockItem, updateQuantity, removeStockItem } = useStock();
   
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Todos");
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [updateQuantityDialogOpen, setUpdateQuantityDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<StockItem | null>(null);
-  const [filterOpen, setFilterOpen] = useState(false);
+  const [filter, setFilter] = useState<string>("all");
+  const [search, setSearch] = useState<string>("");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
+  const [isQuantityDialogOpen, setIsQuantityDialogOpen] = useState<boolean>(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState<boolean>(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
 
-  // Filtrar itens
-  const filteredItems = stockItems.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.category.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === "Todos" || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+  // Dados para os cards informativos
+  const [stats, setStats] = useState({
+    totalItems: 0,
+    lowStockItems: 0,
+    categories: 0,
+    totalValue: 0
   });
 
-  // Categorias disponíveis
-  const categories = getStockCategories();
+  useEffect(() => {
+    // Calcular estatísticas
+    const totalItems = stockItems.length;
+    const lowStockItems = stockItems.filter(item => item.quantity <= item.minQuantity).length;
+    const uniqueCategories = new Set(stockItems.map(item => item.category)).size;
+    const totalValue = stockItems.reduce((sum, item) => sum + (item.quantity * item.cost), 0);
+    
+    setStats({
+      totalItems,
+      lowStockItems,
+      categories: uniqueCategories,
+      totalValue
+    });
+  }, [stockItems]);
 
-  // Funções para abrir diálogos
-  const openUpdateQuantityDialog = (item: StockItem) => {
-    setSelectedItem(item);
-    setUpdateQuantityDialogOpen(true);
+  // Filtragem de itens
+  const filteredItems = stockItems.filter(item => {
+    // Filtro por categoria
+    if (filter !== "all" && item.category !== filter) return false;
+    
+    // Filtro por pesquisa (nome ou código)
+    if (search && !item.name.toLowerCase().includes(search.toLowerCase()) && 
+        !item.sku.toLowerCase().includes(search.toLowerCase())) return false;
+    
+    return true;
+  });
+
+  const handleAddItem = (newItem: any) => {
+    addStockItem(newItem);
+    setIsAddDialogOpen(false);
+    toast.success("Item adicionado ao estoque com sucesso!");
   };
 
-  const openEditDialog = (item: StockItem) => {
-    setSelectedItem(item);
-    setEditDialogOpen(true);
+  const handleEditItem = (updatedItem: any) => {
+    updateStockItem(updatedItem.id, updatedItem);
+    setIsEditDialogOpen(false);
+    toast.success("Item atualizado com sucesso!");
   };
 
-  const openDeleteDialog = (item: StockItem) => {
-    setSelectedItem(item);
-    setDeleteDialogOpen(true);
+  const handleUpdateQuantity = (id: number, change: number, reason: string) => {
+    updateQuantity(id, change, reason);
+    setIsQuantityDialogOpen(false);
+    
+    if (change > 0) {
+      toast.success(`Quantidade adicionada: ${change} unidades`);
+    } else {
+      toast.success(`Quantidade removida: ${Math.abs(change)} unidades`);
+    }
   };
 
-  const openDetailsDialog = (item: StockItem) => {
-    setSelectedItem(item);
-    setDetailsDialogOpen(true);
-  };
-
-  // Formatar valor monetário
-  const formatCurrency = (value: number) => {
-    return `R$ ${value.toFixed(2).replace(".", ",")}`;
+  const handleDeleteItem = (id: number) => {
+    removeStockItem(id);
+    setIsDeleteDialogOpen(false);
+    toast.success("Item removido do estoque!");
   };
 
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header title="Estoque" subtitle="Controle de Estoque" />
+        <Header title="Estoque" subtitle="Gerenciamento de Inventário" />
         <main className="flex-1 p-6 overflow-auto">
-          {/* Cards de estatísticas */}
+          {/* Cards de resumo */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total de Itens</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold flex items-center">
-                  <Package className="mr-2 h-5 w-5 text-muted-foreground" />
-                  {stockItems.length}
-                </div>
+            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+              <CardContent className="p-6">
+                <div className="text-sm font-medium text-muted-foreground mb-1">Total de Itens</div>
+                <div className="text-2xl font-bold">{stats.totalItems}</div>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Itens com Estoque Baixo</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-amber-500">
-                  {getLowStockItems().length}
-                </div>
+            
+            <Card className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
+              <CardContent className="p-6">
+                <div className="text-sm font-medium text-muted-foreground mb-1">Estoque Baixo</div>
+                <div className="text-2xl font-bold">{stats.lowStockItems}</div>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Categorias</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {categories.length - 1} {/* -1 para excluir a opção "Todos" */}
-                </div>
+            
+            <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+              <CardContent className="p-6">
+                <div className="text-sm font-medium text-muted-foreground mb-1">Categorias</div>
+                <div className="text-2xl font-bold">{stats.categories}</div>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Valor do Estoque</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {formatCurrency(getStockValue())}
-                </div>
+            
+            <Card className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20">
+              <CardContent className="p-6">
+                <div className="text-sm font-medium text-muted-foreground mb-1">Valor Total</div>
+                <div className="text-2xl font-bold">R$ {stats.totalValue.toFixed(2)}</div>
               </CardContent>
             </Card>
           </div>
-
-          {/* Área de busca e filtros */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-            <div className="flex gap-2 w-full md:w-1/3">
+          
+          {/* Barra de ações */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="flex-1">
               <Input
-                placeholder="Buscar no estoque..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1"
-                prefix={<SearchIcon className="h-4 w-4 text-muted-foreground" />}
+                placeholder="Buscar por nome ou código..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <div className="flex gap-2 w-full md:w-auto">
-              <Button 
-                variant="outline" 
-                onClick={() => setFilterOpen(!filterOpen)}
-              >
-                <Filter className="mr-2 h-4 w-4" />
-                Filtrar
-              </Button>
-              <Button onClick={() => setAddDialogOpen(true)}>
-                <PackagePlus className="mr-2 h-4 w-4" />
-                Adicionar Item
-              </Button>
+            
+            <div className="w-full sm:w-64">
+              <Select value={filter} onValueChange={setFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filtrar por categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as categorias</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>{category}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+            
+            <Button onClick={() => setIsAddDialogOpen(true)}>
+              Adicionar Item
+            </Button>
           </div>
-
-          {/* Categorias de filtro */}
-          {filterOpen && (
-            <div className="flex flex-wrap gap-2 mb-4">
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
-          )}
-
+          
           {/* Tabela de itens */}
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
+          <div className="bg-white rounded-md shadow">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Código</TableHead>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Categoria</TableHead>
+                  <TableHead>Quantidade</TableHead>
+                  <TableHead>Mín.</TableHead>
+                  <TableHead>Preço Custo</TableHead>
+                  <TableHead>Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredItems.length === 0 ? (
                   <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Categoria</TableHead>
-                    <TableHead className="text-right">Quantidade</TableHead>
-                    <TableHead>Unidade</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Preço</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      Nenhum item encontrado
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredItems.map((item) => {
-                    const { status, color } = getStockStatus(item);
-                    return (
-                      <TableRow key={item.id}>
-                        <TableCell className="font-medium">{item.name}</TableCell>
-                        <TableCell>{item.category}</TableCell>
-                        <TableCell className="text-right">{item.quantity}</TableCell>
-                        <TableCell>{item.unit}</TableCell>
-                        <TableCell>
-                          <Badge className={`${color}`}>
-                            {status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {item.purchasePrice 
-                            ? formatCurrency(item.purchasePrice) 
-                            : "-"
-                          }
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="icon" onClick={() => openDetailsDialog(item)}>
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              onClick={() => openUpdateQuantityDialog(item)}
-                              className="text-pdv-primary"
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              onClick={() => {
-                                setSelectedItem(item);
-                                setUpdateQuantityDialogOpen(true);
-                              }}
-                              className="text-pdv-accent"
-                            >
-                              <Minus className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" onClick={() => openEditDialog(item)}>
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              onClick={() => openDeleteDialog(item)}
-                              className="text-pdv-danger"
-                            >
-                              <Trash className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                  {filteredItems.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center py-6">
-                        <div className="flex flex-col items-center justify-center text-muted-foreground">
-                          <Package className="h-12 w-12 mb-2" />
-                          <p className="text-lg">Nenhum item encontrado</p>
-                          <p className="text-sm">
-                            {searchQuery || selectedCategory !== "Todos" 
-                              ? "Tente ajustar os filtros de busca" 
-                              : "Adicione itens ao estoque para começar"
-                            }
-                          </p>
+                ) : (
+                  filteredItems.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium">{item.sku}</TableCell>
+                      <TableCell>{item.name}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{item.category}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <span className={`mr-2 ${item.quantity <= item.minQuantity ? 'text-red-500 font-bold' : ''}`}>
+                            {item.quantity}
+                          </span>
+                          {item.quantity <= item.minQuantity && (
+                            <Badge variant="outline" className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                              Baixo
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{item.minQuantity}</TableCell>
+                      <TableCell>R$ {item.cost.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <div className="flex space-x-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedItem(item);
+                              setIsDetailsDialogOpen(true);
+                            }}
+                          >
+                            Detalhes
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedItem(item);
+                              setIsQuantityDialogOpen(true);
+                            }}
+                          >
+                            Qtd
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedItem(item);
+                              setIsEditDialogOpen(true);
+                            }}
+                          >
+                            Editar
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => {
+                              setSelectedItem(item);
+                              setIsDeleteDialogOpen(true);
+                            }}
+                          >
+                            Excluir
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </main>
       </div>
-
+      
       {/* Diálogos */}
       <AddStockItemDialog
-        open={addDialogOpen}
-        onOpenChange={setAddDialogOpen}
-        onSubmit={addStockItem}
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        categories={categories}
+        onSave={handleAddItem}
       />
-
-      <UpdateQuantityDialog
-        open={updateQuantityDialogOpen}
-        onOpenChange={setUpdateQuantityDialogOpen}
-        item={selectedItem}
-        onSubmit={updateQuantity}
-      />
-
+      
       <EditStockItemDialog
-        open={editDialogOpen}
-        onOpenChange={setEditDialogOpen}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
         item={selectedItem}
-        onSubmit={updateStockItem}
+        categories={categories}
+        onSave={handleEditItem}
       />
-
+      
+      <UpdateQuantityDialog
+        open={isQuantityDialogOpen}
+        onOpenChange={setIsQuantityDialogOpen}
+        item={selectedItem}
+        onUpdate={handleUpdateQuantity}
+      />
+      
       <DeleteConfirmDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
         item={selectedItem}
-        onConfirm={deleteStockItem}
+        onConfirm={handleDeleteItem}
       />
-
+      
       <StockItemDetailsDialog
-        open={detailsDialogOpen}
-        onOpenChange={setDetailsDialogOpen}
+        open={isDetailsDialogOpen}
+        onOpenChange={setIsDetailsDialogOpen}
         item={selectedItem}
-        getStockStatus={getStockStatus}
       />
     </div>
   );

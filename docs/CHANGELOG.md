@@ -19,6 +19,7 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 - Adicionado sistema de notificações de toast para ações no KDS
 
 ### Corrigido
+- Corrigido erro de compilação relacionado à tipagem em src/pages/Stock.tsx
 - Corrigido erro de importação em Settings.tsx que impedia a página de configurações de carregar
 - Corrigido o sistema de impressão de cupom fiscal para mostrar apenas o cupom e não a tela inteira do sistema
 - Corrigido o problema onde transações de pedidos pendentes não eram exibidas nos cards do caixa
