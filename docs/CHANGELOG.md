@@ -5,17 +5,25 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 ## [Não lançado]
 
+### Adicionado
+- Implementado sistema completo de gerenciamento de estoque
+  - Adicionada funcionalidade para cadastrar novos itens no estoque
+  - Adicionada funcionalidade para editar informações dos itens
+  - Adicionada funcionalidade para atualizar quantidades (adicionar/remover)
+  - Adicionada funcionalidade para visualizar detalhes dos itens
+  - Adicionada funcionalidade para filtrar por categoria e pesquisar itens
+  - Adicionado sistema de alerta para itens com estoque baixo
+  - Implementada persistência dos dados no localStorage
+- Adicionada funcionalidade para finalizar automaticamente pedidos prontos no KDS
+- Adicionada opção de finalização em lote de pedidos selecionados no KDS
+- Adicionado sistema de notificações de toast para ações no KDS
+
 ### Corrigido
 - Corrigido erro de importação em Settings.tsx que impedia a página de configurações de carregar
 - Corrigido o sistema de impressão de cupom fiscal para mostrar apenas o cupom e não a tela inteira do sistema
 - Corrigido o problema onde transações de pedidos pendentes não eram exibidas nos cards do caixa
 - Removidos dados mockados do caixa, agora exibindo apenas dados reais baseados nos pedidos processados
 - Removidos dados mockados do Dashboard, agora exibindo informações reais baseadas nos pedidos processados
-
-### Adicionado
-- Adicionada funcionalidade para finalizar automaticamente pedidos prontos no KDS
-- Adicionada opção de finalização em lote de pedidos selecionados no KDS
-- Adicionado sistema de notificações de toast para ações no KDS
 
 ## [0.4.0] - 2025-05-19
 
