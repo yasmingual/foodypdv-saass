@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [1.0.8] - 2025-05-19
+### Corrigido
+- Ajuste no layout da tela de recebimento de pagamento para garantir que todos os valores sejam exibidos corretamente
+- Adicionado scroll em listas longas de itens no diálogo de pagamento
+- Melhorado o layout responsivo do diálogo de pagamento em dispositivos móveis
+
 ## [1.0.7] - 2025-05-19
 ### Adicionado
 - Funcionalidade de impressão de cupom no diálogo de pagamento do Caixa

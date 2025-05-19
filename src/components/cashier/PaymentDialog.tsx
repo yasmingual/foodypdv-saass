@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -226,7 +226,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Receber Pagamento</DialogTitle>
           <DialogDescription>
@@ -234,10 +234,10 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
           </DialogDescription>
         </DialogHeader>
         
-        <div className="py-4 space-y-4">
+        <div className="py-2 space-y-4">
           <div className="space-y-2">
             <h3 className="text-sm font-medium">Itens do pedido</h3>
-            <div className="text-sm">
+            <div className="text-sm max-h-[20vh] overflow-y-auto pr-2">
               {order.items.map((item, index) => (
                 <div key={index} className="flex justify-between py-1">
                   <span>{item.quantity}x {item.name}</span>
@@ -247,12 +247,12 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
           </div>
           
           <div className="border-t pt-2">
-            <div className="flex justify-between font-medium">
+            <div className="flex justify-between font-medium text-sm">
               <span>Subtotal:</span>
               <span>R$ {(order.hasServiceFee ? totalAmount / 1.1 : totalAmount).toFixed(2)}</span>
             </div>
             {order.hasServiceFee && (
-              <div className="flex justify-between">
+              <div className="flex justify-between text-sm">
                 <span>Taxa de Serviço (10%):</span>
                 <span>R$ {(totalAmount - (totalAmount / 1.1)).toFixed(2)}</span>
               </div>
@@ -263,24 +263,26 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
             </div>
           </div>
           
-          <div className="space-y-3">
+          <div className="space-y-2">
             <h3 className="text-sm font-medium">Forma de pagamento</h3>
             <RadioGroup defaultValue="Dinheiro" onValueChange={(value) => setPaymentMethod(value as Order["paymentMethod"])}>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Dinheiro" id="payment-cash" />
-                <Label htmlFor="payment-cash">Dinheiro</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Crédito" id="payment-credit" />
-                <Label htmlFor="payment-credit">Cartão de Crédito</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Débito" id="payment-debit" />
-                <Label htmlFor="payment-debit">Cartão de Débito</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Pix" id="payment-pix" />
-                <Label htmlFor="payment-pix">Pix</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="Dinheiro" id="payment-cash" />
+                  <Label htmlFor="payment-cash">Dinheiro</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="Crédito" id="payment-credit" />
+                  <Label htmlFor="payment-credit">Cartão de Crédito</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="Débito" id="payment-debit" />
+                  <Label htmlFor="payment-debit">Cartão de Débito</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="Pix" id="payment-pix" />
+                  <Label htmlFor="payment-pix">Pix</Label>
+                </div>
               </div>
             </RadioGroup>
           </div>
