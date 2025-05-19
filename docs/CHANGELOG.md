@@ -11,6 +11,11 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 - Corrigido o problema onde transações de pedidos pendentes não eram exibidas nos cards do caixa
 - Removidos dados mockados do caixa, agora exibindo apenas dados reais baseados nos pedidos processados
 
+### Adicionado
+- Adicionada funcionalidade para finalizar automaticamente pedidos prontos no KDS
+- Adicionada opção de finalização em lote de pedidos selecionados no KDS
+- Adicionado sistema de notificações de toast para ações no KDS
+
 ## [0.4.0] - 2025-05-19
 
 ### Adicionado
