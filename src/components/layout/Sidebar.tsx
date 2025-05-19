@@ -11,7 +11,8 @@ import {
   DollarSign,
   Package,
   Tag,
-  Menu
+  Menu,
+  Settings
 } from "lucide-react";
 
 type NavItem = {
@@ -29,6 +30,7 @@ const navItems: NavItem[] = [
   { icon: DollarSign, label: "Caixa", path: "/cashier" },
   { icon: FolderTree, label: "Produtos", path: "/products" },
   { icon: Tag, label: "Categorias", path: "/categories" },
+  { icon: Settings, label: "Configurações", path: "/settings" },
 ];
 
 export function Sidebar() {

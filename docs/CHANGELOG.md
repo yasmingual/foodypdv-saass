@@ -1,77 +1,50 @@
 
 # Changelog
 
-## [1.0.10] - 2025-05-19
-### Melhorado
-- Refatorado o componente PaymentDialog.tsx em componentes menores e mais reutilizáveis
-- Criado componentes separados para itens do pedido, resumo do pedido, seleção de método de pagamento e ações de pagamento
-- Corrigido erro de exportação do componente OrderReceipt
-- Melhorado a estrutura do código para maior manutenibilidade
+Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
-## [1.0.9] - 2025-05-19
+## [Não lançado]
+
+## [0.4.0] - 2025-05-19
+
+### Adicionado
+- Implementada área de configurações do sistema com opções robustas
+- Adicionadas configurações gerais para informações do estabelecimento e notificações
+- Adicionadas configurações detalhadas de impressão e personalização de layout do cupom
+- Adicionadas configurações de aparência com opções de tema e layout
+- Adicionadas configurações de integrações com serviços externos
+- Adicionadas configurações de backup e restauração do sistema
+- Criada documentação completa sobre as configurações disponíveis
+
+### Modificado
+- Atualizado o menu lateral para incluir link para configurações
+- Refatoração dos componentes de OrderItems, OrderSummary e PaymentActions para melhorar a modularidade
+
+## [0.3.0] - 2025-04-30
+
 ### Corrigido
-- Os cards do caixa agora são atualizados automaticamente quando pagamentos são processados
-- Transações são adicionadas dinamicamente à lista de transações após pagamento
-- Implementado callback de pagamento concluído para atualização de estatísticas
+- Corrigido problema onde os cards do caixa não eram atualizados após o recebimento dos pedidos pendentes
+- Implementada atualização dinâmica dos dados de transações após o processamento de um pagamento
 
-## [1.0.8] - 2025-05-19
+## [0.2.0] - 2025-04-15
+
 ### Corrigido
-- Ajuste no layout da tela de recebimento de pagamento para garantir que todos os valores sejam exibidos corretamente
-- Adicionado scroll em listas longas de itens no diálogo de pagamento
-- Melhorado o layout responsivo do diálogo de pagamento em dispositivos móveis
+- Corrigidos problemas de layout na tela de recebimento, onde valores eram mostrados fora da área visível
+- Adicionada rolagem e redução de padding para melhor visualização
+- Limitada altura da lista de itens para evitar overflow
+- Otimizado o layout dos métodos de pagamento
 
-## [1.0.7] - 2025-05-19
+### Refatorado
+- Refatorado o componente `PaymentDialog.tsx` para componentes menores e reutilizáveis:
+  - `OrderItems`: para mostrar os itens do pedido
+  - `OrderSummary`: para calcular e exibir os totais
+  - `PaymentMethodSelector`: para seleção do método de pagamento
+  - `PaymentActions`: para ações de impressão e finalização
+
+## [0.1.0] - 2025-04-01
+
 ### Adicionado
-- Funcionalidade de impressão de cupom no diálogo de pagamento do Caixa
-- Botão dedicado para impressão antes de finalizar o pagamento
-- Inclusão da forma de pagamento selecionada no cupom impresso
-
-## [1.0.6] - 2025-05-18
-### Adicionado
-- Integração do fluxo de pagamento no Caixa
-- Aba de pedidos pendentes para pagamento no Caixa
-- Diálogo de pagamento com diferentes métodos (Dinheiro, Crédito, Débito, Pix)
-- Status de pedido pago e registro das transações
-- Cálculo automático do total da venda incluindo taxa de serviço quando aplicável
-
-## [1.0.5] - 2025-05-18
-### Adicionado
-- Taxa de serviço opcional (10%) nos pedidos
-- Checkbox para habilitar/desabilitar a taxa de serviço
-- Atualização no cupom fiscal para refletir se a taxa foi aplicada
-- Cálculo automático do total com ou sem a taxa de serviço
-
-## [1.0.4] - 2025-05-18
-### Adicionado
-- Funcionalidade de impressão de cupons para pedidos
-- Componente OrderReceipt para exibição e impressão de detalhes do pedido 
-- Botão de impressão para todos os tipos de pedido (Mesa, Retirada, Delivery)
-- Layout completo de cupom fiscal não oficial com dados do estabelecimento
-
-## [1.0.3] - 2025-05-18
-### Adicionado
-- Implementação do formulário de dados de entrega para pedidos do tipo Delivery
-- Armazenamento dos dados do cliente para referência e entrega
-- Exibição dos dados de entrega na tela de pedidos
-- Validação de campos no formulário de entrega
-
-## [1.0.2] - 2025-05-18
-### Adicionado
-- Funcionalidade para editar pedidos em aberto adicionando novos produtos
-- Interface para visualizar produtos disponíveis e adicioná-los a pedidos existentes
-- Diálogo de edição de pedidos com filtros e busca de produtos
-
-## [1.0.1] - 2025-05-18
-### Corrigido
-- Adicionado link para a página de Pedidos na sidebar para fácil acesso
-- Corrigida integração entre PDV e a página de Pedidos para garçons/atendentes
-
-## [1.0.0] - 2025-05-18
-### Adicionado
-- Criação do Painel de Controle (Dashboard)
-- Desenvolvimento do PDV (Ponto de Venda)
-- Implementação da KDS (Kitchen Display System)
-- Criação da tela de Pedidos para Atendentes
-- Integração entre PDV, KDS e tela de Pedidos
-- Sistema de gerenciamento de status de pedidos
-- Documentação da tela de Pedidos para Atendentes
+- Lançamento inicial do sistema FoodPOS
+- Implementação das funcionalidades básicas de PDV
+- Implementação do Caixa para recebimento de pedidos
+- Implementação do KDS para cozinha

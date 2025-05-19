@@ -14,6 +14,7 @@ import Cashier from "./pages/Cashier";
 import Products from "./pages/Products";
 import Categories from "./pages/Categories";
 import Orders from "./pages/Orders";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/products" element={<Products />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
