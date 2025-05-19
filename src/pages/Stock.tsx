@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -271,7 +272,7 @@ const Stock = () => {
         open={isQuantityDialogOpen}
         onOpenChange={setIsQuantityDialogOpen}
         item={selectedItem}
-        onUpdate={(id, quantity, isIncrement) => handleUpdateQuantity(id, quantity, isIncrement)}
+        onConfirm={handleUpdateQuantity}
       />
       
       <DeleteConfirmDialog

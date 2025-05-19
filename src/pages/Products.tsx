@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useRef, ChangeEvent } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
@@ -38,7 +39,7 @@ const mockProducts = [
   { id: 10, name: "Hamburguer Veggie", category: "Lanches", price: 22.5, stock: 5, active: false, imageUrl: "" },
 ];
 
-// Mock data para categorias (extraído das categorias usadas nos produtos)
+// Mock data para categorias
 const mockCategories = [
   { id: 1, name: "Lanches", productsCount: 12, active: true },
   { id: 2, name: "Porções", productsCount: 8, active: true },
@@ -63,6 +64,11 @@ const Products = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
   const [editIsUploading, setEditIsUploading] = useState(false);
+  
+  // Refs para os inputs de arquivo (para resetá-los quando necessário)
+  const newImageInputRef = useRef<HTMLInputElement>(null);
+  const editImageInputRef = useRef<HTMLInputElement>(null);
+  
   const [editedProduct, setEditedProduct] = useState<any>({
     name: "",
     category: "",
@@ -121,6 +127,9 @@ const Products = () => {
     const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/avif'];
     if (!allowedTypes.includes(file.type)) {
       toast.error("Formato de imagem não suportado. Use PNG, JPG, JPEG, WEBP ou AVIF.");
+      if (newImageInputRef.current) {
+        newImageInputRef.current.value = '';
+      }
       return;
     }
 
@@ -152,6 +161,9 @@ const Products = () => {
     const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/avif'];
     if (!allowedTypes.includes(file.type)) {
       toast.error("Formato de imagem não suportado. Use PNG, JPG, JPEG, WEBP ou AVIF.");
+      if (editImageInputRef.current) {
+        editImageInputRef.current.value = '';
+      }
       return;
     }
 
@@ -430,10 +442,11 @@ const Products = () => {
                   </AvatarFallback>
                 </Avatar>
                 <Input
+                  ref={newImageInputRef}
                   type="file"
                   accept=".png,.jpg,.jpeg,.webp,.avif"
                   onChange={handleImageUpload}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
                   disabled={isUploading}
                 />
                 {isUploading && (
@@ -443,6 +456,9 @@ const Products = () => {
                 )}
               </div>
             </div>
+            <p className="text-center text-sm text-muted-foreground">
+              Clique na imagem para anexar uma foto (PNG, JPG, JPEG, WEBP, AVIF)
+            </p>
             
             <div className="grid grid-cols-4 items-center gap-4">
               <label className="text-right font-medium">Nome</label>
@@ -481,7 +497,7 @@ const Products = () => {
                 step="0.01" 
                 className="col-span-3" 
                 value={newProduct.price} 
-                onChange={(e) => handleNewProductFieldChange("price", parseFloat(e.target.value))}
+                onChange={(e) => handleNewProductFieldChange("price", parseFloat(e.target.value) || 0)}
               />
             </div>
             
@@ -491,7 +507,7 @@ const Products = () => {
                 type="number" 
                 className="col-span-3" 
                 value={newProduct.stock} 
-                onChange={(e) => handleNewProductFieldChange("stock", parseInt(e.target.value))}
+                onChange={(e) => handleNewProductFieldChange("stock", parseInt(e.target.value) || 0)}
               />
             </div>
             
@@ -537,10 +553,11 @@ const Products = () => {
                   </AvatarFallback>
                 </Avatar>
                 <Input
+                  ref={editImageInputRef}
                   type="file"
                   accept=".png,.jpg,.jpeg,.webp,.avif"
                   onChange={handleEditImageUpload}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
                   disabled={editIsUploading}
                 />
                 {editIsUploading && (
@@ -550,6 +567,9 @@ const Products = () => {
                 )}
               </div>
             </div>
+            <p className="text-center text-sm text-muted-foreground">
+              Clique na imagem para anexar uma foto (PNG, JPG, JPEG, WEBP, AVIF)
+            </p>
             
             <div className="grid grid-cols-4 items-center gap-4">
               <label className="text-right font-medium">Nome</label>
@@ -588,7 +608,7 @@ const Products = () => {
                 step="0.01" 
                 className="col-span-3" 
                 value={editedProduct.price} 
-                onChange={(e) => handleEditFieldChange("price", parseFloat(e.target.value))}
+                onChange={(e) => handleEditFieldChange("price", parseFloat(e.target.value) || 0)}
               />
             </div>
             
@@ -598,7 +618,7 @@ const Products = () => {
                 type="number" 
                 className="col-span-3" 
                 value={editedProduct.stock} 
-                onChange={(e) => handleEditFieldChange("stock", parseInt(e.target.value))}
+                onChange={(e) => handleEditFieldChange("stock", parseInt(e.target.value) || 0)}
               />
             </div>
             
