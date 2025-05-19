@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { Button } from "@/components/ui/button"
@@ -59,6 +60,8 @@ const PDVMobile = () => {
   const isMobile = useIsMobile();
   
   // Redirecionar para PDV desktop se não for mobile
+  // Usamos useEffect com dependência vazia para só executar uma vez
+  // e evitar ciclo infinito de redirecionamentos
   useEffect(() => {
     if (isMobile === false) {
       navigate("/pdv");
@@ -271,7 +274,7 @@ const PDVMobile = () => {
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Overlay for sidebar */}
+      {/* Overlay para sidebar */}
       {sidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40" 
@@ -279,9 +282,9 @@ const PDVMobile = () => {
         />
       )}
 
-      {/* Fixed position sidebar with proper translation */}
+      {/* Sidebar com posição fixa e transição suave */}
       <div 
-        className={`fixed top-0 left-0 h-full z-50 transition-transform duration-300 ${
+        className={`fixed top-0 left-0 h-full z-50 transition-transform duration-300 ease-in-out ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -289,7 +292,7 @@ const PDVMobile = () => {
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header for Mobile */}
+        {/* Header para Mobile */}
         <div className="bg-background border-b p-4 flex items-center justify-between sticky top-0 z-30">
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
             <MenuIcon size={24} />
@@ -417,16 +420,12 @@ const PDVMobile = () => {
                   </Tabs>
                 </div>
                 
-                {/* Use flex-col with min-h-0 to make the overflow-y-auto work properly */}
+                {/* Área de rolagem para itens do carrinho com min-h-0 para garantir que funcione */}
                 <div className="flex-1 flex flex-col min-h-0">
                   <div className="flex-1 overflow-y-auto p-4">
                     {cart.length === 0 ? (
                       <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="9" cy="21" r="1"></circle>
-                          <circle cx="20" cy="21" r="1"></circle>
-                          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                        </svg>
+                        <ShoppingCart size={48} />
                         <p className="mt-4">Carrinho vazio</p>
                         <p className="text-sm">Adicione itens ao pedido</p>
                         <Button 
@@ -438,7 +437,7 @@ const PDVMobile = () => {
                         </Button>
                       </div>
                     ) : (
-                      <div className="space-y-4">
+                      <div className="space-y-4 pb-20">
                         {cart.map((item, index) => (
                           <div key={index} className="flex flex-col pb-4 border-b">
                             <div className="flex justify-between">
@@ -506,40 +505,42 @@ const PDVMobile = () => {
                       </div>
                     )}
                   </div>
-                
-                  {/* Make the footer stick to the bottom with auto margin top */}
-                  <div className="border-t p-4 space-y-4 bg-card">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span>R$ {calculateSubtotal().toFixed(2)}</span>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="service-fee-mobile" 
-                        checked={applyServiceFee}
-                        onCheckedChange={(checked) => setApplyServiceFee(checked === true)}
-                      />
-                      <label htmlFor="service-fee-mobile" className="text-sm text-muted-foreground cursor-pointer">
-                        Aplicar taxa de serviço (10%)
-                      </label>
-                      <span className="text-sm ml-auto">
-                        R$ {calculateServiceFee().toFixed(2)}
-                      </span>
-                    </div>
+                  
+                  {/* Rodapé fixo para mostrar sempre o resumo e botão de finalizar */}
+                  {cart.length > 0 && (
+                    <div className="border-t p-4 space-y-4 bg-card sticky bottom-0 shadow-md">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Subtotal</span>
+                        <span>R$ {calculateSubtotal().toFixed(2)}</span>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="service-fee-mobile" 
+                          checked={applyServiceFee}
+                          onCheckedChange={(checked) => setApplyServiceFee(checked === true)}
+                        />
+                        <label htmlFor="service-fee-mobile" className="text-sm text-muted-foreground cursor-pointer">
+                          Aplicar taxa de serviço (10%)
+                        </label>
+                        <span className="text-sm ml-auto">
+                          R$ {calculateServiceFee().toFixed(2)}
+                        </span>
+                      </div>
 
-                    <div className="flex justify-between font-medium text-lg pt-2 border-t">
-                      <span>Total</span>
-                      <span>R$ {calculateTotal().toFixed(2)}</span>
+                      <div className="flex justify-between font-medium text-lg pt-2 border-t">
+                        <span>Total</span>
+                        <span>R$ {calculateTotal().toFixed(2)}</span>
+                      </div>
+                      <Button 
+                        className="w-full py-6 text-lg"
+                        disabled={cart.length === 0}
+                        onClick={handleFinishOrder}
+                      >
+                        Finalizar Pedido
+                      </Button>
                     </div>
-                    <Button 
-                      className="w-full py-6 text-lg"
-                      disabled={cart.length === 0}
-                      onClick={handleFinishOrder}
-                    >
-                      Finalizar Pedido
-                    </Button>
-                  </div>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>
