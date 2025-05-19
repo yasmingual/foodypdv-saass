@@ -1,6 +1,13 @@
 
 # Changelog
 
+## [1.0.10] - 2025-05-19
+### Melhorado
+- Refatorado o componente PaymentDialog.tsx em componentes menores e mais reutilizáveis
+- Criado componentes separados para itens do pedido, resumo do pedido, seleção de método de pagamento e ações de pagamento
+- Corrigido erro de exportação do componente OrderReceipt
+- Melhorado a estrutura do código para maior manutenibilidade
+
 ## [1.0.9] - 2025-05-19
 ### Corrigido
 - Os cards do caixa agora são atualizados automaticamente quando pagamentos são processados

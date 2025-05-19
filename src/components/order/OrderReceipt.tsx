@@ -16,10 +16,17 @@ const RESTAURANT_INFO = {
 
 interface OrderReceiptProps {
   order: Order;
-  onClose: () => void;
+  onClose?: () => void;
+  paymentMethod?: Order["paymentMethod"];
+  showPaymentMethod?: boolean;
 }
 
-const OrderReceipt: React.FC<OrderReceiptProps> = ({ order, onClose }) => {
+export const OrderReceipt: React.FC<OrderReceiptProps> = ({ 
+  order, 
+  onClose,
+  paymentMethod,
+  showPaymentMethod = false
+}) => {
   const printRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = () => {
@@ -98,6 +105,7 @@ const OrderReceipt: React.FC<OrderReceiptProps> = ({ order, onClose }) => {
               <p>Pedido #${order.id}</p>
               <p>Data/Hora: ${order.time} - ${new Date().toLocaleDateString()}</p>
               <p>Tipo: ${translateOrderType(order.type)}</p>
+              ${showPaymentMethod && paymentMethod ? `<p>Forma de Pagamento: ${paymentMethod}</p>` : ''}
               ${order.type === "Mesa" ? `<p>Mesa: ${order.identifier}</p>` : ""}
               ${order.type === "Delivery" && order.deliveryInfo ? 
                 `<p>Cliente: ${order.deliveryInfo.clientName}</p>
@@ -226,6 +234,7 @@ const OrderReceipt: React.FC<OrderReceiptProps> = ({ order, onClose }) => {
             <p>Pedido #{order.id}</p>
             <p>Data/Hora: {order.time} - {new Date().toLocaleDateString()}</p>
             <p>Tipo: {translateOrderType(order.type)}</p>
+            {showPaymentMethod && paymentMethod && <p>Forma de Pagamento: {paymentMethod}</p>}
             
             {order.type === "Mesa" && (
               <p>Mesa: {order.identifier}</p>
@@ -294,11 +303,13 @@ const OrderReceipt: React.FC<OrderReceiptProps> = ({ order, onClose }) => {
           </div>
         </div>
 
-        <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={onClose}>
-            Fechar
-          </Button>
-        </div>
+        {onClose && (
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={onClose}>
+              Fechar
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
