@@ -22,9 +22,6 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
   - Adicionada funcionalidade para filtrar por categoria e pesquisar itens
   - Adicionado sistema de alerta para itens com estoque baixo
   - Implementada persistência dos dados no localStorage
-- Adicionada funcionalidade para finalizar automaticamente pedidos prontos no KDS
-- Adicionada opção de finalização em lote de pedidos selecionados no KDS
-- Adicionado sistema de notificações de toast para ações no KDS
 
 ### Corrigido
 - Corrigido erro de compilação relacionado à tipagem em src/pages/Stock.tsx
@@ -35,6 +32,7 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 - Removidos dados mockados do caixa, agora exibindo apenas dados reais baseados nos pedidos processados
 - Removidos dados mockados do Dashboard, agora exibindo informações reais baseadas nos pedidos processados
 - Corrigido problema de persistência no PDV, que agora exibe corretamente os produtos cadastrados no estoque e suas imagens
+- Corrigido filtro no PDV para garantir que apenas produtos válidos e devidamente cadastrados sejam exibidos
 
 ## [0.4.0] - 2025-05-19
 

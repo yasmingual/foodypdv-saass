@@ -88,16 +88,31 @@ const PDV = () => {
   const [applyServiceFee, setApplyServiceFee] = useState(false);
 
   // Converter itens do estoque para produtos do PDV
+  // Modificado para garantir que apenas produtos válidos sejam mostrados no PDV
   const convertStockToProducts = (): Product[] => {
     return stockItems
-      .filter(item => item.quantity > 0) // Apenas itens com estoque disponível
-      .map(item => ({
-        id: item.id,
-        name: item.name,
-        price: defaultPrices[item.name] || item.purchasePrice * 2 || 10.00, // Preço fictício ou markup do preço de compra
-        category: stockToPDVCategory[item.category] || "Outros",
-        imageUrl: item.imageUrl
-      }));
+      .filter(item => {
+        // Verificamos se o item tem nome, categoria e está cadastrado corretamente
+        return (
+          item.quantity > 0 && 
+          item.name && 
+          item.name.trim() !== "" &&
+          item.category
+        );
+      })
+      .map(item => {
+        // Determinamos o preço do produto (usando um valor padrão ou calculando)
+        const price = defaultPrices[item.name] || 
+                     (item.purchasePrice ? item.purchasePrice * 2 : 10.00);
+        
+        return {
+          id: item.id,
+          name: item.name,
+          price: price, 
+          category: stockToPDVCategory[item.category] || "Outros",
+          imageUrl: item.imageUrl
+        };
+      });
   };
 
   // Obter produtos convertidos do estoque
