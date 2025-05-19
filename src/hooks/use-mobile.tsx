@@ -23,7 +23,7 @@ export function useIsMobile() {
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
-  // Se ainda não foi determinado, retorne um valor padrão
+  // Se ainda não foi determinado, retorne um valor padrão baseado na largura atual da tela
   // Isso evita oscilações durante a hidratação do componente
-  return isMobile === null ? false : isMobile
+  return isMobile === null ? (typeof window !== 'undefined' ? window.innerWidth < MOBILE_BREAKPOINT : false) : isMobile
 }

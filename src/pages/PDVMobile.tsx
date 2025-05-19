@@ -16,6 +16,7 @@ import * as z from "zod"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useNavigate } from "react-router-dom"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { ShoppingCart, Search, Menu as MenuIcon, X } from "lucide-react"
 
 // Mock data para produtos
@@ -282,11 +283,12 @@ const PDVMobile = () => {
         />
       )}
 
-      {/* Sidebar com posição fixa e transição suave */}
+      {/* Sidebar com posição fixa e transição controlada */}
       <div 
-        className={`fixed top-0 left-0 h-full z-50 transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-full z-50 transition-transform duration-300 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
+        style={{ transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)' }}
       >
         <Sidebar />
       </div>
@@ -317,8 +319,8 @@ const PDVMobile = () => {
 
         <main className="flex-1 overflow-hidden flex flex-col">
           {/* Navegação entre produtos e carrinho */}
-          <div className="p-2 border-b sticky top-[73px] z-20 bg-background">
-            <Tabs value={activeView} onValueChange={(v) => setActiveView(v as "products" | "cart")} className="w-full">
+          <Tabs value={activeView} onValueChange={(v) => setActiveView(v as "products" | "cart")} className="flex-1 flex flex-col">
+            <div className="p-2 border-b sticky top-[73px] z-20 bg-background">
               <TabsList className="grid grid-cols-2 w-full">
                 <TabsTrigger value="products" className="text-base py-3">Produtos</TabsTrigger>
                 <TabsTrigger value="cart" className="text-base py-3">
@@ -330,114 +332,117 @@ const PDVMobile = () => {
                   )}
                 </TabsTrigger>
               </TabsList>
-              
-              <TabsContent value="products" className="flex-1 overflow-hidden flex flex-col mt-0 data-[state=inactive]:hidden">
-                {/* Busca e Filtros */}
-                <div className="p-4 border-b">
-                  <div className="flex gap-2 mb-4">
-                    <div className="relative flex-1">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
-                      <Input
-                        placeholder="Buscar produtos..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
-                    {mockCategories.map((category) => (
-                      <Button
-                        key={category}
-                        variant={activeCategory === category ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setActiveCategory(category)}
-                        className="whitespace-nowrap min-w-[80px]"
-                      >
-                        {category}
-                      </Button>
-                    ))}
+            </div>
+            
+            <TabsContent value="products" className="flex-1 overflow-hidden flex flex-col mt-0">
+              {/* Busca e Filtros */}
+              <div className="p-4 border-b">
+                <div className="flex gap-2 mb-4">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
+                    <Input
+                      placeholder="Buscar produtos..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
                   </div>
                 </div>
+                <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
+                  {mockCategories.map((category) => (
+                    <Button
+                      key={category}
+                      variant={activeCategory === category ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setActiveCategory(category)}
+                      className="whitespace-nowrap min-w-[80px]"
+                    >
+                      {category}
+                    </Button>
+                  ))}
+                </div>
+              </div>
 
-                {/* Lista de Produtos */}
-                <div className="flex-1 overflow-y-auto p-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    {filteredProducts.map((product) => (
-                      <Card 
-                        key={product.id} 
-                        className="cursor-pointer hover:border-primary transition-colors"
-                        onClick={() => openObservationDialog(product)}
-                      >
-                        <CardContent className="p-3 flex flex-col items-center">
-                          <div className="w-full aspect-square bg-muted rounded-md mb-2 flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
-                              <circle cx="12" cy="12" r="10"></circle>
-                              <line x1="14.31" y1="8" x2="20.05" y2="17.94"></line>
-                              <line x1="9.69" y1="8" x2="21.17" y2="8"></line>
-                              <line x1="7.38" y1="12" x2="13.12" y2="2.06"></line>
-                              <line x1="9.69" y1="16" x2="3.95" y2="6.06"></line>
-                              <line x1="14.31" y1="16" x2="2.83" y2="16"></line>
-                              <line x1="16.62" y1="12" x2="10.88" y2="21.94"></line>
-                            </svg>
-                          </div>
-                          <h3 className="font-medium text-center text-sm leading-tight">{product.name}</h3>
-                          <p className="text-pdv-primary font-bold mt-1 text-sm">
-                            R$ {product.price.toFixed(2)}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+              {/* Lista de Produtos */}
+              <div className="flex-1 overflow-y-auto p-4">
+                <div className="grid grid-cols-2 gap-3">
+                  {filteredProducts.map((product) => (
+                    <Card 
+                      key={product.id} 
+                      className="cursor-pointer hover:border-primary transition-colors"
+                      onClick={() => openObservationDialog(product)}
+                    >
+                      <CardContent className="p-3 flex flex-col items-center">
+                        <div className="w-full aspect-square bg-muted rounded-md mb-2 flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="14.31" y1="8" x2="20.05" y2="17.94"></line>
+                            <line x1="9.69" y1="8" x2="21.17" y2="8"></line>
+                            <line x1="7.38" y1="12" x2="13.12" y2="2.06"></line>
+                            <line x1="9.69" y1="16" x2="3.95" y2="6.06"></line>
+                            <line x1="14.31" y1="16" x2="2.83" y2="16"></line>
+                            <line x1="16.62" y1="12" x2="10.88" y2="21.94"></line>
+                          </svg>
+                        </div>
+                        <h3 className="font-medium text-center text-sm leading-tight">{product.name}</h3>
+                        <p className="text-pdv-primary font-bold mt-1 text-sm">
+                          R$ {product.price.toFixed(2)}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-              </TabsContent>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="cart" className="flex-1 flex flex-col mt-0 h-full">
+              <div className="p-4 border-b">
+                <Tabs defaultValue="mesa" value={orderType} onValueChange={setOrderType}>
+                  <TabsList className="grid grid-cols-3 w-full">
+                    <TabsTrigger value="mesa">Mesa</TabsTrigger>
+                    <TabsTrigger value="retirada">Retirada</TabsTrigger>
+                    <TabsTrigger value="delivery">Delivery</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="mesa" className="mt-2">
+                    <Input
+                      placeholder="Número da Mesa"
+                      value={tableNumber}
+                      onChange={(e) => setTableNumber(e.target.value)}
+                    />
+                  </TabsContent>
+                  <TabsContent value="retirada" className="mt-2">
+                    <p className="text-sm text-muted-foreground">
+                      Pedido para retirada no balcão
+                    </p>
+                  </TabsContent>
+                  <TabsContent value="delivery" className="mt-2">
+                    <p className="text-sm text-muted-foreground">
+                      Adicione os dados de entrega na próxima tela
+                    </p>
+                  </TabsContent>
+                </Tabs>
+              </div>
               
-              <TabsContent value="cart" className="flex-1 overflow-hidden flex flex-col mt-0 data-[state=inactive]:hidden">
-                <div className="p-4 border-b">
-                  <Tabs defaultValue="mesa" value={orderType} onValueChange={setOrderType}>
-                    <TabsList className="grid grid-cols-3 w-full">
-                      <TabsTrigger value="mesa">Mesa</TabsTrigger>
-                      <TabsTrigger value="retirada">Retirada</TabsTrigger>
-                      <TabsTrigger value="delivery">Delivery</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="mesa" className="mt-2">
-                      <Input
-                        placeholder="Número da Mesa"
-                        value={tableNumber}
-                        onChange={(e) => setTableNumber(e.target.value)}
-                      />
-                    </TabsContent>
-                    <TabsContent value="retirada" className="mt-2">
-                      <p className="text-sm text-muted-foreground">
-                        Pedido para retirada no balcão
-                      </p>
-                    </TabsContent>
-                    <TabsContent value="delivery" className="mt-2">
-                      <p className="text-sm text-muted-foreground">
-                        Adicione os dados de entrega na próxima tela
-                      </p>
-                    </TabsContent>
-                  </Tabs>
-                </div>
-                
-                {/* Área de rolagem para itens do carrinho com min-h-0 para garantir que funcione */}
-                <div className="flex-1 flex flex-col min-h-0">
-                  <div className="flex-1 overflow-y-auto p-4">
-                    {cart.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
-                        <ShoppingCart size={48} />
-                        <p className="mt-4">Carrinho vazio</p>
-                        <p className="text-sm">Adicione itens ao pedido</p>
-                        <Button 
-                          variant="outline"
-                          className="mt-4" 
-                          onClick={() => setActiveView("products")}
-                        >
-                          Ver Produtos
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="space-y-4 pb-20">
+              {/* Área do carrinho com layout fixo */}
+              <div className="flex flex-col flex-1 h-full">
+                {cart.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-muted-foreground p-4">
+                    <ShoppingCart size={48} />
+                    <p className="mt-4">Carrinho vazio</p>
+                    <p className="text-sm">Adicione itens ao pedido</p>
+                    <Button 
+                      variant="outline"
+                      className="mt-4" 
+                      onClick={() => setActiveView("products")}
+                    >
+                      Ver Produtos
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    {/* ScrollArea para os itens do carrinho - itens rolam mas o rodapé fica fixo */}
+                    <ScrollArea className="flex-1 p-4 pb-0">
+                      <div className="space-y-4">
                         {cart.map((item, index) => (
                           <div key={index} className="flex flex-col pb-4 border-b">
                             <div className="flex justify-between">
@@ -503,12 +508,10 @@ const PDVMobile = () => {
                           </div>
                         ))}
                       </div>
-                    )}
-                  </div>
-                  
-                  {/* Rodapé fixo para mostrar sempre o resumo e botão de finalizar */}
-                  {cart.length > 0 && (
-                    <div className="border-t p-4 space-y-4 bg-card sticky bottom-0 shadow-md">
+                    </ScrollArea>
+                    
+                    {/* Rodapé fixo para total e botão de finalizar - sempre visível */}
+                    <div className="p-4 space-y-4 bg-card border-t mt-auto">
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
                         <span>R$ {calculateSubtotal().toFixed(2)}</span>
@@ -540,11 +543,11 @@ const PDVMobile = () => {
                         Finalizar Pedido
                       </Button>
                     </div>
-                  )}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
+                  </>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
         </main>
       </div>
 
