@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { Button } from "@/components/ui/button"
@@ -17,7 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { useNavigate } from "react-router-dom"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { ShoppingCart, Search, Menu as MenuIcon, X } from "lucide-react"
+import { ShoppingCart, Search, Menu as MenuIcon, X, Utensils, Truck, ShoppingBag } from "lucide-react"
 
 // Mock data para produtos
 const mockProducts = [
@@ -395,7 +394,7 @@ const PDVMobile = () => {
               </div>
             </TabsContent>
             
-            <TabsContent value="cart" className="flex-1 flex flex-col mt-0 h-full">
+            <TabsContent value="cart" className="flex-1 flex flex-col mt-0">
               <div className="p-4 border-b">
                 <Tabs defaultValue="mesa" value={orderType} onValueChange={setOrderType}>
                   <TabsList className="grid grid-cols-3 w-full">
