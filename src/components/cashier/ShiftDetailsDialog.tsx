@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Shift } from '@/context/OrderContext';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
+import { Info } from 'lucide-react';
 
 interface ShiftDetailsDialogProps {
   shift: Shift | null;
@@ -18,6 +19,19 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
   onOpenChange
 }) => {
   if (!shift) return null;
+
+  // Formata data/hora para exibição mais legível
+  const formatDateTime = (dateTimeString: string | undefined) => {
+    if (!dateTimeString) return "-";
+    
+    try {
+      // Tentativa de formatar a data/hora para exibição mais amigável
+      const [datePart, timePart] = dateTimeString.split(" ");
+      return `${datePart} às ${timePart}`;
+    } catch (error) {
+      return dateTimeString;
+    }
+  };
 
   // Calcula duração do turno se tiver data de início e fim
   const calculateDuration = () => {
@@ -48,7 +62,10 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Detalhes do Turno #{shift.id}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <Info size={18} />
+            Detalhes do Turno #{shift.id}
+          </DialogTitle>
         </DialogHeader>
         
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
@@ -68,11 +85,11 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Início</p>
-            <p className="font-medium">{shift.startTime}</p>
+            <p className="font-medium">{formatDateTime(shift.startTime)}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Fim</p>
-            <p className="font-medium">{shift.endTime || "-"}</p>
+            <p className="font-medium">{formatDateTime(shift.endTime)}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Transações</p>
@@ -114,12 +131,21 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
             )}
           </div>
           
-          {/* Se houver transações do turno, podemos exibi-las aqui */}
-          <h3 className="font-medium mt-6">Observações</h3>
-          <p className="text-sm text-muted-foreground">
-            {/* A propriedade 'notes' não existe no tipo Shift */}
-            Nenhuma observação disponível para este turno.
-          </p>
+          <h3 className="font-medium mt-6">Estatísticas de Transações</h3>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <p className="text-sm text-muted-foreground">Dinheiro</p>
+              <p className="font-medium">{shift.cashTransactions} transações</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Cartão</p>
+              <p className="font-medium">{shift.cardTransactions} transações</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Pix</p>
+              <p className="font-medium">{shift.pixTransactions} transações</p>
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

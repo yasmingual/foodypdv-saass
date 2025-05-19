@@ -12,6 +12,13 @@
 - Implementação de testes automatizados
 - Exportação de relatórios em diferentes formatos
 
+## [v0.3.8] - 2025-05-19
+### Corrigido
+- Correção do botão de "Detalhes" na visualização de turnos
+- Melhoria na exibição de detalhes do turno com estatísticas de transações
+- Formatação de data e hora para melhor legibilidade
+- Adição de feedback visual ao clicar no botão de detalhes
+
 ## [v0.3.7] - 2025-05-19
 ### Corrigido
 - Erros de tipagem no componente de detalhes do turno

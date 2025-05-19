@@ -38,8 +38,10 @@ const Settings = () => {
 
   // Função para abrir o diálogo de detalhes do turno
   const handleViewShiftDetails = (shift: Shift) => {
+    console.log("Botão de detalhes clicado, abrindo diálogo para turno:", shift);
     setSelectedShift(shift);
     setDetailsDialogOpen(true);
+    toast.info(`Visualizando detalhes do turno #${shift.id}`);
   };
 
   return (
@@ -106,7 +108,7 @@ const Settings = () => {
                           <TableHead>Fim</TableHead>
                           <TableHead>Transações</TableHead>
                           <TableHead>Status</TableHead>
-                          <TableHead>Ações</TableHead>
+                          <TableHead className="text-right">Ações</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -122,9 +124,9 @@ const Settings = () => {
                                 {shift.status === "active" ? "Ativo" : "Fechado"}
                               </Badge>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="text-right">
                               <Button 
-                                variant="ghost" 
+                                variant="outline" 
                                 size="sm" 
                                 onClick={() => handleViewShiftDetails(shift)}
                               >
