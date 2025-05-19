@@ -12,6 +12,12 @@
 - Implementação de testes automatizados
 - Exportação de relatórios em diferentes formatos
 
+## [v0.3.7] - 2025-05-19
+### Corrigido
+- Erros de tipagem no componente de detalhes do turno
+- Adaptação do diálogo para usar as propriedades corretas do tipo Shift
+- Remoção de referências à propriedade 'notes' inexistente
+
 ## [v0.3.6] - 2025-05-19
 ### Adicionado
 - Funcionalidade do botão "Detalhes" na visualização de turnos

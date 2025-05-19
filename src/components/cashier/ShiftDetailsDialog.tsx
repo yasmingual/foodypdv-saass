@@ -39,9 +39,9 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
 
   // Calcula total financeiro do turno
   const calculateTotal = () => {
-    if (!shift.closingAmounts) return "0,00";
+    if (!shift.closingAmount) return "0,00";
     
-    return shift.closingAmounts.total.toFixed(2).replace('.', ',');
+    return shift.closingAmount.toFixed(2).replace('.', ',');
   };
 
   return (
@@ -92,23 +92,23 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
               <p className="text-sm text-muted-foreground">Valor Total</p>
               <p className="font-medium">R$ {calculateTotal()}</p>
             </div>
-            {shift.closingAmounts && (
+            {shift.closingAmount && (
               <>
                 <div>
                   <p className="text-sm text-muted-foreground">Dinheiro</p>
-                  <p className="font-medium">R$ {shift.closingAmounts.cash.toFixed(2).replace('.', ',')}</p>
+                  <p className="font-medium">R$ {shift.closingCashAmount?.toFixed(2).replace('.', ',') || "0,00"}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Débito</p>
-                  <p className="font-medium">R$ {shift.closingAmounts.debit.toFixed(2).replace('.', ',')}</p>
+                  <p className="font-medium">R$ {shift.closingDebitAmount?.toFixed(2).replace('.', ',') || "0,00"}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Crédito</p>
-                  <p className="font-medium">R$ {shift.closingAmounts.credit.toFixed(2).replace('.', ',')}</p>
+                  <p className="font-medium">R$ {shift.closingCreditAmount?.toFixed(2).replace('.', ',') || "0,00"}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Pix</p>
-                  <p className="font-medium">R$ {shift.closingAmounts.pix.toFixed(2).replace('.', ',')}</p>
+                  <p className="font-medium">R$ {shift.closingPixAmount?.toFixed(2).replace('.', ',') || "0,00"}</p>
                 </div>
               </>
             )}
@@ -117,7 +117,8 @@ const ShiftDetailsDialog: React.FC<ShiftDetailsDialogProps> = ({
           {/* Se houver transações do turno, podemos exibi-las aqui */}
           <h3 className="font-medium mt-6">Observações</h3>
           <p className="text-sm text-muted-foreground">
-            {shift.notes || "Nenhuma observação disponível para este turno."}
+            {/* A propriedade 'notes' não existe no tipo Shift */}
+            Nenhuma observação disponível para este turno.
           </p>
         </div>
       </DialogContent>
