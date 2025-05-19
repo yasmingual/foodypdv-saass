@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useProducts } from './ProductContext';
 
@@ -40,6 +39,10 @@ export type Shift = {
   operatorName: string;
   initialAmount: number;
   closingAmount?: number;
+  closingCashAmount?: number;      // Valor em dinheiro no fechamento
+  closingDebitAmount?: number;     // Valor em cartão de débito no fechamento
+  closingCreditAmount?: number;    // Valor em cartão de crédito no fechamento
+  closingPixAmount?: number;       // Valor em PIX no fechamento
   status: "active" | "closed";
   cashTransactions: number;
   cardTransactions: number;
@@ -58,7 +61,13 @@ type OrderContextType = {
   processPayment: (orderId: number, paymentMethod: Order["paymentMethod"]) => void;
   calculateOrderTotal: (order: Order) => number;
   openShift: (operatorName: string, initialAmount: number) => void;
-  closeShift: (closingAmount: number) => void;
+  closeShift: (closingValues: {
+    total: number;
+    cash: number;
+    debit: number;
+    credit: number;
+    pix: number;
+  }) => void;
   isShiftActive: () => boolean;
 };
 
@@ -210,8 +219,14 @@ export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children 
     return newShift;
   };
 
-  // Fechar um turno ativo
-  const closeShift = (closingAmount: number) => {
+  // Fechar um turno ativo - atualizado para incluir os valores por método de pagamento
+  const closeShift = (closingValues: {
+    total: number;
+    cash: number;
+    debit: number;
+    credit: number;
+    pix: number;
+  }) => {
     if (!isShiftActive() || !currentShift) {
       throw new Error("Não há turno ativo para fechar.");
     }
@@ -223,7 +238,11 @@ export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children 
     const closedShift: Shift = {
       ...currentShift,
       endTime: `${formattedDate} ${formattedTime}`,
-      closingAmount,
+      closingAmount: closingValues.total,
+      closingCashAmount: closingValues.cash,
+      closingDebitAmount: closingValues.debit,
+      closingCreditAmount: closingValues.credit,
+      closingPixAmount: closingValues.pix,
       status: "closed"
     };
     

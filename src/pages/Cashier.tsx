@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -30,7 +29,6 @@ const Cashier = () => {
   const [openCashDialogOpen, setOpenCashDialogOpen] = useState(false);
   const [closeShiftDialogOpen, setCloseShiftDialogOpen] = useState(false);
   const [initialCashAmount, setInitialCashAmount] = useState("");
-  const [closingCashAmount, setClosingCashAmount] = useState("");
   const [operatorName, setOperatorName] = useState("Administrador");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
@@ -95,14 +93,15 @@ const Cashier = () => {
     }
   };
 
-  const handleCloseCashier = () => {
-    if (!closingCashAmount || isNaN(Number(closingCashAmount))) {
-      toast.error("Por favor, informe um valor final válido");
-      return;
-    }
-
+  const handleCloseCashier = (values: {
+    total: number;
+    cash: number;
+    debit: number;
+    credit: number;
+    pix: number;
+  }) => {
     try {
-      const closedShift = closeShift(Number(closingCashAmount));
+      const closedShift = closeShift(values);
       setCloseShiftDialogOpen(false);
       toast.success("Caixa fechado com sucesso!");
     } catch (error: any) {
@@ -550,8 +549,6 @@ const Cashier = () => {
         open={closeShiftDialogOpen}
         onOpenChange={setCloseShiftDialogOpen}
         currentShift={currentShift}
-        closingAmount={closingCashAmount}
-        setClosingAmount={setClosingCashAmount}
         onConfirm={handleCloseCashier}
       />
 

@@ -12,6 +12,16 @@
 - Implementação de testes automatizados
 - Exportação de relatórios em diferentes formatos
 
+## [v0.3.4] - 2025-05-19
+### Adicionado
+- Campos para informar valores por forma de pagamento no fechamento de caixa (dinheiro, débito, crédito, PIX)
+- Cálculo automático do valor total no fechamento com base nos valores informados
+- Interface melhorada para fechamento de caixa com ícones para cada método
+
+### Melhorado
+- Design responsivo do diálogo de fechamento de caixa para mobile e desktop
+- Experiência do usuário no processo de fechamento de turno
+
 ## [v0.3.3] - 2025-05-19
 ### Adicionado
 - Transição automática de pedidos finalizados para "prontos para pagamento"
