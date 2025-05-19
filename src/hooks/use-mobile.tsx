@@ -11,13 +11,13 @@ export function useIsMobile() {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
     }
     
-    // Verificação inicial
+    // Initial check
     checkMobile()
     
-    // Adicionar listener para mudanças de tamanho
+    // Add resize listener
     window.addEventListener("resize", checkMobile)
     
-    // Remover listener quando o componente for desmontado
+    // Remove listener when component unmounts
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
 

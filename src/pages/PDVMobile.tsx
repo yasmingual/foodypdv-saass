@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { Sidebar } from "@/components/layout/Sidebar"
-import { Header } from "@/components/layout/Header"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
@@ -272,16 +271,27 @@ const PDVMobile = () => {
 
   return (
     <div className="flex h-screen bg-background">
+      {/* Overlay for sidebar */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setSidebarOpen(false)} />
+        <div 
+          className="fixed inset-0 bg-black/50 z-40" 
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
-      <div className={`fixed top-0 left-0 h-full z-50 transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+
+      {/* Fixed position sidebar with proper translation */}
+      <div 
+        className={`fixed top-0 left-0 h-full z-50 transition-transform duration-300 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         <Sidebar />
       </div>
+
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header para Mobile */}
+        {/* Header for Mobile */}
         <div className="bg-background border-b p-4 flex items-center justify-between sticky top-0 z-30">
-          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
+          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
             <MenuIcon size={24} />
           </Button>
           <h1 className="text-xl font-bold">PDV Mobile</h1>
@@ -407,125 +417,129 @@ const PDVMobile = () => {
                   </Tabs>
                 </div>
                 
-                <div className="flex-1 overflow-y-auto p-4">
-                  {cart.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="9" cy="21" r="1"></circle>
-                        <circle cx="20" cy="21" r="1"></circle>
-                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                      </svg>
-                      <p className="mt-4">Carrinho vazio</p>
-                      <p className="text-sm">Adicione itens ao pedido</p>
-                      <Button 
-                        variant="outline"
-                        className="mt-4" 
-                        onClick={() => setActiveView("products")}
-                      >
-                        Ver Produtos
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {cart.map((item, index) => (
-                        <div key={index} className="flex flex-col pb-4 border-b">
-                          <div className="flex justify-between">
-                            <div className="flex-1">
-                              <div className="flex justify-between items-start">
-                                <p className="font-medium">{item.name}</p>
-                                <button 
-                                  onClick={() => removeFromCart(index)}
-                                  className="text-pdv-danger hover:text-red-700 transition-colors ml-2"
-                                >
-                                  <X size={18} />
-                                </button>
+                {/* Use flex-col with min-h-0 to make the overflow-y-auto work properly */}
+                <div className="flex-1 flex flex-col min-h-0">
+                  <div className="flex-1 overflow-y-auto p-4">
+                    {cart.length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="9" cy="21" r="1"></circle>
+                          <circle cx="20" cy="21" r="1"></circle>
+                          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                        <p className="mt-4">Carrinho vazio</p>
+                        <p className="text-sm">Adicione itens ao pedido</p>
+                        <Button 
+                          variant="outline"
+                          className="mt-4" 
+                          onClick={() => setActiveView("products")}
+                        >
+                          Ver Produtos
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {cart.map((item, index) => (
+                          <div key={index} className="flex flex-col pb-4 border-b">
+                            <div className="flex justify-between">
+                              <div className="flex-1">
+                                <div className="flex justify-between items-start">
+                                  <p className="font-medium">{item.name}</p>
+                                  <button 
+                                    onClick={() => removeFromCart(index)}
+                                    className="text-pdv-danger hover:text-red-700 transition-colors ml-2"
+                                  >
+                                    <X size={18} />
+                                  </button>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  R$ {item.price.toFixed(2)} x {item.quantity}
+                                </p>
                               </div>
-                              <p className="text-sm text-muted-foreground">
-                                R$ {item.price.toFixed(2)} x {item.quantity}
+                            </div>
+                            
+                            <div className="flex items-center justify-between mt-2">
+                              <div className="flex items-center border rounded-md">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => updateQuantity(index, item.quantity - 1)}
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                  </svg>
+                                </Button>
+                                <span className="w-8 text-center">{item.quantity}</span>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => updateQuantity(index, item.quantity + 1)}
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                  </svg>
+                                </Button>
+                              </div>
+                              <p className="font-medium">
+                                R$ {(item.price * item.quantity).toFixed(2)}
                               </p>
                             </div>
-                          </div>
-                          
-                          <div className="flex items-center justify-between mt-2">
-                            <div className="flex items-center border rounded-md">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => updateQuantity(index, item.quantity - 1)}
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                              </Button>
-                              <span className="w-8 text-center">{item.quantity}</span>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => updateQuantity(index, item.quantity + 1)}
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                              </Button>
-                            </div>
-                            <p className="font-medium">
-                              R$ {(item.price * item.quantity).toFixed(2)}
-                            </p>
-                          </div>
-                          
-                          {/* Campo de observação */}
-                          <div className="mt-2 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
-                              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
                             
-                            <Input 
-                              placeholder="Adicionar observação" 
-                              value={item.observation} 
-                              onChange={(e) => updateObservation(index, e.target.value)}
-                              className="text-sm h-8 flex-1"
-                            />
+                            {/* Campo de observação */}
+                            <div className="mt-2 flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                              </svg>
+                              
+                              <Input 
+                                placeholder="Adicionar observação" 
+                                value={item.observation} 
+                                onChange={(e) => updateObservation(index, e.target.value)}
+                                className="text-sm h-8 flex-1"
+                              />
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 
-                <div className="border-t p-4 space-y-4 bg-card">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span>R$ {calculateSubtotal().toFixed(2)}</span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="service-fee-mobile" 
-                      checked={applyServiceFee}
-                      onCheckedChange={(checked) => setApplyServiceFee(checked === true)}
-                    />
-                    <label htmlFor="service-fee-mobile" className="text-sm text-muted-foreground cursor-pointer">
-                      Aplicar taxa de serviço (10%)
-                    </label>
-                    <span className="text-sm ml-auto">
-                      R$ {calculateServiceFee().toFixed(2)}
-                    </span>
-                  </div>
+                  {/* Make the footer stick to the bottom with auto margin top */}
+                  <div className="border-t p-4 space-y-4 bg-card">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span>R$ {calculateSubtotal().toFixed(2)}</span>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="service-fee-mobile" 
+                        checked={applyServiceFee}
+                        onCheckedChange={(checked) => setApplyServiceFee(checked === true)}
+                      />
+                      <label htmlFor="service-fee-mobile" className="text-sm text-muted-foreground cursor-pointer">
+                        Aplicar taxa de serviço (10%)
+                      </label>
+                      <span className="text-sm ml-auto">
+                        R$ {calculateServiceFee().toFixed(2)}
+                      </span>
+                    </div>
 
-                  <div className="flex justify-between font-medium text-lg pt-2 border-t">
-                    <span>Total</span>
-                    <span>R$ {calculateTotal().toFixed(2)}</span>
+                    <div className="flex justify-between font-medium text-lg pt-2 border-t">
+                      <span>Total</span>
+                      <span>R$ {calculateTotal().toFixed(2)}</span>
+                    </div>
+                    <Button 
+                      className="w-full py-6 text-lg"
+                      disabled={cart.length === 0}
+                      onClick={handleFinishOrder}
+                    >
+                      Finalizar Pedido
+                    </Button>
                   </div>
-                  <Button 
-                    className="w-full py-6 text-lg"
-                    disabled={cart.length === 0}
-                    onClick={handleFinishOrder}
-                  >
-                    Finalizar Pedido
-                  </Button>
                 </div>
               </TabsContent>
             </Tabs>
