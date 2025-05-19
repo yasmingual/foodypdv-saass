@@ -12,6 +12,17 @@
 - Implementação de testes automatizados
 - Exportação de relatórios em diferentes formatos
 
+## [v0.3.6] - 2025-05-19
+### Adicionado
+- Funcionalidade do botão "Detalhes" na visualização de turnos
+- Diálogo detalhado de informações de turnos
+- Nova aba de turnos na página de configurações
+- Exibição completa de valores financeiros por turno
+
+### Melhorado
+- Interface de visualização do histórico de turnos
+- Persistência dos dados entre abas de configurações
+
 ## [v0.3.5] - 2025-05-19
 ### Adicionado
 - Persistência de configurações no localStorage
