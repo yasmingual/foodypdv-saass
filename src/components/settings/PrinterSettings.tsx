@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SettingsLayout } from "./SettingsLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,10 +10,12 @@ import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Printer } from "lucide-react";
+import { loadGeneralSettings } from "@/utils/settingsUtils";
 
 export const PrinterSettings = () => {
   const { toast } = useToast();
   const [isPrinting, setIsPrinting] = useState(false);
+  const [restaurantInfo, setRestaurantInfo] = useState(loadGeneralSettings());
   
   const form = useForm({
     defaultValues: {
@@ -31,6 +33,11 @@ export const PrinterSettings = () => {
       printQRCode: false,
     }
   });
+
+  useEffect(() => {
+    // Carregar as configurações do restaurante ao montar o componente
+    setRestaurantInfo(loadGeneralSettings());
+  }, []);
 
   const onSubmit = (data: any) => {
     console.log("Configurações de impressão salvas:", data);
@@ -352,11 +359,11 @@ export const PrinterSettings = () => {
           >
             <div className="bg-gray-100 p-4 rounded-lg font-mono text-sm">
               <div className="text-center mb-4">
-                <h2 className="text-xl font-bold">Restaurante Demo</h2>
-                <p>Av. Principal, 1000</p>
-                <p>São Paulo</p>
-                <p>Tel: (11) 3000-0000</p>
-                <p>CNPJ: 00.000.000/0001-00</p>
+                <h2 className="text-xl font-bold">{restaurantInfo.restaurantName}</h2>
+                <p>{restaurantInfo.address}</p>
+                <p>{restaurantInfo.city}</p>
+                <p>Tel: {restaurantInfo.phone}</p>
+                <p>CNPJ: {restaurantInfo.cnpj}</p>
               </div>
               
               <div className="border-t border-dashed my-4"></div>

@@ -1,18 +1,10 @@
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Order } from "@/context/OrderContext";
 import { Printer } from "lucide-react";
-
-// Dados do estabelecimento (normalmente viriam de um contexto global ou configuração)
-const RESTAURANT_INFO = {
-  name: "Restaurante Demo",
-  address: "Av. Principal, 1000",
-  city: "São Paulo",
-  phone: "(11) 3000-0000",
-  cnpj: "00.000.000/0001-00"
-};
+import { loadGeneralSettings, GeneralSettingsType, defaultGeneralSettings } from "@/utils/settingsUtils";
 
 interface OrderReceiptProps {
   order: Order;
@@ -28,6 +20,13 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
   showPaymentMethod = false
 }) => {
   const printRef = useRef<HTMLDivElement>(null);
+  const [restaurantInfo, setRestaurantInfo] = useState<GeneralSettingsType>(defaultGeneralSettings);
+
+  // Carregar as configurações do restaurante ao montar o componente
+  useEffect(() => {
+    const settings = loadGeneralSettings();
+    setRestaurantInfo(settings);
+  }, []);
 
   const handlePrint = () => {
     const content = printRef.current;
@@ -98,11 +97,11 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
         <body>
           <div class="receipt">
             <div class="header">
-              <h1>${RESTAURANT_INFO.name}</h1>
-              <p>${RESTAURANT_INFO.address}</p>
-              <p>${RESTAURANT_INFO.city}</p>
-              <p>Tel: ${RESTAURANT_INFO.phone}</p>
-              <p>CNPJ: ${RESTAURANT_INFO.cnpj}</p>
+              <h1>${restaurantInfo.restaurantName}</h1>
+              <p>${restaurantInfo.address}</p>
+              <p>${restaurantInfo.city}</p>
+              <p>Tel: ${restaurantInfo.phone}</p>
+              <p>CNPJ: ${restaurantInfo.cnpj}</p>
             </div>
             
             <div class="divider"></div>
@@ -226,11 +225,11 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
         <div ref={printRef} className="p-4 font-mono text-sm">
           {/* Cabeçalho do Estabelecimento */}
           <div className="text-center mb-4">
-            <h2 className="text-xl font-bold">{RESTAURANT_INFO.name}</h2>
-            <p>{RESTAURANT_INFO.address}</p>
-            <p>{RESTAURANT_INFO.city}</p>
-            <p>Tel: {RESTAURANT_INFO.phone}</p>
-            <p>CNPJ: {RESTAURANT_INFO.cnpj}</p>
+            <h2 className="text-xl font-bold">{restaurantInfo.restaurantName}</h2>
+            <p>{restaurantInfo.address}</p>
+            <p>{restaurantInfo.city}</p>
+            <p>Tel: {restaurantInfo.phone}</p>
+            <p>CNPJ: {restaurantInfo.cnpj}</p>
           </div>
           
           <div className="border-t border-dashed my-4" />

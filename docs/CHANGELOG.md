@@ -12,6 +12,12 @@
 - Implementação de testes automatizados
 - Exportação de relatórios em diferentes formatos
 
+## [v0.3.9] - 2025-05-19
+### Corrigido
+- Correção para exibir corretamente o nome do estabelecimento no cupom de impressão
+- Integração das configurações do estabelecimento em todos os locais de impressão
+- Carregamento das configurações gerais nos componentes de cupom e recibo
+
 ## [v0.3.8] - 2025-05-19
 ### Corrigido
 - Correção do botão de "Detalhes" na visualização de turnos

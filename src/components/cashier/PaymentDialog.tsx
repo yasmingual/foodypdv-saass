@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,7 @@ import OrderSummary from "./OrderSummary";
 import PaymentMethodSelector from "./PaymentMethodSelector";
 import PaymentActions from "./PaymentActions";
 import { useProducts } from "@/context/ProductContext";
+import { loadGeneralSettings } from "@/utils/settingsUtils";
 
 type PaymentDialogProps = {
   order: Order | null;
@@ -33,6 +35,12 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
   const [paymentMethod, setPaymentMethod] = useState<Order["paymentMethod"]>("Dinheiro");
   const [isPrinting, setIsPrinting] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
+  const [restaurantInfo, setRestaurantInfo] = useState(loadGeneralSettings());
+
+  useEffect(() => {
+    // Carregar as configurações do restaurante ao montar o componente
+    setRestaurantInfo(loadGeneralSettings());
+  }, []);
 
   // Verificar se temos um pedido
   if (!order) return null;
@@ -126,11 +134,11 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
           <body>
             <div class="receipt">
               <div class="header">
-                <h1>Restaurante Demo</h1>
-                <p>Av. Principal, 1000</p>
-                <p>São Paulo</p>
-                <p>Tel: (11) 3000-0000</p>
-                <p>CNPJ: 00.000.000/0001-00</p>
+                <h1>${restaurantInfo.restaurantName}</h1>
+                <p>${restaurantInfo.address}</p>
+                <p>${restaurantInfo.city}</p>
+                <p>Tel: ${restaurantInfo.phone}</p>
+                <p>CNPJ: ${restaurantInfo.cnpj}</p>
               </div>
               
               <div class="divider"></div>
