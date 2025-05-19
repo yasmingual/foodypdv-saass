@@ -19,6 +19,8 @@ Este sistema PDV (Ponto de Venda) foi desenvolvido para pequenos e médios estab
 - Múltiplas formas de pagamento (dinheiro, cartões, PIX)
 - Emissão de recibos e comprovantes
 - Fechamento de turno com relatórios
+- Sistema de turnos com abertura e fechamento
+- Controle de operadores e valores iniciais/finais
 - Integração com o sistema de produtos cadastrados
 
 ### KDS (Kitchen Display System)
@@ -47,6 +49,13 @@ Este sistema PDV (Ponto de Venda) foi desenvolvido para pequenos e médios estab
 - Análise de lucratividade
 - Exportação em diversos formatos
 
+### Turnos e Operações Financeiras
+- Sistema de turnos com abertura e fechamento de caixa
+- Registro de operadores por turno
+- Controle de valores iniciais e finais
+- Estatísticas por método de pagamento
+- Relatórios de fechamento de caixa
+
 ## Tecnologias Utilizadas
 - React + TypeScript para o frontend
 - Tailwind CSS para estilização
@@ -58,6 +67,26 @@ O sistema utiliza localStorage para manter os dados entre sessões:
 - Todos os produtos são armazenados e gerenciados no ProductContext
 - Pedidos são persistidos no OrderContext
 - Itens de estoque são gerenciados pelo StockContext
+- Informações de turnos e operações de caixa são mantidas no OrderContext
+
+## Fluxo de Trabalho do Caixa
+
+1. **Abertura de Turno**
+   - O operador informa seu nome e o valor inicial em caixa
+   - O sistema registra a data e hora de abertura
+   - Após a abertura, o sistema permite receber pagamentos
+
+2. **Processamento de Pagamentos**
+   - Apenas pedidos com status "ready" aparecem para pagamento
+   - O sistema calcula o valor total com base nos produtos cadastrados
+   - O operador seleciona o método de pagamento
+   - As transações são registradas e associadas ao turno atual
+
+3. **Fechamento de Turno**
+   - O operador informa o valor final em caixa
+   - O sistema registra a data e hora de fechamento
+   - São apresentados relatórios com estatísticas do turno
+   - Após o fechamento, um novo turno precisa ser aberto para continuar operações
 
 ## Atualizações Recentes
-A versão mais recente implementou um sistema completo de gerenciamento de produtos que se integra com o módulo do caixa e PDV, permitindo que apenas produtos oficialmente cadastrados no sistema possam ser vendidos, garantindo maior controle e consistência nos dados.
+A versão mais recente implementou um sistema completo de turnos no caixa, permitindo controle financeiro mais preciso com abertura e fechamento de caixa, além de garantir que apenas produtos oficialmente cadastrados no sistema possam ser vendidos.

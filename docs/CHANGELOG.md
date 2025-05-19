@@ -12,6 +12,18 @@
 - Implementação de testes automatizados
 - Exportação de relatórios em diferentes formatos
 
+## [v0.3.2] - 2025-05-19
+### Adicionado
+- Sistema de turnos no caixa com abertura e fechamento
+- Controle de operadores por turno
+- Estatísticas financeiras por turno
+- Relatório de fechamento de caixa
+- Verificação de turno ativo antes de processar pagamentos
+
+### Corrigido
+- Apenas pedidos com status "ready" (prontos) aparecem na lista de pagamentos pendentes
+- Validação de valores monetários no caixa
+
 ## [v0.3.1] - 2025-05-19
 ### Alterado
 - Atualizado o sistema do caixa para usar produtos cadastrados oficialmente

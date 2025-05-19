@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -9,32 +10,33 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { useOrders, Order } from "@/context/OrderContext";
+import { useOrders, Order, Shift } from "@/context/OrderContext";
 import PaymentDialog from "@/components/cashier/PaymentDialog";
-
-// Mock data for transactions - agora será atualizado dinamicamente
-const initialTransactions = [
-  { id: "T1001", orderId: 1001, value: 56.90, type: "Crédito", time: "10:15", status: "completed" },
-  { id: "T1002", orderId: 1002, value: 87.80, type: "Dinheiro", time: "10:25", status: "completed" },
-  { id: "T1003", orderId: 1003, value: 102.50, type: "Débito", time: "11:05", status: "completed" },
-  { id: "T1004", orderId: 1004, value: 45.00, type: "Pix", time: "11:10", status: "completed" },
-  { id: "T1005", orderId: 1005, value: 73.90, type: "Crédito", time: "11:45", status: "completed" },
-  { id: "T1006", orderId: 1006, value: 25.50, type: "Dinheiro", time: "12:00", status: "completed" },
-  { id: "T1007", orderId: 1007, value: 67.80, type: "Pix", time: "12:15", status: "completed" },
-  { id: "T1008", orderId: 1008, value: 42.90, type: "Débito", time: "12:30", status: "completed" },
-  { id: "T1009", orderId: 1009, value: 105.70, type: "Crédito", time: "13:00", status: "pending" },
-];
+import ShiftDetails from "@/components/cashier/ShiftDetails";
+import ShiftCloseDialog from "@/components/cashier/ShiftCloseDialog";
 
 const Cashier = () => {
-  const { orders, calculateOrderTotal } = useOrders();
+  const { 
+    orders, 
+    calculateOrderTotal, 
+    shifts, 
+    currentShift, 
+    openShift, 
+    closeShift, 
+    isShiftActive 
+  } = useOrders();
+  
   const [activeTab, setActiveTab] = useState("summary");
-  const [isCashierOpen, setIsCashierOpen] = useState(false);
   const [openCashDialogOpen, setOpenCashDialogOpen] = useState(false);
+  const [closeShiftDialogOpen, setCloseShiftDialogOpen] = useState(false);
   const [initialCashAmount, setInitialCashAmount] = useState("");
+  const [closingCashAmount, setClosingCashAmount] = useState("");
+  const [operatorName, setOperatorName] = useState("Administrador");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [transactions, setTransactions] = useState<any[]>([]);
 
+  // Filtrar apenas pedidos que estão prontos para pagamento
   const readyOrders = orders.filter(order => order.status === "ready");
   const paidOrders = orders.filter(order => order.status === "paid");
 
@@ -53,7 +55,8 @@ const Cashier = () => {
         value: calculateOrderTotal(order),
         type: order.paymentMethod || "Dinheiro",
         time: order.time || time,
-        status: "completed"
+        status: "completed",
+        shiftId: order.shiftId
       });
     });
     
@@ -83,12 +86,37 @@ const Cashier = () => {
       return;
     }
 
-    setIsCashierOpen(true);
-    setOpenCashDialogOpen(false);
-    toast.success(`Caixa aberto com sucesso! Valor inicial: R$ ${Number(initialCashAmount).toFixed(2)}`);
+    try {
+      const newShift = openShift(operatorName, Number(initialCashAmount));
+      setOpenCashDialogOpen(false);
+      toast.success(`Caixa aberto com sucesso! Valor inicial: R$ ${Number(initialCashAmount).toFixed(2)}`);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleCloseCashier = () => {
+    if (!closingCashAmount || isNaN(Number(closingCashAmount))) {
+      toast.error("Por favor, informe um valor final válido");
+      return;
+    }
+
+    try {
+      const closedShift = closeShift(Number(closingCashAmount));
+      setCloseShiftDialogOpen(false);
+      toast.success("Caixa fechado com sucesso!");
+    } catch (error: any) {
+      toast.error(error.message);
+    }
   };
 
   const handleOpenPaymentDialog = (order: Order) => {
+    // Verificar se existe um turno ativo
+    if (!isShiftActive()) {
+      toast.error("É necessário abrir o caixa antes de processar pagamentos");
+      return;
+    }
+    
     setSelectedOrder(order);
     setPaymentDialogOpen(true);
   };
@@ -352,6 +380,7 @@ const Cashier = () => {
                                     onClick={() => handleOpenPaymentDialog(order)}
                                     variant="default" 
                                     size="sm"
+                                    disabled={!isShiftActive()}
                                   >
                                     Receber
                                   </Button>
@@ -377,10 +406,56 @@ const Cashier = () => {
                 
                 <TabsContent value="shifts">
                   <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-center h-40 border rounded-md border-dashed">
-                        <p className="text-muted-foreground">Informações de turnos serão exibidas aqui</p>
-                      </div>
+                    <CardHeader>
+                      <CardTitle>Turnos</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {currentShift && (
+                        <ShiftDetails shift={currentShift} />
+                      )}
+                      
+                      <h3 className="font-medium text-lg mt-4 mb-2">Histórico de Turnos</h3>
+                      
+                      {shifts.length === 0 ? (
+                        <div className="text-center py-6 text-muted-foreground">
+                          Nenhum turno registrado
+                        </div>
+                      ) : (
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>ID</TableHead>
+                              <TableHead>Operador</TableHead>
+                              <TableHead>Início</TableHead>
+                              <TableHead>Fim</TableHead>
+                              <TableHead>Transações</TableHead>
+                              <TableHead>Status</TableHead>
+                              <TableHead>Ações</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {shifts.map((shift) => (
+                              <TableRow key={shift.id}>
+                                <TableCell>#{shift.id}</TableCell>
+                                <TableCell>{shift.operatorName}</TableCell>
+                                <TableCell>{shift.startTime}</TableCell>
+                                <TableCell>{shift.endTime || "-"}</TableCell>
+                                <TableCell>{shift.totalTransactions}</TableCell>
+                                <TableCell>
+                                  <Badge className={shift.status === "active" ? "bg-green-500" : "bg-gray-500"}>
+                                    {shift.status === "active" ? "Ativo" : "Fechado"}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <Button variant="ghost" size="sm">
+                                    Detalhes
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -388,17 +463,32 @@ const Cashier = () => {
             </Tabs>
             
             <div className="flex gap-2 ml-4">
-              <Button 
-                onClick={() => setOpenCashDialogOpen(true)} 
-                disabled={isCashierOpen}
-                className={isCashierOpen ? "bg-gray-400" : ""}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-                {isCashierOpen ? "Caixa Aberto" : "Abrir Caixa"}
-              </Button>
+              {!isShiftActive() ? (
+                <Button 
+                  onClick={() => setOpenCashDialogOpen(true)} 
+                  className="bg-pdv-primary hover:bg-pdv-primary/90"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                    <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                    <circle cx="12" cy="12" r="2"></circle>
+                    <path d="M6 12h.01M18 12h.01"></path>
+                  </svg>
+                  Abrir Caixa
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => setCloseShiftDialogOpen(true)} 
+                  variant="outline" 
+                  className="border-pdv-primary text-pdv-primary hover:bg-pdv-primary/10"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                    <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                    <path d="M6 12h.01M18 12h.01"></path>
+                    <path d="M12 12h0"></path>
+                  </svg>
+                  Fechar Caixa
+                </Button>
+              )}
             </div>
           </div>
         </main>
@@ -436,7 +526,13 @@ const Cashier = () => {
                 <label htmlFor="cashierName" className="text-sm font-medium">
                   Operador
                 </label>
-                <Input id="cashierName" type="text" defaultValue="Administrador" className="mt-1" />
+                <Input 
+                  id="cashierName" 
+                  type="text" 
+                  value={operatorName}
+                  onChange={(e) => setOperatorName(e.target.value)}
+                  className="mt-1" 
+                />
               </div>
             </div>
           </div>
@@ -448,6 +544,16 @@ const Cashier = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Diálogo de Fechamento de Caixa */}
+      <ShiftCloseDialog
+        open={closeShiftDialogOpen}
+        onOpenChange={setCloseShiftDialogOpen}
+        currentShift={currentShift}
+        closingAmount={closingCashAmount}
+        setClosingAmount={setClosingCashAmount}
+        onConfirm={handleCloseCashier}
+      />
 
       {/* Diálogo de Pagamento */}
       <PaymentDialog 

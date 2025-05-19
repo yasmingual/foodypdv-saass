@@ -30,16 +30,36 @@ export type Order = {
   hasServiceFee?: boolean;
   totalAmount?: number;
   paymentMethod?: "Dinheiro" | "Crédito" | "Débito" | "Pix";
+  shiftId?: number; // ID do turno em que o pedido foi pago
+};
+
+export type Shift = {
+  id: number;
+  startTime: string;
+  endTime?: string;
+  operatorName: string;
+  initialAmount: number;
+  closingAmount?: number;
+  status: "active" | "closed";
+  cashTransactions: number;
+  cardTransactions: number;
+  pixTransactions: number;
+  totalTransactions: number;
 };
 
 type OrderContextType = {
   orders: Order[];
+  shifts: Shift[];
+  currentShift: Shift | null;
   addOrder: (order: Omit<Order, "id" | "time" | "status">) => void;
   updateOrderStatus: (orderId: number, newStatus: Order["status"]) => void;
   getNextOrderId: () => number;
   addItemsToOrder: (orderId: number, newItems: OrderItem[]) => void;
   processPayment: (orderId: number, paymentMethod: Order["paymentMethod"]) => void;
   calculateOrderTotal: (order: Order) => number;
+  openShift: (operatorName: string, initialAmount: number) => void;
+  closeShift: (closingAmount: number) => void;
+  isShiftActive: () => boolean;
 };
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -115,23 +135,105 @@ const initialOrders: Order[] = [
   }
 ];
 
+// Mock de turnos iniciais (vazio)
+const initialShifts: Shift[] = [];
+
 export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [orders, setOrders] = useState<Order[]>(() => {
     const savedOrders = localStorage.getItem("orders");
     return savedOrders ? JSON.parse(savedOrders) : initialOrders;
   });
   
+  const [shifts, setShifts] = useState<Shift[]>(() => {
+    const savedShifts = localStorage.getItem("shifts");
+    return savedShifts ? JSON.parse(savedShifts) : initialShifts;
+  });
+
+  const [currentShift, setCurrentShift] = useState<Shift | null>(() => {
+    const savedShifts = localStorage.getItem("shifts");
+    if (savedShifts) {
+      const parsedShifts: Shift[] = JSON.parse(savedShifts);
+      return parsedShifts.find(shift => shift.status === "active") || null;
+    }
+    return null;
+  });
+  
   const { products } = useProducts();
 
-  // Salvar pedidos no localStorage
+  // Salvar pedidos e turnos no localStorage
   useEffect(() => {
     localStorage.setItem("orders", JSON.stringify(orders));
   }, [orders]);
+
+  useEffect(() => {
+    localStorage.setItem("shifts", JSON.stringify(shifts));
+  }, [shifts]);
 
   // Função para obter o próximo ID de pedido
   const getNextOrderId = () => {
     const maxId = Math.max(...orders.map(order => order.id), 0);
     return maxId + 1;
+  };
+
+  // Função para verificar se existe um turno ativo
+  const isShiftActive = () => {
+    return currentShift !== null && currentShift.status === "active";
+  };
+
+  // Abrir um novo turno
+  const openShift = (operatorName: string, initialAmount: number) => {
+    // Verificar se já existe um turno ativo
+    if (isShiftActive()) {
+      throw new Error("Já existe um turno ativo. Feche o turno atual antes de abrir um novo.");
+    }
+
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString();
+    const formattedTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    
+    // Criar novo turno
+    const newShift: Shift = {
+      id: shifts.length > 0 ? Math.max(...shifts.map(shift => shift.id)) + 1 : 1,
+      startTime: `${formattedDate} ${formattedTime}`,
+      operatorName,
+      initialAmount,
+      status: "active",
+      cashTransactions: 0,
+      cardTransactions: 0,
+      pixTransactions: 0,
+      totalTransactions: 0
+    };
+    
+    setShifts(prev => [...prev, newShift]);
+    setCurrentShift(newShift);
+    
+    return newShift;
+  };
+
+  // Fechar um turno ativo
+  const closeShift = (closingAmount: number) => {
+    if (!isShiftActive() || !currentShift) {
+      throw new Error("Não há turno ativo para fechar.");
+    }
+    
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString();
+    const formattedTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    
+    const closedShift: Shift = {
+      ...currentShift,
+      endTime: `${formattedDate} ${formattedTime}`,
+      closingAmount,
+      status: "closed"
+    };
+    
+    setShifts(prev => prev.map(shift => 
+      shift.id === currentShift.id ? closedShift : shift
+    ));
+    
+    setCurrentShift(null);
+    
+    return closedShift;
   };
 
   // Adicionar novo pedido
@@ -160,19 +262,50 @@ export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children 
 
   // Processar pagamento de pedido
   const processPayment = (orderId: number, paymentMethod: Order["paymentMethod"]) => {
+    // Verificar se existe um turno ativo
+    if (!isShiftActive() || !currentShift) {
+      throw new Error("Não é possível processar pagamentos sem um turno ativo. Por favor, abra um turno primeiro.");
+    }
+    
     setOrders(prevOrders => 
       prevOrders.map(order => {
         if (order.id !== orderId) return order;
         
         const totalAmount = calculateOrderTotal(order);
+        
+        // Associar o pedido ao turno atual
         return { 
           ...order, 
           status: "paid",
           paymentMethod,
-          totalAmount
+          totalAmount,
+          shiftId: currentShift.id
         };
       })
     );
+
+    // Atualizar as estatísticas do turno atual
+    if (currentShift) {
+      const updatedShift = { ...currentShift };
+      
+      // Incrementar contadores com base no método de pagamento
+      if (paymentMethod === "Dinheiro") {
+        updatedShift.cashTransactions += 1;
+      } else if (paymentMethod === "Crédito" || paymentMethod === "Débito") {
+        updatedShift.cardTransactions += 1;
+      } else if (paymentMethod === "Pix") {
+        updatedShift.pixTransactions += 1;
+      }
+      
+      updatedShift.totalTransactions += 1;
+      
+      // Atualizar o estado do turno
+      setShifts(prev => prev.map(shift => 
+        shift.id === currentShift.id ? updatedShift : shift
+      ));
+      
+      setCurrentShift(updatedShift);
+    }
   };
 
   // Calcular valor total do pedido
@@ -223,12 +356,17 @@ export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children 
   return (
     <OrderContext.Provider value={{ 
       orders, 
+      shifts,
+      currentShift,
       addOrder, 
       updateOrderStatus,
       getNextOrderId,
       addItemsToOrder,
       processPayment,
-      calculateOrderTotal
+      calculateOrderTotal,
+      openShift,
+      closeShift,
+      isShiftActive
     }}>
       {children}
     </OrderContext.Provider>
