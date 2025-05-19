@@ -1,5 +1,4 @@
 
-
 # Changelog
 
 Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
@@ -7,6 +6,9 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 ## [Não lançado]
 
 ### Adicionado
+- Implementado exibição das imagens dos produtos no PDV
+  - Integradas imagens do estoque na visualização dos produtos no PDV
+  - Adicionado suporte para imagens em itens do pedido no módulo de caixa
 - Implementada versão mobile do PDV com layout otimizado para dispositivos móveis
   - Adicionada navegação adaptada com botões maiores e interfaces mais amigáveis para toque
   - Separação de visualização de produtos e carrinho em abas distintas
@@ -26,6 +28,7 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 ### Corrigido
 - Corrigido erro de compilação relacionado à tipagem em src/pages/Stock.tsx
+- Corrigido erro na interface UpdateQuantityDialogProps com prop onSubmit renomeado para onUpdate
 - Corrigido erro de importação em Settings.tsx que impedia a página de configurações de carregar
 - Corrigido o sistema de impressão de cupom fiscal para mostrar apenas o cupom e não a tela inteira do sistema
 - Corrigido o problema onde transações de pedidos pendentes não eram exibidas nos cards do caixa
@@ -75,4 +78,3 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 - Implementação das funcionalidades básicas de PDV
 - Implementação do Caixa para recebimento de pedidos
 - Implementação do KDS para cozinha
-

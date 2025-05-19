@@ -10,12 +10,14 @@ O módulo PDV (Ponto de Venda) permite realizar vendas, gerenciar pedidos e proc
 
 #### 1. Catálogo de Produtos
 - Exibição de produtos organizados por categorias
+- Exibição de imagens dos produtos cadastrados no estoque
 - Busca rápida por nome de produto
 - Filtragem por categoria (Lanches, Porções, Bebidas, etc.)
 - Exibição clara de preço e informações básicas do produto
 
 #### 2. Carrinho de Compras
 - Adição de produtos ao carrinho com opção de observações individuais
+- Exibição de imagens dos produtos no carrinho
 - Ajuste de quantidade diretamente no carrinho (aumentar/diminuir)
 - Remoção de itens do carrinho
 - Edição de observações para itens já adicionados
@@ -43,6 +45,7 @@ O módulo PDV (Ponto de Venda) permite realizar vendas, gerenciar pedidos e proc
 1. **Selecionar Produtos**:
    - Navegue pelas categorias ou use a barra de pesquisa
    - Clique no produto desejado para adicioná-lo ao carrinho
+   - Visualize a imagem do produto para fácil identificação
 
 2. **Adicionar Observações**:
    - Ao clicar em um produto, um diálogo será exibido
@@ -53,6 +56,7 @@ O módulo PDV (Ponto de Venda) permite realizar vendas, gerenciar pedidos e proc
    - Ajuste a quantidade usando os botões + e -
    - Edite a observação diretamente no campo disponível em cada item
    - Remova itens usando o botão de lixeira
+   - Visualize as imagens dos produtos no carrinho para confirmação visual
 
 4. **Definir Tipo de Atendimento**:
    - Selecione entre Mesa, Retirada ou Delivery
@@ -145,6 +149,7 @@ O módulo de produtos permite o gerenciamento completo do catálogo de produtos 
 - Mostra informações como ID, nome, categoria, preço, estoque e status
 - Destaque visual para produtos sem estoque (vermelho) ou com estoque baixo (laranja)
 - Badges para indicar categorias e status do produto
+- Exibição de imagens dos produtos quando disponíveis
 
 #### 2. Filtragem e Pesquisa
 - Campo de busca para encontrar produtos por nome ou categoria
@@ -163,18 +168,21 @@ O módulo de produtos permite o gerenciamento completo do catálogo de produtos 
 #### 4. Diálogos de Gerenciamento
 - **Diálogo de Adição**:
   - Permite informar nome, categoria (selecionável da lista), preço, estoque e status
+  - Permite fazer upload de imagens para os produtos
   - Exibe apenas categorias ativas no menu suspenso
   - Botões para cancelar ou salvar o novo produto
   - Exibe feedback em notificação toast após salvar
   
 - **Diálogo de Edição**:
   - Permite editar nome, categoria (selecionável da lista), preço, estoque e status
+  - Permite atualizar ou adicionar imagens para os produtos
   - Exibe apenas categorias ativas no menu suspenso
   - Botões para cancelar ou salvar as alterações
   - Exibe feedback em notificação toast após salvar
   
 - **Diálogo de Visualização**:
   - Exibe todos os detalhes do produto selecionado
+  - Exibe a imagem do produto quando disponível
   - Formatação visual adequada para melhor leitura dos dados
   
 - **Diálogo de Exclusão**:
@@ -190,12 +198,14 @@ O módulo de produtos permite o gerenciamento completo do catálogo de produtos 
 ### Como Usar
 1. **Adicionar Produto**: Clique no botão "Novo Produto" no canto superior direito e preencha o formulário
    - Selecione uma categoria da lista suspensa de categorias ativas
+   - Faça upload de uma imagem para o produto (opcional)
    - Preencha os demais campos obrigatórios
    - Clique em Salvar
 2. **Buscar Produto**: Digite o nome ou categoria no campo de busca
 3. **Filtrar Produtos**: Use o dropdown "Filtrar por" para selecionar o status desejado
 4. **Editar Produto**: Clique no ícone de lápis na linha do produto desejado e faça as alterações no diálogo que se abre
    - Você pode alterar a categoria selecionando uma nova opção na lista suspensa
+   - Você pode atualizar a imagem do produto
 5. **Visualizar Detalhes**: Clique no ícone de olho na linha do produto desejado para ver todos os detalhes
 6. **Excluir Produto**: Clique no ícone de lixeira e confirme no diálogo exibido
 
