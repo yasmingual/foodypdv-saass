@@ -1,6 +1,14 @@
 
 # Changelog
 
+## [1.0.6] - 2025-05-18
+### Adicionado
+- Integração do fluxo de pagamento no Caixa
+- Aba de pedidos pendentes para pagamento no Caixa
+- Diálogo de pagamento com diferentes métodos (Dinheiro, Crédito, Débito, Pix)
+- Status de pedido pago e registro das transações
+- Cálculo automático do total da venda incluindo taxa de serviço quando aplicável
+
 ## [1.0.5] - 2025-05-18
 ### Adicionado
 - Taxa de serviço opcional (10%) nos pedidos
@@ -42,3 +50,4 @@
 - Integração entre PDV, KDS e tela de Pedidos
 - Sistema de gerenciamento de status de pedidos
 - Documentação da tela de Pedidos para Atendentes
+

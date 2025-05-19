@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -10,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useOrders, Order } from "@/context/OrderContext";
+import PaymentDialog from "@/components/cashier/PaymentDialog";
 
 // Mock data for transactions
 const mockTransactions = [
@@ -24,28 +25,33 @@ const mockTransactions = [
   { id: "T1009", orderId: 1009, value: 105.70, type: "Crédito", time: "13:00", status: "pending" },
 ];
 
-// Calculate totals
-const totalCash = mockTransactions
-  .filter(t => t.status === "completed" && t.type === "Dinheiro")
-  .reduce((sum, t) => sum + t.value, 0);
-
-const totalCard = mockTransactions
-  .filter(t => t.status === "completed" && (t.type === "Crédito" || t.type === "Débito"))
-  .reduce((sum, t) => sum + t.value, 0);
-
-const totalPix = mockTransactions
-  .filter(t => t.status === "completed" && t.type === "Pix")
-  .reduce((sum, t) => sum + t.value, 0);
-
-const totalSales = mockTransactions
-  .filter(t => t.status === "completed")
-  .reduce((sum, t) => sum + t.value, 0);
-
 const Cashier = () => {
+  const { orders, calculateOrderTotal } = useOrders();
   const [activeTab, setActiveTab] = useState("summary");
   const [isCashierOpen, setIsCashierOpen] = useState(false);
   const [openCashDialogOpen, setOpenCashDialogOpen] = useState(false);
   const [initialCashAmount, setInitialCashAmount] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+
+  const readyOrders = orders.filter(order => order.status === "ready");
+
+  // Calculate totals from transactions
+  const totalCash = mockTransactions
+    .filter(t => t.status === "completed" && t.type === "Dinheiro")
+    .reduce((sum, t) => sum + t.value, 0);
+
+  const totalCard = mockTransactions
+    .filter(t => t.status === "completed" && (t.type === "Crédito" || t.type === "Débito"))
+    .reduce((sum, t) => sum + t.value, 0);
+
+  const totalPix = mockTransactions
+    .filter(t => t.status === "completed" && t.type === "Pix")
+    .reduce((sum, t) => sum + t.value, 0);
+
+  const totalSales = mockTransactions
+    .filter(t => t.status === "completed")
+    .reduce((sum, t) => sum + t.value, 0);
 
   const handleOpenCashier = () => {
     if (!initialCashAmount || isNaN(Number(initialCashAmount))) {
@@ -56,6 +62,11 @@ const Cashier = () => {
     setIsCashierOpen(true);
     setOpenCashDialogOpen(false);
     toast.success(`Caixa aberto com sucesso! Valor inicial: R$ ${Number(initialCashAmount).toFixed(2)}`);
+  };
+
+  const handleOpenPaymentDialog = (order: Order) => {
+    setSelectedOrder(order);
+    setPaymentDialogOpen(true);
   };
 
   return (
@@ -119,6 +130,12 @@ const Cashier = () => {
               <TabsList>
                 <TabsTrigger value="summary">Resumo</TabsTrigger>
                 <TabsTrigger value="transactions">Transações</TabsTrigger>
+                <TabsTrigger value="pending" className={readyOrders.length > 0 ? "relative" : ""}>
+                  Pedidos Pendentes
+                  {readyOrders.length > 0 && (
+                    <Badge className="ml-2 bg-red-500">{readyOrders.length}</Badge>
+                  )}
+                </TabsTrigger>
                 <TabsTrigger value="reports">Relatórios</TabsTrigger>
                 <TabsTrigger value="shifts">Turnos</TabsTrigger>
               </TabsList>
@@ -248,6 +265,73 @@ const Cashier = () => {
                   </Card>
                 </TabsContent>
                 
+                <TabsContent value="pending">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Pedidos Prontos para Pagamento</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      {readyOrders.length === 0 ? (
+                        <div className="flex items-center justify-center h-40 text-muted-foreground">
+                          Não há pedidos prontos para pagamento
+                        </div>
+                      ) : (
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Pedido</TableHead>
+                              <TableHead>Tipo</TableHead>
+                              <TableHead>Cliente/Mesa</TableHead>
+                              <TableHead>Itens</TableHead>
+                              <TableHead className="text-right">Valor</TableHead>
+                              <TableHead className="text-right">Ações</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {readyOrders.map((order) => (
+                              <TableRow key={order.id}>
+                                <TableCell className="font-medium">#{order.id}</TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className="bg-muted">
+                                    {order.type}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>{order.identifier}</TableCell>
+                                <TableCell>
+                                  {order.items.length} itens
+                                  <span className="text-muted-foreground text-xs block">
+                                    {order.items.slice(0, 2).map(item => 
+                                      `${item.quantity}x ${item.name}`
+                                    ).join(", ")}
+                                    {order.items.length > 2 && "..."}
+                                  </span>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  R$ {calculateOrderTotal(order).toFixed(2)}
+                                  {order.hasServiceFee && (
+                                    <span className="text-xs block text-muted-foreground">
+                                      Inclui 10% taxa
+                                    </span>
+                                  )}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <Button 
+                                    onClick={() => handleOpenPaymentDialog(order)}
+                                    variant="default" 
+                                    size="sm"
+                                  >
+                                    Receber
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
                 <TabsContent value="reports">
                   <Card>
                     <CardContent className="p-6">
@@ -331,6 +415,16 @@ const Cashier = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Diálogo de Pagamento */}
+      <PaymentDialog 
+        order={selectedOrder}
+        open={paymentDialogOpen}
+        onClose={() => {
+          setPaymentDialogOpen(false);
+          setSelectedOrder(null);
+        }}
+      />
     </div>
   );
 };
