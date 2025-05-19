@@ -1,5 +1,4 @@
-
-import { useState, useRef, ChangeEvent } from "react";
+import { useState, useRef } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
@@ -24,20 +23,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Pencil, EyeIcon, Trash2, ImageIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-// Mock data for products
-const mockProducts = [
-  { id: 1, name: "X-Bacon", category: "Lanches", price: 20.9, stock: 0, active: true, imageUrl: "" },
-  { id: 2, name: "X-Salada", category: "Lanches", price: 18.5, stock: 25, active: true, imageUrl: "" },
-  { id: 3, name: "X-Tudo", category: "Lanches", price: 25.9, stock: 30, active: true, imageUrl: "" },
-  { id: 4, name: "Batata Frita P", category: "Porções", price: 10.5, stock: 50, active: true, imageUrl: "" },
-  { id: 5, name: "Batata Frita M", category: "Porções", price: 15.9, stock: 45, active: true, imageUrl: "" },
-  { id: 6, name: "Batata Frita G", category: "Porções", price: 20.9, stock: 40, active: true, imageUrl: "" },
-  { id: 7, name: "Coca-Cola Lata", category: "Bebidas", price: 6.5, stock: 48, active: true, imageUrl: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=200" },
-  { id: 8, name: "Coca-Cola 600ml", category: "Bebidas", price: 9.9, stock: 24, active: true, imageUrl: "" },
-  { id: 9, name: "Água Mineral", category: "Bebidas", price: 4.5, stock: 36, active: true, imageUrl: "https://images.unsplash.com/photo-1616118132534-731ac9b4bbbd?auto=format&fit=crop&q=80&w=200" },
-  { id: 10, name: "Hamburguer Veggie", category: "Lanches", price: 22.5, stock: 5, active: false, imageUrl: "" },
-];
+import { useProducts, Product } from "@/context/ProductContext";
 
 // Mock data para categorias
 const mockCategories = [
@@ -54,8 +40,7 @@ const Products = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
-  const [products, setProducts] = useState(mockProducts);
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
@@ -64,6 +49,9 @@ const Products = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
   const [editIsUploading, setEditIsUploading] = useState(false);
+  
+  // Utilizando o contexto de produtos
+  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   
   // Refs para os inputs de arquivo (para resetá-los quando necessário)
   const newImageInputRef = useRef<HTMLInputElement>(null);
@@ -188,22 +176,21 @@ const Products = () => {
 
   // Handler para salvar novo produto
   const handleSaveNewProduct = () => {
-    const newId = Math.max(...products.map(p => p.id)) + 1;
-    const productToAdd = {
-      ...newProduct,
-      id: newId
-    };
+    addProduct({
+      name: newProduct.name,
+      category: newProduct.category,
+      price: newProduct.price,
+      stock: newProduct.stock,
+      active: newProduct.active,
+      imageUrl: newProduct.imageUrl
+    });
     
-    setProducts([...products, productToAdd]);
     setIsNewProductDialogOpen(false);
     setImagePreview(null);
-    toast.success("Produto adicionado", {
-      description: `O produto ${newProduct.name} foi adicionado com sucesso.`,
-    });
   };
 
   // Handler para o botão de Editar
-  const handleEdit = (product: any) => {
+  const handleEdit = (product: Product) => {
     setSelectedProduct(product);
     setEditedProduct({
       name: product.name,
@@ -224,22 +211,12 @@ const Products = () => {
   const handleSaveEdit = () => {
     if (!selectedProduct) return;
     
-    const updatedProducts = products.map(p => {
-      if (p.id === selectedProduct.id) {
-        return { ...p, ...editedProduct };
-      }
-      return p;
-    });
-    
-    setProducts(updatedProducts);
+    updateProduct(selectedProduct.id, editedProduct);
     setIsEditDialogOpen(false);
-    toast.success("Produto atualizado", {
-      description: `O produto ${editedProduct.name} foi atualizado com sucesso.`,
-    });
   };
 
   // Handler para o botão de Visualizar
-  const handleView = (product: any) => {
+  const handleView = (product: Product) => {
     setSelectedProduct(product);
     setIsViewDialogOpen(true);
     toast.info("Visualizar produto", {
@@ -248,7 +225,7 @@ const Products = () => {
   };
 
   // Handler para o botão de Excluir
-  const handleDeleteClick = (product: any) => {
+  const handleDeleteClick = (product: Product) => {
     setSelectedProduct(product);
     setIsDeleteDialogOpen(true);
   };
@@ -256,10 +233,7 @@ const Products = () => {
   // Handler para confirmar exclusão
   const handleConfirmDelete = () => {
     if (selectedProduct) {
-      setProducts(products.filter(p => p.id !== selectedProduct.id));
-      toast.success("Produto excluído", {
-        description: `O produto ${selectedProduct.name} foi removido com sucesso.`,
-      });
+      deleteProduct(selectedProduct.id);
       setIsDeleteDialogOpen(false);
     }
   };

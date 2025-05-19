@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -15,19 +14,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useStock, StockItem } from "@/context/StockContext";
+import { useProducts, Product } from "@/context/ProductContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Image } from "lucide-react";
 
-// Definição do tipo de produto baseado nos itens do estoque
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-  category: string;
-  imageUrl?: string;
-};
-
+// Tipo do item no carrinho
 type CartItem = {
   id: number;
   name: string;
@@ -50,32 +41,9 @@ const deliveryFormSchema = z.object({
 
 type DeliveryFormData = z.infer<typeof deliveryFormSchema>;
 
-// Mapeamento de categorias de estoque para categorias de produtos do PDV
-const stockToPDVCategory: Record<string, string> = {
-  "Ingredientes": "Lanches",
-  "Vegetais": "Lanches",
-  "Bebidas": "Bebidas",
-  "Descartáveis": "Outros",
-  "Outros": "Outros"
-};
-
-// Preços fictícios para demonstração (já que os itens de estoque não têm preços de venda)
-const defaultPrices: Record<string, number> = {
-  "Pão de Hambúrguer": 3.50,
-  "Carne Hambúrguer": 12.90,
-  "Queijo Cheddar": 3.00,
-  "Alface": 1.50,
-  "Tomate": 1.50,
-  "Cebola": 1.00,
-  "Batata": 8.90,
-  "Coca-Cola Lata": 6.50,
-  "Coca-Cola 600ml": 9.90,
-  "Água Mineral": 4.50,
-};
-
 const PDV = () => {
   const { addOrder } = useOrders();
-  const { stockItems } = useStock(); // Obtemos os itens do estoque
+  const { products } = useProducts(); // Usando produtos do ProductContext
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orderType, setOrderType] = useState("mesa");
@@ -87,39 +55,22 @@ const PDV = () => {
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
   const [applyServiceFee, setApplyServiceFee] = useState(false);
 
-  // Converter itens do estoque para produtos do PDV
-  // Modificado para garantir que apenas produtos válidos sejam mostrados no PDV
-  const convertStockToProducts = (): Product[] => {
-    return stockItems
-      .filter(item => {
-        // Verificamos se o item tem nome, categoria e está cadastrado corretamente
-        return (
-          item.quantity > 0 && 
-          item.name && 
-          item.name.trim() !== "" &&
-          item.category
-        );
-      })
-      .map(item => {
-        // Determinamos o preço do produto (usando um valor padrão ou calculando)
-        const price = defaultPrices[item.name] || 
-                     (item.purchasePrice ? item.purchasePrice * 2 : 10.00);
-        
-        return {
-          id: item.id,
-          name: item.name,
-          price: price, 
-          category: stockToPDVCategory[item.category] || "Outros",
-          imageUrl: item.imageUrl
-        };
-      });
-  };
-
-  // Obter produtos convertidos do estoque
-  const products = convertStockToProducts();
-
   // Obter categorias únicas dos produtos
-  const categories = ["Todos", ...new Set(products.map(product => product.category))];
+  const categories = ["Todos", ...new Set(products
+    .filter(product => product.active) // Apenas produtos ativos
+    .map(product => product.category))];
+
+  // Filtrar produtos baseados na categoria ativa e pesquisa
+  const filteredProducts = products.filter((product) => {
+    // Apenas produtos ativos
+    if (!product.active) return false;
+    
+    // Filtragem por categoria e pesquisa
+    const matchesCategory = activeCategory === "Todos" || product.category === activeCategory;
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    return matchesCategory && matchesSearch;
+  });
 
   // Form de entrega com react-hook-form
   const deliveryForm = useForm<DeliveryFormData>({
@@ -133,13 +84,6 @@ const PDV = () => {
       neighborhood: "",
       reference: "",
     },
-  });
-
-  // Filter products based on active category and search query
-  const filteredProducts = products.filter((product) => {
-    const matchesCategory = activeCategory === "Todos" || product.category === activeCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
   });
 
   const openObservationDialog = (product: Product) => {

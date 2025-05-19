@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Order } from "@/context/OrderContext";
-import { useStock } from "@/context/StockContext";
+import { useProducts } from "@/context/ProductContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Image } from "lucide-react";
 
@@ -10,13 +10,13 @@ interface OrderItemsProps {
 }
 
 const OrderItems: React.FC<OrderItemsProps> = ({ order }) => {
-  const { stockItems } = useStock();
+  const { products } = useProducts();
 
-  // Função para buscar o preço e a imagem do item no estoque
-  const getStockItemDetails = (itemName: string) => {
-    const stockItem = stockItems.find(item => item.name === itemName);
-    const price = stockItem?.purchasePrice || 0;
-    const imageUrl = stockItem?.imageUrl || "";
+  // Função para buscar o preço e a imagem do item nos produtos
+  const getProductDetails = (itemName: string) => {
+    const product = products.find(product => product.name === itemName);
+    const price = product?.price || 0;
+    const imageUrl = product?.imageUrl || "";
     return { price, imageUrl };
   };
 
@@ -25,7 +25,7 @@ const OrderItems: React.FC<OrderItemsProps> = ({ order }) => {
       <h3 className="text-sm font-medium">Itens do pedido</h3>
       <div className="text-sm max-h-[20vh] overflow-y-auto pr-2">
         {order.items.map((item, index) => {
-          const { price, imageUrl } = getStockItemDetails(item.name);
+          const { price, imageUrl } = getProductDetails(item.name);
           
           return (
             <div key={index} className="flex items-center justify-between py-2 border-b last:border-b-0">

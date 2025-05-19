@@ -22,6 +22,10 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
   - Adicionada funcionalidade para filtrar por categoria e pesquisar itens
   - Adicionado sistema de alerta para itens com estoque baixo
   - Implementada persistência dos dados no localStorage
+- Implementado sistema de produtos com persistência
+  - Criado contexto de produtos separado do estoque para gerenciar catálogo de produtos
+  - Integração entre o PDV e o catálogo de produtos
+  - Produtos cadastrados na página Produtos são agora os únicos exibidos no PDV
 
 ### Corrigido
 - Corrigido erro de compilação relacionado à tipagem em src/pages/Stock.tsx
@@ -33,6 +37,7 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 - Removidos dados mockados do Dashboard, agora exibindo informações reais baseadas nos pedidos processados
 - Corrigido problema de persistência no PDV, que agora exibe corretamente os produtos cadastrados no estoque e suas imagens
 - Corrigido filtro no PDV para garantir que apenas produtos válidos e devidamente cadastrados sejam exibidos
+- Corrigido o sistema do PDV para mostrar apenas produtos cadastrados na página de Produtos
 
 ## [0.4.0] - 2025-05-19
 
