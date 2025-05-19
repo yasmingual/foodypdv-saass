@@ -4,7 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Order } from "@/context/OrderContext";
 import { Printer } from "lucide-react";
-import { loadGeneralSettings, GeneralSettingsType, defaultGeneralSettings } from "@/utils/settingsUtils";
+import { 
+  loadGeneralSettings, 
+  GeneralSettingsType, 
+  defaultGeneralSettings,
+  loadPrinterSettings,
+  PrinterSettingsType,
+  defaultPrinterSettings 
+} from "@/utils/settingsUtils";
 
 interface OrderReceiptProps {
   order: Order;
@@ -21,11 +28,15 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
 }) => {
   const printRef = useRef<HTMLDivElement>(null);
   const [restaurantInfo, setRestaurantInfo] = useState<GeneralSettingsType>(defaultGeneralSettings);
+  const [printerSettings, setPrinterSettings] = useState<PrinterSettingsType>(defaultPrinterSettings);
 
-  // Carregar as configurações do restaurante ao montar o componente
+  // Carregar as configurações do restaurante e da impressora ao montar o componente
   useEffect(() => {
-    const settings = loadGeneralSettings();
-    setRestaurantInfo(settings);
+    const generalSettings = loadGeneralSettings();
+    setRestaurantInfo(generalSettings);
+    
+    const printerConfig = loadPrinterSettings();
+    setPrinterSettings(printerConfig);
   }, []);
 
   const handlePrint = () => {
@@ -39,17 +50,23 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
       return;
     }
 
-    // Adiciona o conteúdo do recibo na janela de impressão
+    // Adiciona o conteúdo do recibo na janela de impressão com as configurações salvas
     printWindow.document.write(`
       <html>
         <head>
           <title>Cupom #${order.id}</title>
           <style>
             body {
-              font-family: 'Courier New', monospace;
+              font-family: ${printerSettings.fontFamily === 'courier' ? "'Courier New', monospace" : 
+                            printerSettings.fontFamily === 'arial' ? "Arial, sans-serif" : 
+                            printerSettings.fontFamily === 'times' ? "'Times New Roman', serif" : 
+                            "'Courier New', monospace"};
               margin: 0;
               padding: 20px;
               max-width: 300px;
+              font-size: ${printerSettings.fontSize === 'small' ? '12px' : 
+                           printerSettings.fontSize === 'large' ? '16px' : 
+                           '14px'};
             }
             .receipt {
               width: 100%;
@@ -126,18 +143,20 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
             
             <div class="divider"></div>
             
+            ${printerSettings.printItems ? `
             <div>
               <h2>ITENS DO PEDIDO</h2>
               ${order.items.map(item => `
                 <div class="item">
                   <span>${item.quantity}x ${item.name}</span>
-                  <span>R$ ${(getItemPrice(item.name) * item.quantity).toFixed(2)}</span>
+                  ${printerSettings.printPrices ? `<span>R$ ${(getItemPrice(item.name) * item.quantity).toFixed(2)}</span>` : ''}
                 </div>
                 ${item.notes ? `<div class="notes">Obs: ${item.notes}</div>` : ""}
               `).join('')}
             </div>
             
             <div class="divider"></div>
+            ` : ''}
             
             <div class="total">
               <div class="item">
@@ -159,9 +178,15 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
             <div class="divider"></div>
             
             <div class="footer">
-              <p>Obrigado pela preferência!</p>
-              <p>Volte sempre!</p>
+              <p>${printerSettings.footerText}</p>
             </div>
+            
+            ${printerSettings.printQRCode ? `
+            <div class="text-center mt-4">
+              <p>Avalie nosso atendimento!</p>
+              <p>[QR Code seria exibido aqui]</p>
+            </div>
+            ` : ''}
           </div>
           <script>
             window.onload = function() {
@@ -222,7 +247,19 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
       </CardHeader>
       
       <CardContent>
-        <div ref={printRef} className="p-4 font-mono text-sm">
+        <div 
+          ref={printRef} 
+          className="p-4 text-sm"
+          style={{
+            fontFamily: printerSettings.fontFamily === 'courier' ? "'Courier New', monospace" : 
+                        printerSettings.fontFamily === 'arial' ? "Arial, sans-serif" : 
+                        printerSettings.fontFamily === 'times' ? "'Times New Roman', serif" : 
+                        "'Courier New', monospace",
+            fontSize: printerSettings.fontSize === 'small' ? '12px' : 
+                      printerSettings.fontSize === 'large' ? '16px' : 
+                      '14px'
+          }}
+        >
           {/* Cabeçalho do Estabelecimento */}
           <div className="text-center mb-4">
             <h2 className="text-xl font-bold">{restaurantInfo.restaurantName}</h2>
@@ -265,22 +302,25 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
           <div className="border-t border-dashed my-4" />
           
           {/* Itens do Pedido */}
-          <div>
-            <h3 className="font-bold">ITENS DO PEDIDO</h3>
-            {order.items.map((item, index) => (
-              <div key={index}>
-                <div className="flex justify-between">
-                  <span>{item.quantity}x {item.name}</span>
-                  <span>R$ {(getItemPrice(item.name) * item.quantity).toFixed(2)}</span>
+          {printerSettings.printItems && (
+            <div>
+              <h3 className="font-bold">ITENS DO PEDIDO</h3>
+              {order.items.map((item, index) => (
+                <div key={index}>
+                  <div className="flex justify-between">
+                    <span>{item.quantity}x {item.name}</span>
+                    {printerSettings.printPrices && (
+                      <span>R$ {(getItemPrice(item.name) * item.quantity).toFixed(2)}</span>
+                    )}
+                  </div>
+                  {item.notes && (
+                    <p className="text-xs italic ml-4">Obs: {item.notes}</p>
+                  )}
                 </div>
-                {item.notes && (
-                  <p className="text-xs italic ml-4">Obs: {item.notes}</p>
-                )}
-              </div>
-            ))}
-          </div>
-          
-          <div className="border-t border-dashed my-4" />
+              ))}
+              <div className="border-t border-dashed my-4" />
+            </div>
+          )}
           
           {/* Total */}
           <div className="font-bold">
@@ -304,9 +344,15 @@ export const OrderReceipt: React.FC<OrderReceiptProps> = ({
           
           {/* Rodapé */}
           <div className="text-center text-sm mt-6">
-            <p>Obrigado pela preferência!</p>
-            <p>Volte sempre!</p>
+            <p>{printerSettings.footerText}</p>
           </div>
+          
+          {printerSettings.printQRCode && (
+            <div className="text-center mt-4">
+              <p>Avalie nosso atendimento!</p>
+              <p>[QR Code seria exibido aqui]</p>
+            </div>
+          )}
         </div>
 
         {onClose && (

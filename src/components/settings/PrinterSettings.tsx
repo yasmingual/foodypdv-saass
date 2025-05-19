@@ -10,37 +10,38 @@ import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Printer } from "lucide-react";
-import { loadGeneralSettings } from "@/utils/settingsUtils";
+import { 
+  loadGeneralSettings, 
+  loadPrinterSettings, 
+  savePrinterSettings, 
+  defaultPrinterSettings,
+  PrinterSettingsType
+} from "@/utils/settingsUtils";
 
 export const PrinterSettings = () => {
   const { toast } = useToast();
   const [isPrinting, setIsPrinting] = useState(false);
   const [restaurantInfo, setRestaurantInfo] = useState(loadGeneralSettings());
+  const [printerSettings, setPrinterSettings] = useState<PrinterSettingsType>(loadPrinterSettings());
   
   const form = useForm({
-    defaultValues: {
-      printerName: "EPSON TM-T20",
-      printerIP: "192.168.1.100",
-      printerPort: "9100",
-      autoPrint: true,
-      printCopies: "1",
-      paperSize: "80mm",
-      fontSize: "normal",
-      showLogo: true,
-      footerText: "Obrigado pela preferência! Volte sempre!",
-      printItems: true,
-      printPrices: true,
-      printQRCode: false,
-    }
+    defaultValues: printerSettings
   });
 
   useEffect(() => {
     // Carregar as configurações do restaurante ao montar o componente
     setRestaurantInfo(loadGeneralSettings());
-  }, []);
+    
+    // Carregar as configurações da impressora
+    const storedPrinterSettings = loadPrinterSettings();
+    setPrinterSettings(storedPrinterSettings);
+    form.reset(storedPrinterSettings); // Atualiza o formulário com as configurações salvas
+  }, [form]);
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: PrinterSettingsType) => {
     console.log("Configurações de impressão salvas:", data);
+    savePrinterSettings(data);
+    setPrinterSettings(data);
     toast({
       title: "Configurações salvas",
       description: "As configurações de impressão foram atualizadas com sucesso!"
@@ -49,6 +50,140 @@ export const PrinterSettings = () => {
 
   const handleTestPrint = () => {
     setIsPrinting(true);
+    
+    // Cria uma janela temporária para exibir o recibo de teste
+    const printWindow = window.open('', '_blank');
+    
+    if (printWindow) {
+      // Cria o conteúdo do cupom na janela de impressão com as configurações atuais
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Teste de Impressão</title>
+            <style>
+              body {
+                font-family: ${printerSettings.fontFamily === 'courier' ? "'Courier New', monospace" : 
+                               printerSettings.fontFamily === 'arial' ? "Arial, sans-serif" : 
+                               printerSettings.fontFamily === 'times' ? "'Times New Roman', serif" : 
+                               "'Courier New', monospace"};
+                margin: 0;
+                padding: 20px;
+                max-width: 300px;
+                font-size: ${printerSettings.fontSize === 'small' ? '12px' : 
+                             printerSettings.fontSize === 'large' ? '16px' : 
+                             '14px'};
+              }
+              .receipt {
+                width: 100%;
+              }
+              .header {
+                text-align: center;
+                margin-bottom: 10px;
+              }
+              .divider {
+                border-top: 1px dashed #000;
+                margin: 10px 0;
+              }
+              .item {
+                display: flex;
+                justify-content: space-between;
+                margin: 5px 0;
+              }
+              .total {
+                font-weight: bold;
+                margin-top: 10px;
+                text-align: right;
+              }
+              .footer {
+                text-align: center;
+                margin-top: 20px;
+                font-size: 0.8rem;
+              }
+              h1, h2 {
+                margin: 5px 0;
+              }
+              @media print {
+                body {
+                  width: 100%;
+                  margin: 0;
+                  padding: 0;
+                }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="receipt">
+              <div class="header">
+                <h1>${restaurantInfo.restaurantName}</h1>
+                <p>${restaurantInfo.address}</p>
+                <p>${restaurantInfo.city}</p>
+                <p>Tel: ${restaurantInfo.phone}</p>
+                <p>CNPJ: ${restaurantInfo.cnpj}</p>
+              </div>
+              
+              <div class="divider"></div>
+              
+              <div>
+                <h2>TESTE DE IMPRESSÃO</h2>
+                <p>Este é um teste de configurações de impressão</p>
+                <p>Data/Hora: ${new Date().toLocaleTimeString()} - ${new Date().toLocaleDateString()}</p>
+                <p>Tamanho do papel: ${printerSettings.paperSize}</p>
+                <p>Fonte: ${printerSettings.fontFamily}</p>
+                <p>Tamanho da fonte: ${printerSettings.fontSize}</p>
+              </div>
+              
+              <div class="divider"></div>
+              
+              <div>
+                <h2>ITENS DE EXEMPLO</h2>
+                <div class="item">
+                  <span>2x X-Salada</span>
+                  <span>R$ 37.00</span>
+                </div>
+                <div class="item">
+                  <span>1x Batata Frita G</span>
+                  <span>R$ 20.90</span>
+                </div>
+                <div class="item">
+                  <span>3x Coca-Cola 600ml</span>
+                  <span>R$ 29.70</span>
+                </div>
+              </div>
+              
+              <div class="divider"></div>
+              
+              <div class="total">
+                <div class="item">
+                  <span>Subtotal:</span>
+                  <span>R$ 87.60</span>
+                </div>
+                <div class="item">
+                  <span>TOTAL:</span>
+                  <span>R$ 87.60</span>
+                </div>
+              </div>
+              
+              <div class="divider"></div>
+              
+              <div class="footer">
+                <p>${printerSettings.footerText}</p>
+              </div>
+            </div>
+            <script>
+              window.onload = function() {
+                window.print();
+                setTimeout(function() { window.close(); }, 500);
+              };
+            </script>
+          </body>
+        </html>
+      `);
+      
+      printWindow.document.close();
+    } else {
+      alert('Por favor, permita popups para imprimir o cupom de teste.');
+    }
+    
     setTimeout(() => {
       setIsPrinting(false);
       toast({
@@ -73,7 +208,7 @@ export const PrinterSettings = () => {
             description="Configure a conexão com sua impressora térmica."
           >
             <Form {...form}>
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
                 <FormField
                   control={form.control}
                   name="printerName"
@@ -123,7 +258,7 @@ export const PrinterSettings = () => {
                       <FormLabel>Tamanho do Papel</FormLabel>
                       <Select 
                         onValueChange={field.onChange} 
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -168,7 +303,7 @@ export const PrinterSettings = () => {
                       <FormLabel>Número de Cópias</FormLabel>
                       <Select 
                         onValueChange={field.onChange} 
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -197,8 +332,7 @@ export const PrinterSettings = () => {
                     {isPrinting ? "Imprimindo..." : "Imprimir Teste"}
                   </Button>
                   <Button 
-                    type="submit" 
-                    onClick={form.handleSubmit(onSubmit)}
+                    type="submit"
                   >
                     Salvar Alterações
                   </Button>
@@ -214,7 +348,60 @@ export const PrinterSettings = () => {
             description="Personalize como as informações serão exibidas no cupom impresso."
           >
             <Form {...form}>
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+                <FormField
+                  control={form.control}
+                  name="fontSize"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tamanho da Fonte</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Tamanho da fonte" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="small">Pequena</SelectItem>
+                          <SelectItem value="normal">Normal</SelectItem>
+                          <SelectItem value="large">Grande</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="fontFamily"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Família da Fonte</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Família da fonte" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="courier">Courier (monoespaçada)</SelectItem>
+                          <SelectItem value="arial">Arial (sans-serif)</SelectItem>
+                          <SelectItem value="times">Times New Roman (serif)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Escolha a fonte para o cupom impresso
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+                
                 <FormField
                   control={form.control}
                   name="showLogo"
@@ -232,31 +419,6 @@ export const PrinterSettings = () => {
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="fontSize"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tamanho da Fonte</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Tamanho da fonte" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="small">Pequena</SelectItem>
-                          <SelectItem value="normal">Normal</SelectItem>
-                          <SelectItem value="large">Grande</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </FormItem>
                   )}
                 />
@@ -341,8 +503,7 @@ export const PrinterSettings = () => {
                 
                 <div className="flex justify-end mt-6">
                   <Button 
-                    type="submit" 
-                    onClick={form.handleSubmit(onSubmit)}
+                    type="submit"
                   >
                     Salvar Alterações
                   </Button>
@@ -357,7 +518,18 @@ export const PrinterSettings = () => {
             title="Visualização do Cupom"
             description="Veja como o cupom ficará após a impressão com as configurações atuais."
           >
-            <div className="bg-gray-100 p-4 rounded-lg font-mono text-sm">
+            <div 
+              className="bg-gray-100 p-4 rounded-lg overflow-auto"
+              style={{
+                fontFamily: printerSettings.fontFamily === 'courier' ? "'Courier New', monospace" : 
+                            printerSettings.fontFamily === 'arial' ? "Arial, sans-serif" : 
+                            printerSettings.fontFamily === 'times' ? "'Times New Roman', serif" : 
+                            "'Courier New', monospace",
+                fontSize: printerSettings.fontSize === 'small' ? '12px' : 
+                          printerSettings.fontSize === 'large' ? '16px' : 
+                          '14px'
+              }}
+            >
               <div className="text-center mb-4">
                 <h2 className="text-xl font-bold">{restaurantInfo.restaurantName}</h2>
                 <p>{restaurantInfo.address}</p>
@@ -414,8 +586,7 @@ export const PrinterSettings = () => {
               <div className="border-t border-dashed my-4"></div>
               
               <div className="text-center text-sm mt-6">
-                <p>Obrigado pela preferência!</p>
-                <p>Volte sempre!</p>
+                <p>{printerSettings.footerText}</p>
               </div>
             </div>
             

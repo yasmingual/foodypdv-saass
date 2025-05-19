@@ -1,4 +1,5 @@
 
+
 # Changelog
 
 ## [Pendente]
@@ -11,6 +12,17 @@
 - Refatoração do código para melhorar manutenção
 - Implementação de testes automatizados
 - Exportação de relatórios em diferentes formatos
+
+## [v0.3.10] - 2025-05-19
+### Adicionado
+- Opção para configurar a família de fonte nos cupons impressos
+- Persistência das configurações de impressão no localStorage
+- Visualização em tempo real das alterações de fonte no preview do cupom
+
+### Melhorado
+- Integração completa das configurações do restaurante em todos os componentes de impressão
+- Aplicação das configurações de impressão em todos os cupons e recibos gerados
+- Interface de configuração da impressora com preview instantâneo das alterações
 
 ## [v0.3.9] - 2025-05-19
 ### Corrigido
@@ -122,3 +134,4 @@
 - Dashboard básico
 - Cadastro de produtos simples
 - Funcionalidade de vendas básicas
+

@@ -15,7 +15,12 @@ import OrderSummary from "./OrderSummary";
 import PaymentMethodSelector from "./PaymentMethodSelector";
 import PaymentActions from "./PaymentActions";
 import { useProducts } from "@/context/ProductContext";
-import { loadGeneralSettings } from "@/utils/settingsUtils";
+import { 
+  loadGeneralSettings, 
+  loadPrinterSettings, 
+  PrinterSettingsType,
+  defaultPrinterSettings
+} from "@/utils/settingsUtils";
 
 type PaymentDialogProps = {
   order: Order | null;
@@ -36,10 +41,12 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
   const [isPrinting, setIsPrinting] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [restaurantInfo, setRestaurantInfo] = useState(loadGeneralSettings());
+  const [printerSettings, setPrinterSettings] = useState<PrinterSettingsType>(defaultPrinterSettings);
 
   useEffect(() => {
-    // Carregar as configurações do restaurante ao montar o componente
+    // Carregar as configurações do restaurante e da impressora ao montar o componente
     setRestaurantInfo(loadGeneralSettings());
+    setPrinterSettings(loadPrinterSettings());
   }, []);
 
   // Verificar se temos um pedido
@@ -76,17 +83,23 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
         return product ? product.price : 0;
       };
 
-      // Cria o conteúdo do cupom na janela de impressão
+      // Cria o conteúdo do cupom na janela de impressão com as configurações salvas
       printWindow.document.write(`
         <html>
           <head>
             <title>Cupom #${order.id}</title>
             <style>
               body {
-                font-family: 'Courier New', monospace;
+                font-family: ${printerSettings.fontFamily === 'courier' ? "'Courier New', monospace" : 
+                              printerSettings.fontFamily === 'arial' ? "Arial, sans-serif" : 
+                              printerSettings.fontFamily === 'times' ? "'Times New Roman', serif" : 
+                              "'Courier New', monospace"};
                 margin: 0;
                 padding: 20px;
                 max-width: 300px;
+                font-size: ${printerSettings.fontSize === 'small' ? '12px' : 
+                             printerSettings.fontSize === 'large' ? '16px' : 
+                             '14px'};
               }
               .receipt {
                 width: 100%;
@@ -163,6 +176,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
               
               <div class="divider"></div>
               
+              ${printerSettings.printItems ? `
               <div>
                 <h2>ITENS DO PEDIDO</h2>
                 ${order.items.map(item => {
@@ -171,7 +185,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
                   return `
                     <div class="item">
                       <span>${item.quantity}x ${item.name}</span>
-                      <span>R$ ${(price * item.quantity).toFixed(2)}</span>
+                      ${printerSettings.printPrices ? `<span>R$ ${(price * item.quantity).toFixed(2)}</span>` : ''}
                     </div>
                     ${item.notes ? `<div class="notes">Obs: ${item.notes}</div>` : ""}
                   `;
@@ -179,6 +193,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
               </div>
               
               <div class="divider"></div>
+              ` : ''}
               
               <div class="total">
                 <div class="item">
@@ -205,9 +220,15 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
               <div class="divider"></div>
               
               <div class="footer">
-                <p>Obrigado pela preferência!</p>
-                <p>Volte sempre!</p>
+                <p>${printerSettings.footerText}</p>
               </div>
+              
+              ${printerSettings.printQRCode ? `
+              <div class="text-center mt-4">
+                <p>Avalie nosso atendimento!</p>
+                <p>[QR Code seria exibido aqui]</p>
+              </div>
+              ` : ''}
             </div>
             <script>
               window.onload = function() {

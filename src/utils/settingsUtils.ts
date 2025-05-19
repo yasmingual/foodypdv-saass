@@ -25,6 +25,23 @@ export interface AppearanceSettingsType {
   sidebarSize: number[];
 }
 
+// Tipo para as configurações de impressão
+export interface PrinterSettingsType {
+  printerName: string;
+  printerIP: string;
+  printerPort: string;
+  autoPrint: boolean;
+  printCopies: string;
+  paperSize: string;
+  fontSize: string;
+  fontFamily: string;
+  showLogo: boolean;
+  footerText: string;
+  printItems: boolean;
+  printPrices: boolean;
+  printQRCode: boolean;
+}
+
 // Tipo para as configurações de integração
 export interface IntegrationSettingsType {
   enableIfood: boolean;
@@ -61,6 +78,23 @@ export const defaultAppearanceSettings: AppearanceSettingsType = {
   compactMode: false,
   preferredColorScheme: "purple",
   sidebarSize: [25],
+};
+
+// Valores padrão para configurações de impressão
+export const defaultPrinterSettings: PrinterSettingsType = {
+  printerName: "EPSON TM-T20",
+  printerIP: "192.168.1.100",
+  printerPort: "9100",
+  autoPrint: true,
+  printCopies: "1",
+  paperSize: "80mm",
+  fontSize: "normal",
+  fontFamily: "courier",
+  showLogo: true,
+  footerText: "Obrigado pela preferência! Volte sempre!",
+  printItems: true,
+  printPrices: true,
+  printQRCode: false,
 };
 
 // Valores padrão para configurações de integração
@@ -118,6 +152,28 @@ export function saveAppearanceSettings(settings: AppearanceSettingsType): void {
     localStorage.setItem('appearanceSettings', JSON.stringify(settings));
   } catch (error) {
     console.error('Erro ao salvar configurações de aparência:', error);
+  }
+}
+
+// Função para carregar as configurações de impressão do localStorage
+export function loadPrinterSettings(): PrinterSettingsType {
+  try {
+    const storedSettings = localStorage.getItem('printerSettings');
+    if (storedSettings) {
+      return JSON.parse(storedSettings);
+    }
+  } catch (error) {
+    console.error('Erro ao carregar configurações de impressão:', error);
+  }
+  return defaultPrinterSettings;
+}
+
+// Função para salvar as configurações de impressão no localStorage
+export function savePrinterSettings(settings: PrinterSettingsType): void {
+  try {
+    localStorage.setItem('printerSettings', JSON.stringify(settings));
+  } catch (error) {
+    console.error('Erro ao salvar configurações de impressão:', error);
   }
 }
 
