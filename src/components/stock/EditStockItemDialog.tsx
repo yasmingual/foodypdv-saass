@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,14 +9,19 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { StockItem, StockItemCategory } from "@/context/StockContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ImageIcon } from "lucide-react";
+import { toast } from "sonner";
 
+// Ajuste do schema para incluir o imageUrl
 const stockItemSchema = z.object({
   name: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
   category: z.enum(["Ingredientes", "Vegetais", "Bebidas", "Descartáveis", "Outros"]),
   quantity: z.coerce.number().min(0, { message: "Quantidade não pode ser negativa" }),
   unit: z.string().min(1, { message: "Unidade é obrigatória" }),
   minStock: z.coerce.number().min(0, { message: "Estoque mínimo não pode ser negativo" }),
-  purchasePrice: z.coerce.number().min(0, { message: "Preço não pode ser negativo" }).optional()
+  purchasePrice: z.coerce.number().min(0, { message: "Preço não pode ser negativo" }).optional(),
+  imageUrl: z.string().optional()
 });
 
 type StockItemFormValues = z.infer<typeof stockItemSchema>;
@@ -34,6 +39,9 @@ export const EditStockItemDialog: React.FC<EditStockItemDialogProps> = ({
   item,
   onSubmit,
 }) => {
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   const form = useForm<StockItemFormValues>({
     resolver: zodResolver(stockItemSchema),
     defaultValues: {
@@ -42,7 +50,8 @@ export const EditStockItemDialog: React.FC<EditStockItemDialogProps> = ({
       quantity: 0,
       unit: "un",
       minStock: 0,
-      purchasePrice: 0
+      purchasePrice: 0,
+      imageUrl: ""
     }
   });
 
@@ -55,12 +64,46 @@ export const EditStockItemDialog: React.FC<EditStockItemDialogProps> = ({
         quantity: item.quantity,
         unit: item.unit,
         minStock: item.minStock,
-        purchasePrice: item.purchasePrice || 0
+        purchasePrice: item.purchasePrice || 0,
+        imageUrl: item.imageUrl || ""
       });
+      
+      if (item.imageUrl) {
+        setImagePreview(item.imageUrl);
+      } else {
+        setImagePreview(null);
+      }
     }
   }, [item, form]);
 
   const units = ["un", "kg", "g", "L", "ml", "cx", "pct"];
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validar o tipo de arquivo
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/avif'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Formato de imagem não suportado. Use PNG, JPG, JPEG, WEBP ou AVIF.");
+      return;
+    }
+
+    // Simular upload (em um app real, isso enviaria para um servidor)
+    setIsUploading(true);
+
+    // Criar URL para preview da imagem
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        const imageUrl = event.target.result as string;
+        setImagePreview(imageUrl);
+        form.setValue("imageUrl", imageUrl);
+        setIsUploading(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = (data: StockItemFormValues) => {
     if (item) {
@@ -80,6 +123,29 @@ export const EditStockItemDialog: React.FC<EditStockItemDialogProps> = ({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <Avatar className="h-24 w-24 cursor-pointer border-2 border-dashed border-gray-300 p-1">
+                  <AvatarImage src={imagePreview || ""} />
+                  <AvatarFallback className="text-muted-foreground bg-muted">
+                    <ImageIcon className="h-12 w-12" />
+                  </AvatarFallback>
+                </Avatar>
+                <Input
+                  type="file"
+                  accept=".png,.jpg,.jpeg,.webp,.avif"
+                  onChange={handleImageUpload}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  disabled={isUploading}
+                />
+                {isUploading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-full">
+                    <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full"></div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <FormField
               control={form.control}
               name="name"

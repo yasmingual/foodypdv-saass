@@ -14,6 +14,7 @@ export interface StockItem {
   minStock: number;
   purchasePrice?: number;
   lastUpdate?: string;
+  imageUrl?: string;  // Nova propriedade para URL da imagem
 }
 
 interface StockContextType {
@@ -28,18 +29,18 @@ interface StockContextType {
   getStockValue: () => number;
 }
 
-// Valores iniciais para o estoque
+// Valores iniciais para o estoque com imageUrl
 const initialStockItems: StockItem[] = [
-  { id: 1, name: "Pão de Hambúrguer", category: "Ingredientes", quantity: 125, unit: "un", minStock: 50, purchasePrice: 0.90, lastUpdate: "2025-05-18" },
-  { id: 2, name: "Carne Hambúrguer", category: "Ingredientes", quantity: 80, unit: "un", minStock: 40, purchasePrice: 2.50, lastUpdate: "2025-05-18" },
+  { id: 1, name: "Pão de Hambúrguer", category: "Ingredientes", quantity: 125, unit: "un", minStock: 50, purchasePrice: 0.90, lastUpdate: "2025-05-18", imageUrl: "https://images.unsplash.com/photo-1568376794508-ae52c6ab3929?auto=format&fit=crop&q=80&w=200" },
+  { id: 2, name: "Carne Hambúrguer", category: "Ingredientes", quantity: 80, unit: "un", minStock: 40, purchasePrice: 2.50, lastUpdate: "2025-05-18", imageUrl: "https://images.unsplash.com/photo-1565299507177-b0ac66763828?auto=format&fit=crop&q=80&w=200" },
   { id: 3, name: "Queijo Cheddar", category: "Ingredientes", quantity: 30, unit: "kg", minStock: 5, purchasePrice: 28.00, lastUpdate: "2025-05-17" },
-  { id: 4, name: "Alface", category: "Vegetais", quantity: 4, unit: "kg", minStock: 5, purchasePrice: 8.00, lastUpdate: "2025-05-19" },
+  { id: 4, name: "Alface", category: "Vegetais", quantity: 4, unit: "kg", minStock: 5, purchasePrice: 8.00, lastUpdate: "2025-05-19", imageUrl: "https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?auto=format&fit=crop&q=80&w=200" },
   { id: 5, name: "Tomate", category: "Vegetais", quantity: 8, unit: "kg", minStock: 5, purchasePrice: 6.50, lastUpdate: "2025-05-19" },
   { id: 6, name: "Cebola", category: "Vegetais", quantity: 10, unit: "kg", minStock: 5, purchasePrice: 4.30, lastUpdate: "2025-05-15" },
-  { id: 7, name: "Batata", category: "Vegetais", quantity: 30, unit: "kg", minStock: 20, purchasePrice: 5.90, lastUpdate: "2025-05-17" },
-  { id: 8, name: "Coca-Cola Lata", category: "Bebidas", quantity: 48, unit: "un", minStock: 24, purchasePrice: 2.80, lastUpdate: "2025-05-16" },
+  { id: 7, name: "Batata", category: "Vegetais", quantity: 30, unit: "kg", minStock: 20, purchasePrice: 5.90, lastUpdate: "2025-05-17", imageUrl: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&q=80&w=200" },
+  { id: 8, name: "Coca-Cola Lata", category: "Bebidas", quantity: 48, unit: "un", minStock: 24, purchasePrice: 2.80, lastUpdate: "2025-05-16", imageUrl: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=200" },
   { id: 9, name: "Coca-Cola 600ml", category: "Bebidas", quantity: 24, unit: "un", minStock: 12, purchasePrice: 5.50, lastUpdate: "2025-05-16" },
-  { id: 10, name: "Água Mineral", category: "Bebidas", quantity: 36, unit: "un", minStock: 20, purchasePrice: 1.20, lastUpdate: "2025-05-16" },
+  { id: 10, name: "Água Mineral", category: "Bebidas", quantity: 36, unit: "un", minStock: 20, purchasePrice: 1.20, lastUpdate: "2025-05-16", imageUrl: "https://images.unsplash.com/photo-1616118132534-731ac9b4bbbd?auto=format&fit=crop&q=80&w=200" },
   { id: 11, name: "Copos Descartáveis", category: "Descartáveis", quantity: 150, unit: "un", minStock: 50, purchasePrice: 0.15, lastUpdate: "2025-05-15" },
   { id: 12, name: "Embalagem p/ Delivery", category: "Descartáveis", quantity: 65, unit: "un", minStock: 40, purchasePrice: 0.75, lastUpdate: "2025-05-15" }
 ];
