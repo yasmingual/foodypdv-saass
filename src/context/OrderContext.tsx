@@ -1,4 +1,6 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useProducts } from './ProductContext';
 
 // Tipos
 export type OrderItem = {
@@ -114,7 +116,17 @@ const initialOrders: Order[] = [
 ];
 
 export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const [orders, setOrders] = useState<Order[]>(() => {
+    const savedOrders = localStorage.getItem("orders");
+    return savedOrders ? JSON.parse(savedOrders) : initialOrders;
+  });
+  
+  const { products } = useProducts();
+
+  // Salvar pedidos no localStorage
+  useEffect(() => {
+    localStorage.setItem("orders", JSON.stringify(orders));
+  }, [orders]);
 
   // Função para obter o próximo ID de pedido
   const getNextOrderId = () => {
@@ -165,22 +177,10 @@ export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children 
 
   // Calcular valor total do pedido
   const calculateOrderTotal = (order: Order) => {
-    // Preços simulados (em uma aplicação real, viriam de um banco de dados)
-    const mockPrices: Record<string, number> = {
-      "X-Bacon": 20.9,
-      "X-Salada": 18.5,
-      "X-Tudo": 25.9,
-      "Batata Frita P": 10.5,
-      "Batata Frita M": 15.9,
-      "Batata Frita G": 20.9,
-      "Coca-Cola Lata": 6.5,
-      "Coca-Cola 600ml": 9.9,
-      "Água Mineral": 4.5,
-    };
-
-    // Cálculo do subtotal
+    // Usar preços dos produtos cadastrados
     const subtotal = order.items.reduce((total, item) => {
-      const price = mockPrices[item.name] || 0;
+      const product = products.find(p => p.name === item.name);
+      const price = product ? product.price : 0;
       return total + (price * item.quantity);
     }, 0);
 

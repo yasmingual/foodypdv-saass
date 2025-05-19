@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -14,6 +13,7 @@ import OrderItems from "./OrderItems";
 import OrderSummary from "./OrderSummary";
 import PaymentMethodSelector from "./PaymentMethodSelector";
 import PaymentActions from "./PaymentActions";
+import { useProducts } from "@/context/ProductContext";
 
 type PaymentDialogProps = {
   order: Order | null;
@@ -29,6 +29,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
   onPaymentComplete 
 }) => {
   const { processPayment, calculateOrderTotal } = useOrders();
+  const { products } = useProducts();
   const [paymentMethod, setPaymentMethod] = useState<Order["paymentMethod"]>("Dinheiro");
   const [isPrinting, setIsPrinting] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
@@ -61,6 +62,12 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
     const printWindow = window.open('', '_blank');
     
     if (printWindow) {
+      // Função para buscar o preço do produto
+      const getProductPrice = (productName: string) => {
+        const product = products.find(p => p.name === productName);
+        return product ? product.price : 0;
+      };
+
       // Cria o conteúdo do cupom na janela de impressão
       printWindow.document.write(`
         <html>
@@ -151,19 +158,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
               <div>
                 <h2>ITENS DO PEDIDO</h2>
                 ${order.items.map(item => {
-                  // Simulação de preços - em um sistema real, isso viria de uma base de dados
-                  const mockPrices = {
-                    "X-Bacon": 20.9,
-                    "X-Salada": 18.5,
-                    "X-Tudo": 25.9,
-                    "Batata Frita P": 10.5,
-                    "Batata Frita M": 15.9,
-                    "Batata Frita G": 20.9,
-                    "Coca-Cola Lata": 6.5,
-                    "Coca-Cola 600ml": 9.9,
-                    "Água Mineral": 4.5,
-                  };
-                  const price = mockPrices[item.name] || 0;
+                  const price = getProductPrice(item.name);
                   
                   return `
                     <div class="item">
