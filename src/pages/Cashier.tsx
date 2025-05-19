@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -34,34 +33,28 @@ const Cashier = () => {
   const [initialCashAmount, setInitialCashAmount] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
-  const [transactions, setTransactions] = useState(initialTransactions);
+  const [transactions, setTransactions] = useState<any[]>([]);
 
   const readyOrders = orders.filter(order => order.status === "ready");
   const paidOrders = orders.filter(order => order.status === "paid");
 
   useEffect(() => {
-    // Atualiza as transações com base nos pedidos pagos
-    const newTransactions = [...initialTransactions];
+    // Atualiza as transações com base apenas nos pedidos pagos
+    const newTransactions = [];
     
     // Adiciona as transações dos pedidos pagos
     paidOrders.forEach(order => {
-      // Verifica se já existe uma transação para este pedido
-      const existingTransaction = newTransactions.find(t => t.orderId === order.id);
+      const now = new Date();
+      const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
       
-      if (!existingTransaction) {
-        // Cria uma nova transação para o pedido pago
-        const now = new Date();
-        const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-        
-        newTransactions.push({
-          id: `T${order.id}`,
-          orderId: order.id,
-          value: calculateOrderTotal(order),
-          type: order.paymentMethod || "Dinheiro",
-          time: time,
-          status: "completed"
-        });
-      }
+      newTransactions.push({
+        id: `T${order.id}`,
+        orderId: order.id,
+        value: calculateOrderTotal(order),
+        type: order.paymentMethod || "Dinheiro",
+        time: order.time || time,
+        status: "completed"
+      });
     });
     
     setTransactions(newTransactions);

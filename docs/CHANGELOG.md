@@ -8,6 +8,8 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 ### Corrigido
 - Corrigido erro de importação em Settings.tsx que impedia a página de configurações de carregar
 - Corrigido o sistema de impressão de cupom fiscal para mostrar apenas o cupom e não a tela inteira do sistema
+- Corrigido o problema onde transações de pedidos pendentes não eram exibidas nos cards do caixa
+- Removidos dados mockados do caixa, agora exibindo apenas dados reais baseados nos pedidos processados
 
 ## [0.4.0] - 2025-05-19
 
