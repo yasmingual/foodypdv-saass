@@ -1,4 +1,5 @@
 
+
 # Changelog
 
 Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
@@ -6,6 +7,11 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 ## [Não lançado]
 
 ### Adicionado
+- Implementada versão mobile do PDV com layout otimizado para dispositivos móveis
+  - Adicionada navegação adaptada com botões maiores e interfaces mais amigáveis para toque
+  - Separação de visualização de produtos e carrinho em abas distintas
+  - Implementada detecção automática de dispositivo para redirecionar para a versão apropriada
+  - Adicionado botão de acesso à versão mobile do PDV no menu lateral
 - Implementado sistema completo de gerenciamento de estoque
   - Adicionada funcionalidade para cadastrar novos itens no estoque
   - Adicionada funcionalidade para editar informações dos itens
@@ -69,3 +75,4 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 - Implementação das funcionalidades básicas de PDV
 - Implementação do Caixa para recebimento de pedidos
 - Implementação do KDS para cozinha
+

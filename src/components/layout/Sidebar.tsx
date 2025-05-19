@@ -12,30 +12,42 @@ import {
   Package,
   Tag,
   Menu,
-  Settings
+  Settings,
+  Smartphone
 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type NavItem = {
   icon: React.ElementType;
   label: string;
   path: string;
+  showOn?: "desktop" | "mobile" | "both";
 };
 
 const navItems: NavItem[] = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: ShoppingCart, label: "PDV", path: "/pdv" },
-  { icon: ClipboardList, label: "KDS", path: "/kds" },
-  { icon: Menu, label: "Pedidos", path: "/orders" },
-  { icon: Package, label: "Estoque", path: "/stock" },
-  { icon: DollarSign, label: "Caixa", path: "/cashier" },
-  { icon: FolderTree, label: "Produtos", path: "/products" },
-  { icon: Tag, label: "Categorias", path: "/categories" },
-  { icon: Settings, label: "Configurações", path: "/settings" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", showOn: "both" },
+  { icon: ShoppingCart, label: "PDV", path: "/pdv", showOn: "both" },
+  { icon: Smartphone, label: "PDV Mobile", path: "/pdv-mobile", showOn: "both" },
+  { icon: ClipboardList, label: "KDS", path: "/kds", showOn: "both" },
+  { icon: Menu, label: "Pedidos", path: "/orders", showOn: "both" },
+  { icon: Package, label: "Estoque", path: "/stock", showOn: "both" },
+  { icon: DollarSign, label: "Caixa", path: "/cashier", showOn: "both" },
+  { icon: FolderTree, label: "Produtos", path: "/products", showOn: "both" },
+  { icon: Tag, label: "Categorias", path: "/categories", showOn: "both" },
+  { icon: Settings, label: "Configurações", path: "/settings", showOn: "both" },
 ];
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const isMobile = useIsMobile();
+
+  // Filtrar itens de navegação com base no dispositivo
+  const filteredNavItems = navItems.filter(item => 
+    item.showOn === "both" || 
+    (item.showOn === "desktop" && !isMobile) || 
+    (item.showOn === "mobile" && isMobile)
+  );
 
   return (
     <aside
@@ -73,7 +85,7 @@ export function Sidebar() {
 
       <nav className="mt-6 flex-1">
         <ul className="space-y-1 px-2">
-          {navItems.map((item) => (
+          {filteredNavItems.map((item) => (
             <li key={item.path}>
               <Link
                 to={item.path}

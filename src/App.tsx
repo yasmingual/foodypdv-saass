@@ -9,6 +9,7 @@ import { StockProvider } from "./context/StockContext";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import PDV from "./pages/PDV";
+import PDVMobile from "./pages/PDVMobile";
 import KDS from "./pages/KDS";
 import Stock from "./pages/Stock";
 import Cashier from "./pages/Cashier";
@@ -17,8 +18,15 @@ import Categories from "./pages/Categories";
 import Orders from "./pages/Orders";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import { useIsMobile } from "./hooks/use-mobile";
 
 const queryClient = new QueryClient();
+
+// Componente para lidar com redirecionamento inteligente para PDV
+const PDVRedirect = () => {
+  const isMobile = useIsMobile();
+  return isMobile ? <Navigate to="/pdv-mobile" /> : <PDV />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -31,7 +39,8 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/pdv" element={<PDV />} />
+              <Route path="/pdv" element={<PDVRedirect />} />
+              <Route path="/pdv-mobile" element={<PDVMobile />} />
               <Route path="/kds" element={<KDS />} />
               <Route path="/stock" element={<Stock />} />
               <Route path="/cashier" element={<Cashier />} />
