@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [1.0.7] - 2025-05-19
+### Adicionado
+- Funcionalidade de impressão de cupom no diálogo de pagamento do Caixa
+- Botão dedicado para impressão antes de finalizar o pagamento
+- Inclusão da forma de pagamento selecionada no cupom impresso
+
 ## [1.0.6] - 2025-05-18
 ### Adicionado
 - Integração do fluxo de pagamento no Caixa
