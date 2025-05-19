@@ -13,20 +13,20 @@ import { UpdateQuantityDialog } from "@/components/stock/UpdateQuantityDialog";
 import { DeleteConfirmDialog } from "@/components/stock/DeleteConfirmDialog";
 import { StockItemDetailsDialog } from "@/components/stock/StockItemDetailsDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useStock } from "@/context/StockContext";
+import { useStock, StockItem } from "@/context/StockContext";
 import { toast } from "sonner";
 
 const Stock = () => {
-  const { stockItems, categories, addStockItem, updateStockItem, updateQuantity, removeStockItem } = useStock();
+  const { stockItems, updateStockItem, updateQuantity, deleteStockItem, getStockStatus, getStockCategories, getStockValue } = useStock();
   
-  const [filter, setFilter] = useState<string>("all");
+  const [filter, setFilter] = useState<string>("Todos");
   const [search, setSearch] = useState<string>("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
   const [isQuantityDialogOpen, setIsQuantityDialogOpen] = useState<boolean>(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState<boolean>(false);
-  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<StockItem | null>(null);
 
   // Dados para os cards informativos
   const [stats, setStats] = useState({
@@ -39,9 +39,9 @@ const Stock = () => {
   useEffect(() => {
     // Calcular estatísticas
     const totalItems = stockItems.length;
-    const lowStockItems = stockItems.filter(item => item.quantity <= item.minQuantity).length;
+    const lowStockItems = stockItems.filter(item => item.quantity <= item.minStock).length;
     const uniqueCategories = new Set(stockItems.map(item => item.category)).size;
-    const totalValue = stockItems.reduce((sum, item) => sum + (item.quantity * item.cost), 0);
+    const totalValue = stockItems.reduce((sum, item) => sum + (item.quantity * (item.purchasePrice || 0)), 0);
     
     setStats({
       totalItems,
@@ -54,40 +54,38 @@ const Stock = () => {
   // Filtragem de itens
   const filteredItems = stockItems.filter(item => {
     // Filtro por categoria
-    if (filter !== "all" && item.category !== filter) return false;
+    if (filter !== "Todos" && item.category !== filter) return false;
     
-    // Filtro por pesquisa (nome ou código)
-    if (search && !item.name.toLowerCase().includes(search.toLowerCase()) && 
-        !item.sku.toLowerCase().includes(search.toLowerCase())) return false;
+    // Filtro por pesquisa (nome)
+    if (search && !item.name.toLowerCase().includes(search.toLowerCase())) return false;
     
     return true;
   });
 
-  const handleAddItem = (newItem: any) => {
-    addStockItem(newItem);
-    setIsAddDialogOpen(false);
+  const handleAddItem = (newItem: Omit<StockItem, "id" | "lastUpdate">) => {
+    // Esta função é usada no contexto
     toast.success("Item adicionado ao estoque com sucesso!");
   };
 
-  const handleEditItem = (updatedItem: any) => {
-    updateStockItem(updatedItem.id, updatedItem);
+  const handleEditItem = (id: number, updatedItem: Partial<StockItem>) => {
+    updateStockItem(id, updatedItem);
     setIsEditDialogOpen(false);
     toast.success("Item atualizado com sucesso!");
   };
 
-  const handleUpdateQuantity = (id: number, change: number, reason: string) => {
-    updateQuantity(id, change, reason);
+  const handleUpdateQuantity = (id: number, quantity: number, isIncrement: boolean) => {
+    updateQuantity(id, quantity, isIncrement);
     setIsQuantityDialogOpen(false);
     
-    if (change > 0) {
-      toast.success(`Quantidade adicionada: ${change} unidades`);
+    if (isIncrement) {
+      toast.success(`Quantidade adicionada: ${quantity} unidades`);
     } else {
-      toast.success(`Quantidade removida: ${Math.abs(change)} unidades`);
+      toast.success(`Quantidade removida: ${quantity} unidades`);
     }
   };
 
   const handleDeleteItem = (id: number) => {
-    removeStockItem(id);
+    deleteStockItem(id);
     setIsDeleteDialogOpen(false);
     toast.success("Item removido do estoque!");
   };
@@ -133,7 +131,7 @@ const Stock = () => {
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="flex-1">
               <Input
-                placeholder="Buscar por nome ou código..."
+                placeholder="Buscar por nome..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -145,9 +143,9 @@ const Stock = () => {
                   <SelectValue placeholder="Filtrar por categoria" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todas as categorias</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>{category}</SelectItem>
+                  <SelectItem value="Todos">Todas as categorias</SelectItem>
+                  {getStockCategories().map((category) => (
+                    category !== "Todos" && <SelectItem key={category} value={category}>{category}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -163,7 +161,7 @@ const Stock = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Código</TableHead>
+                  <TableHead>ID</TableHead>
                   <TableHead>Nome</TableHead>
                   <TableHead>Categoria</TableHead>
                   <TableHead>Quantidade</TableHead>
@@ -182,25 +180,25 @@ const Stock = () => {
                 ) : (
                   filteredItems.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell className="font-medium">{item.sku}</TableCell>
+                      <TableCell className="font-medium">{item.id}</TableCell>
                       <TableCell>{item.name}</TableCell>
                       <TableCell>
                         <Badge variant="outline">{item.category}</Badge>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center">
-                          <span className={`mr-2 ${item.quantity <= item.minQuantity ? 'text-red-500 font-bold' : ''}`}>
+                          <span className={`mr-2 ${item.quantity <= item.minStock ? 'text-red-500 font-bold' : ''}`}>
                             {item.quantity}
                           </span>
-                          {item.quantity <= item.minQuantity && (
+                          {item.quantity <= item.minStock && (
                             <Badge variant="outline" className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
                               Baixo
                             </Badge>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{item.minQuantity}</TableCell>
-                      <TableCell>R$ {item.cost.toFixed(2)}</TableCell>
+                      <TableCell>{item.minStock}</TableCell>
+                      <TableCell>R$ {(item.purchasePrice || 0).toFixed(2)}</TableCell>
                       <TableCell>
                         <div className="flex space-x-1">
                           <Button 
@@ -259,36 +257,35 @@ const Stock = () => {
       <AddStockItemDialog
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
-        categories={categories}
-        onSave={handleAddItem}
+        onSubmit={handleAddItem}
       />
       
       <EditStockItemDialog
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         item={selectedItem}
-        categories={categories}
-        onSave={handleEditItem}
+        onSubmit={handleEditItem}
       />
       
       <UpdateQuantityDialog
         open={isQuantityDialogOpen}
         onOpenChange={setIsQuantityDialogOpen}
         item={selectedItem}
-        onUpdate={handleUpdateQuantity}
+        onUpdateQuantity={handleUpdateQuantity}
       />
       
       <DeleteConfirmDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         item={selectedItem}
-        onConfirm={handleDeleteItem}
+        onDelete={handleDeleteItem}
       />
       
       <StockItemDetailsDialog
         open={isDetailsDialogOpen}
         onOpenChange={setIsDetailsDialogOpen}
         item={selectedItem}
+        getStockStatus={getStockStatus}
       />
     </div>
   );
