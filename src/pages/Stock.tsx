@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -17,7 +16,7 @@ import { useStock, StockItem } from "@/context/StockContext";
 import { toast } from "sonner";
 
 const Stock = () => {
-  const { stockItems, updateStockItem, updateQuantity, deleteStockItem, getStockStatus, getStockCategories, getStockValue } = useStock();
+  const { stockItems, addStockItem, updateStockItem, updateQuantity, deleteStockItem, getStockStatus, getStockCategories, getStockValue } = useStock();
   
   const [filter, setFilter] = useState<string>("Todos");
   const [search, setSearch] = useState<string>("");
@@ -64,6 +63,7 @@ const Stock = () => {
 
   const handleAddItem = (newItem: Omit<StockItem, "id" | "lastUpdate">) => {
     // Esta função é usada no contexto
+    addStockItem(newItem);
     toast.success("Item adicionado ao estoque com sucesso!");
   };
 
@@ -271,14 +271,14 @@ const Stock = () => {
         open={isQuantityDialogOpen}
         onOpenChange={setIsQuantityDialogOpen}
         item={selectedItem}
-        onUpdateQuantity={handleUpdateQuantity}
+        onUpdate={(id, quantity, isIncrement) => handleUpdateQuantity(id, quantity, isIncrement)}
       />
       
       <DeleteConfirmDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         item={selectedItem}
-        onDelete={handleDeleteItem}
+        onConfirm={handleDeleteItem}
       />
       
       <StockItemDetailsDialog

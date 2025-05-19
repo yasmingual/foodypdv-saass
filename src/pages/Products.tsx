@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -22,20 +21,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { Pencil, EyeIcon, Trash2 } from "lucide-react";
+import { Pencil, EyeIcon, Trash2, ImageIcon } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // Mock data for products
 const mockProducts = [
-  { id: 1, name: "X-Bacon", category: "Lanches", price: 20.9, stock: 0, active: true },
-  { id: 2, name: "X-Salada", category: "Lanches", price: 18.5, stock: 25, active: true },
-  { id: 3, name: "X-Tudo", category: "Lanches", price: 25.9, stock: 30, active: true },
-  { id: 4, name: "Batata Frita P", category: "Porções", price: 10.5, stock: 50, active: true },
-  { id: 5, name: "Batata Frita M", category: "Porções", price: 15.9, stock: 45, active: true },
-  { id: 6, name: "Batata Frita G", category: "Porções", price: 20.9, stock: 40, active: true },
-  { id: 7, name: "Coca-Cola Lata", category: "Bebidas", price: 6.5, stock: 48, active: true },
-  { id: 8, name: "Coca-Cola 600ml", category: "Bebidas", price: 9.9, stock: 24, active: true },
-  { id: 9, name: "Água Mineral", category: "Bebidas", price: 4.5, stock: 36, active: true },
-  { id: 10, name: "Hamburguer Veggie", category: "Lanches", price: 22.5, stock: 5, active: false },
+  { id: 1, name: "X-Bacon", category: "Lanches", price: 20.9, stock: 0, active: true, imageUrl: "" },
+  { id: 2, name: "X-Salada", category: "Lanches", price: 18.5, stock: 25, active: true, imageUrl: "" },
+  { id: 3, name: "X-Tudo", category: "Lanches", price: 25.9, stock: 30, active: true, imageUrl: "" },
+  { id: 4, name: "Batata Frita P", category: "Porções", price: 10.5, stock: 50, active: true, imageUrl: "" },
+  { id: 5, name: "Batata Frita M", category: "Porções", price: 15.9, stock: 45, active: true, imageUrl: "" },
+  { id: 6, name: "Batata Frita G", category: "Porções", price: 20.9, stock: 40, active: true, imageUrl: "" },
+  { id: 7, name: "Coca-Cola Lata", category: "Bebidas", price: 6.5, stock: 48, active: true, imageUrl: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=200" },
+  { id: 8, name: "Coca-Cola 600ml", category: "Bebidas", price: 9.9, stock: 24, active: true, imageUrl: "" },
+  { id: 9, name: "Água Mineral", category: "Bebidas", price: 4.5, stock: 36, active: true, imageUrl: "https://images.unsplash.com/photo-1616118132534-731ac9b4bbbd?auto=format&fit=crop&q=80&w=200" },
+  { id: 10, name: "Hamburguer Veggie", category: "Lanches", price: 22.5, stock: 5, active: false, imageUrl: "" },
 ];
 
 // Mock data para categorias (extraído das categorias usadas nos produtos)
@@ -59,19 +59,25 @@ const Products = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isNewProductDialogOpen, setIsNewProductDialogOpen] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
+  const [editIsUploading, setEditIsUploading] = useState(false);
   const [editedProduct, setEditedProduct] = useState<any>({
     name: "",
     category: "",
     price: 0,
     stock: 0,
-    active: true
+    active: true,
+    imageUrl: ""
   });
   const [newProduct, setNewProduct] = useState({
     name: "",
     category: "",
     price: 0,
     stock: 0,
-    active: true
+    active: true,
+    imageUrl: ""
   });
 
   // Filter products based on search query and active filter
@@ -96,12 +102,76 @@ const Products = () => {
       category: "",
       price: 0,
       stock: 0,
-      active: true
+      active: true,
+      imageUrl: ""
     });
+    setImagePreview(null);
     setIsNewProductDialogOpen(true);
     toast.info("Novo produto", {
       description: "Adicionando um novo produto ao catálogo",
     });
+  };
+
+  // Handler para upload de imagem para novo produto
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validar o tipo de arquivo
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/avif'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Formato de imagem não suportado. Use PNG, JPG, JPEG, WEBP ou AVIF.");
+      return;
+    }
+
+    // Simular upload (em um app real, isso enviaria para um servidor)
+    setIsUploading(true);
+
+    // Criar URL para preview da imagem
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        const imageUrl = event.target.result as string;
+        setImagePreview(imageUrl);
+        setNewProduct({
+          ...newProduct,
+          imageUrl: imageUrl
+        });
+        setIsUploading(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Handler para upload de imagem para edição de produto
+  const handleEditImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validar o tipo de arquivo
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/avif'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Formato de imagem não suportado. Use PNG, JPG, JPEG, WEBP ou AVIF.");
+      return;
+    }
+
+    // Simular upload (em um app real, isso enviaria para um servidor)
+    setEditIsUploading(true);
+
+    // Criar URL para preview da imagem
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        const imageUrl = event.target.result as string;
+        setEditImagePreview(imageUrl);
+        setEditedProduct({
+          ...editedProduct,
+          imageUrl: imageUrl
+        });
+        setEditIsUploading(false);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   // Handler para salvar novo produto
@@ -114,6 +184,7 @@ const Products = () => {
     
     setProducts([...products, productToAdd]);
     setIsNewProductDialogOpen(false);
+    setImagePreview(null);
     toast.success("Produto adicionado", {
       description: `O produto ${newProduct.name} foi adicionado com sucesso.`,
     });
@@ -127,8 +198,10 @@ const Products = () => {
       category: product.category,
       price: product.price,
       stock: product.stock,
-      active: product.active
+      active: product.active,
+      imageUrl: product.imageUrl || ""
     });
+    setEditImagePreview(product.imageUrl || null);
     setIsEditDialogOpen(true);
     toast.info("Editar produto", {
       description: `Editando produto: ${product.name}`,
@@ -269,10 +342,14 @@ const Products = () => {
                     <TableCell className="font-medium">{product.id}</TableCell>
                     <TableCell>
                       <div className="flex items-center">
-                        <div className="w-8 h-8 rounded bg-muted mr-2 flex items-center justify-center text-muted-foreground">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M18 20V10m-6 10V6M6 20v-4"></path>
-                          </svg>
+                        <div className="w-8 h-8 rounded bg-muted mr-2 flex items-center justify-center text-muted-foreground overflow-hidden">
+                          {product.imageUrl ? (
+                            <img src={product.imageUrl} alt={product.name} className="w-8 h-8 object-cover" />
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M18 20V10m-6 10V6M6 20v-4"></path>
+                            </svg>
+                          )}
                         </div>
                         <span>{product.name}</span>
                       </div>
@@ -343,6 +420,30 @@ const Products = () => {
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
+            {/* Área para upload de imagem */}
+            <div className="flex justify-center mb-2">
+              <div className="relative">
+                <Avatar className="h-24 w-24 cursor-pointer border-2 border-dashed border-gray-300 p-1">
+                  <AvatarImage src={imagePreview || ""} />
+                  <AvatarFallback className="text-muted-foreground bg-muted">
+                    <ImageIcon className="h-12 w-12" />
+                  </AvatarFallback>
+                </Avatar>
+                <Input
+                  type="file"
+                  accept=".png,.jpg,.jpeg,.webp,.avif"
+                  onChange={handleImageUpload}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  disabled={isUploading}
+                />
+                {isUploading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-full">
+                    <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full"></div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
             <div className="grid grid-cols-4 items-center gap-4">
               <label className="text-right font-medium">Nome</label>
               <Input 
@@ -426,6 +527,30 @@ const Products = () => {
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
+            {/* Área para upload de imagem */}
+            <div className="flex justify-center mb-2">
+              <div className="relative">
+                <Avatar className="h-24 w-24 cursor-pointer border-2 border-dashed border-gray-300 p-1">
+                  <AvatarImage src={editImagePreview || ""} />
+                  <AvatarFallback className="text-muted-foreground bg-muted">
+                    <ImageIcon className="h-12 w-12" />
+                  </AvatarFallback>
+                </Avatar>
+                <Input
+                  type="file"
+                  accept=".png,.jpg,.jpeg,.webp,.avif"
+                  onChange={handleEditImageUpload}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  disabled={editIsUploading}
+                />
+                {editIsUploading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-full">
+                    <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full"></div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
             <div className="grid grid-cols-4 items-center gap-4">
               <label className="text-right font-medium">Nome</label>
               <Input 
@@ -507,6 +632,18 @@ const Products = () => {
           
           {selectedProduct && (
             <div className="grid gap-4 py-4">
+              {/* Exibir a imagem do produto se houver */}
+              {selectedProduct.imageUrl && (
+                <div className="flex justify-center mb-4">
+                  <Avatar className="h-32 w-32">
+                    <AvatarImage src={selectedProduct.imageUrl} alt={selectedProduct.name} />
+                    <AvatarFallback className="text-muted-foreground bg-muted">
+                      <ImageIcon className="h-16 w-16" />
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+              )}
+              
               <div className="grid grid-cols-4 items-center gap-4">
                 <span className="text-right font-medium">ID:</span>
                 <span className="col-span-3">{selectedProduct.id}</span>
