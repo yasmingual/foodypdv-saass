@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -10,7 +10,22 @@ import { IntegrationSettings } from "@/components/settings/IntegrationSettings";
 import { BackupSettings } from "@/components/settings/BackupSettings";
 
 const Settings = () => {
-  const [activeTab, setActiveTab] = useState("general");
+  // Recuperamos o último tab ativo do localStorage, se disponível
+  const getInitialTab = () => {
+    try {
+      const savedTab = localStorage.getItem('settingsActiveTab');
+      return savedTab || "general";
+    } catch (error) {
+      return "general";
+    }
+  };
+
+  const [activeTab, setActiveTab] = useState(getInitialTab);
+
+  // Salvamos o tab ativo no localStorage quando mudar
+  useEffect(() => {
+    localStorage.setItem('settingsActiveTab', activeTab);
+  }, [activeTab]);
 
   return (
     <div className="flex h-screen">
@@ -24,7 +39,7 @@ const Settings = () => {
         <div className="p-6 flex-1 overflow-y-auto">
           <Card className="p-6">
             <Tabs 
-              defaultValue="general" 
+              defaultValue={activeTab} 
               value={activeTab}
               onValueChange={setActiveTab}
               className="w-full"

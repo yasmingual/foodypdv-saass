@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { SettingsLayout } from "./SettingsLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,27 +8,28 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } fr
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
+import { 
+  IntegrationSettingsType, 
+  loadIntegrationSettings, 
+  saveIntegrationSettings 
+} from "@/utils/settingsUtils";
 
 export const IntegrationSettings = () => {
   const { toast } = useToast();
   
-  const form = useForm({
-    defaultValues: {
-      enableIfood: false,
-      ifoodToken: "",
-      enablePaymentGateway: false,
-      paymentGatewayKey: "",
-      enableWhatsapp: false,
-      whatsappNumber: "",
-      enableMercadoLivre: false,
-      mercadoLivreKey: "",
-      enableApiAccess: false,
-      apiKey: "sk_test_api_key_123456789",
-    }
+  const form = useForm<IntegrationSettingsType>({
+    defaultValues: loadIntegrationSettings()
   });
 
-  const onSubmit = (data: any) => {
+  // Carregar configurações salvas ao montar o componente
+  useEffect(() => {
+    const savedSettings = loadIntegrationSettings();
+    form.reset(savedSettings);
+  }, [form]);
+
+  const onSubmit = (data: IntegrationSettingsType) => {
     console.log("Configurações de integrações salvas:", data);
+    saveIntegrationSettings(data);
     toast({
       title: "Configurações salvas",
       description: "As configurações de integrações foram atualizadas com sucesso!"
@@ -38,6 +39,12 @@ export const IntegrationSettings = () => {
   const generateApiKey = () => {
     const newApiKey = `sk_${Math.random().toString(36).substring(2, 15)}_${Math.random().toString(36).substring(2, 15)}`;
     form.setValue("apiKey", newApiKey);
+    
+    // Salvar imediatamente ao gerar nova chave
+    const currentData = form.getValues();
+    currentData.apiKey = newApiKey;
+    saveIntegrationSettings(currentData);
+    
     toast({
       title: "Nova chave API gerada",
       description: "Uma nova chave de API foi gerada com sucesso!"

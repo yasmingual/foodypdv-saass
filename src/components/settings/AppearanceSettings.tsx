@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { SettingsLayout } from "./SettingsLayout";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -10,26 +10,36 @@ import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { 
+  AppearanceSettingsType, 
+  loadAppearanceSettings, 
+  saveAppearanceSettings,
+  applyAppearanceSettings
+} from "@/utils/settingsUtils";
 
 export const AppearanceSettings = () => {
   const { toast } = useToast();
   
-  const form = useForm({
-    defaultValues: {
-      theme: "light",
-      fontSize: "medium",
-      animationsEnabled: true,
-      colorScheme: "default",
-      fontFamily: "system",
-      sidebarPosition: "left",
-      compactMode: false,
-      preferredColorScheme: "purple",
-      sidebarSize: [25],
-    }
+  const form = useForm<AppearanceSettingsType>({
+    defaultValues: loadAppearanceSettings()
   });
 
-  const onSubmit = (data: any) => {
+  // Carregar configurações salvas ao montar o componente
+  useEffect(() => {
+    const savedSettings = loadAppearanceSettings();
+    form.reset(savedSettings);
+    
+    // Aplicar configurações
+    applyAppearanceSettings(savedSettings);
+  }, [form]);
+
+  const onSubmit = (data: AppearanceSettingsType) => {
     console.log("Configurações de aparência salvas:", data);
+    saveAppearanceSettings(data);
+    
+    // Aplicar configurações imediatamente
+    applyAppearanceSettings(data);
+    
     toast({
       title: "Configurações salvas",
       description: "As configurações de aparência foram atualizadas com sucesso!"

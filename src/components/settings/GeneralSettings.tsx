@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { SettingsLayout } from "./SettingsLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,24 +7,27 @@ import { Switch } from "@/components/ui/switch";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  GeneralSettingsType, 
+  loadGeneralSettings, 
+  saveGeneralSettings 
+} from "@/utils/settingsUtils";
 
 export const GeneralSettings = () => {
   const { toast } = useToast();
-  const form = useForm({
-    defaultValues: {
-      restaurantName: "Restaurante Demo",
-      address: "Av. Principal, 1000",
-      city: "São Paulo",
-      phone: "(11) 3000-0000",
-      cnpj: "00.000.000/0001-00",
-      automaticBackup: true,
-      notificationSound: true
-    }
+  const form = useForm<GeneralSettingsType>({
+    defaultValues: loadGeneralSettings()
   });
 
-  const onSubmit = (data: any) => {
+  useEffect(() => {
+    // Carregar configurações salvas ao montar o componente
+    const savedSettings = loadGeneralSettings();
+    form.reset(savedSettings);
+  }, [form]);
+
+  const onSubmit = (data: GeneralSettingsType) => {
     console.log("Configurações gerais salvas:", data);
-    // Em um sistema real, salvaríamos essas configurações em um banco de dados
+    saveGeneralSettings(data);
     toast({
       title: "Configurações salvas",
       description: "As configurações gerais foram atualizadas com sucesso!"

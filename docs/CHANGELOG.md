@@ -12,6 +12,17 @@
 - Implementação de testes automatizados
 - Exportação de relatórios em diferentes formatos
 
+## [v0.3.5] - 2025-05-19
+### Adicionado
+- Persistência de configurações no localStorage
+- Carregamento automático de configurações salvas
+- Aplicação em tempo real das configurações de aparência
+- Geração e salvamento automático de chaves de API
+
+### Melhorado
+- Interface de usuário para gerenciamento de configurações
+- Experiência do usuário ao salvar e aplicar configurações
+
 ## [v0.3.4] - 2025-05-19
 ### Adicionado
 - Campos para informar valores por forma de pagamento no fechamento de caixa (dinheiro, débito, crédito, PIX)
