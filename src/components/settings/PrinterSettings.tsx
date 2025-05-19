@@ -218,37 +218,69 @@ export const PrinterSettings = () => {
                       <FormControl>
                         <Input {...field} placeholder="Nome da Impressora" />
                       </FormControl>
+                      <FormDescription>
+                        Digite o nome exato da impressora como aparece no Windows (ex: POS-80C)
+                      </FormDescription>
                     </FormItem>
                   )}
                 />
                 
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="printerIP"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Endereço IP</FormLabel>
+                <FormField
+                  control={form.control}
+                  name="connectionType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tipo de Conexão</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        value={field.value}
+                      >
                         <FormControl>
-                          <Input {...field} placeholder="192.168.1.100" />
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o tipo de conexão" />
+                          </SelectTrigger>
                         </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="printerPort"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Porta</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="9100" />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                        <SelectContent>
+                          <SelectItem value="windows">Impressora Local/USB</SelectItem>
+                          <SelectItem value="network">Impressora de Rede (TCP/IP)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Para impressoras USB conectadas diretamente, selecione "Impressora Local/USB"
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+                
+                {form.watch("connectionType") === "network" && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="printerIP"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Endereço IP</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="192.168.1.100" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="printerPort"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Porta</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="9100" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
                 
                 <FormField
                   control={form.control}

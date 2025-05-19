@@ -30,6 +30,7 @@ export interface PrinterSettingsType {
   printerName: string;
   printerIP: string;
   printerPort: string;
+  connectionType: "network" | "usb" | "windows";
   autoPrint: boolean;
   printCopies: string;
   paperSize: string;
@@ -85,6 +86,7 @@ export const defaultPrinterSettings: PrinterSettingsType = {
   printerName: "EPSON TM-T20",
   printerIP: "192.168.1.100",
   printerPort: "9100",
+  connectionType: "windows",
   autoPrint: true,
   printCopies: "1",
   paperSize: "80mm",

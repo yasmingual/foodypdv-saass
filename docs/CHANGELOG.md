@@ -1,17 +1,29 @@
 
 
+
 # Changelog
 
 ## [Pendente]
 - Melhorar interface de gestão de categorias
 - Implementar funcionalidade de busca de produtos
 - Adicionar suporte para diferentes métodos de pagamento
-- Integração com impressora térmica para impressão de pedidos
 
 ## [Unreleased]
 - Refatoração do código para melhorar manutenção
 - Implementação de testes automatizados
 - Exportação de relatórios em diferentes formatos
+
+## [v0.3.11] - 2025-05-19
+### Adicionado
+- Suporte para impressoras térmicas locais/USB conectadas diretamente ao computador
+- Campo de seleção do tipo de conexão da impressora (Local/USB ou Rede TCP/IP)
+- Instruções de configuração para impressoras como POS-80C
+- Compatibilidade com driver de impressão Windows padrão
+
+### Melhorado
+- Interface de configuração da impressora para melhor usabilidade
+- Descrições explicativas em cada campo de configuração
+- Processo de teste de impressão para ser compatível com impressoras locais
 
 ## [v0.3.10] - 2025-05-19
 ### Adicionado
@@ -134,4 +146,5 @@
 - Dashboard básico
 - Cadastro de produtos simples
 - Funcionalidade de vendas básicas
+
 
