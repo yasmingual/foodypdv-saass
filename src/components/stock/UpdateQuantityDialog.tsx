@@ -11,14 +11,14 @@ interface UpdateQuantityDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   item: StockItem | null;
-  onSubmit: (id: number, quantity: number, isIncrement: boolean) => void;
+  onUpdate: (id: number, quantity: number, isIncrement: boolean) => void;
 }
 
 export const UpdateQuantityDialog: React.FC<UpdateQuantityDialogProps> = ({
   open,
   onOpenChange,
   item,
-  onSubmit,
+  onUpdate,
 }) => {
   const [quantity, setQuantity] = useState(1);
   const [operation, setOperation] = useState<"add" | "subtract">("add");
@@ -26,7 +26,7 @@ export const UpdateQuantityDialog: React.FC<UpdateQuantityDialogProps> = ({
   if (!item) return null;
 
   const handleSubmit = () => {
-    onSubmit(item.id, quantity, operation === "add");
+    onUpdate(item.id, quantity, operation === "add");
     onOpenChange(false);
     setQuantity(1);
   };
