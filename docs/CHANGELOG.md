@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [1.0.9] - 2025-05-19
+### Corrigido
+- Os cards do caixa agora são atualizados automaticamente quando pagamentos são processados
+- Transações são adicionadas dinamicamente à lista de transações após pagamento
+- Implementado callback de pagamento concluído para atualização de estatísticas
+
 ## [1.0.8] - 2025-05-19
 ### Corrigido
 - Ajuste no layout da tela de recebimento de pagamento para garantir que todos os valores sejam exibidos corretamente
@@ -62,4 +68,3 @@
 - Integração entre PDV, KDS e tela de Pedidos
 - Sistema de gerenciamento de status de pedidos
 - Documentação da tela de Pedidos para Atendentes
-

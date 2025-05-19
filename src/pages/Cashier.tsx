@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
@@ -12,8 +13,8 @@ import { toast } from "sonner";
 import { useOrders, Order } from "@/context/OrderContext";
 import PaymentDialog from "@/components/cashier/PaymentDialog";
 
-// Mock data for transactions
-const mockTransactions = [
+// Mock data for transactions - agora será atualizado dinamicamente
+const initialTransactions = [
   { id: "T1001", orderId: 1001, value: 56.90, type: "Crédito", time: "10:15", status: "completed" },
   { id: "T1002", orderId: 1002, value: 87.80, type: "Dinheiro", time: "10:25", status: "completed" },
   { id: "T1003", orderId: 1003, value: 102.50, type: "Débito", time: "11:05", status: "completed" },
@@ -33,23 +34,53 @@ const Cashier = () => {
   const [initialCashAmount, setInitialCashAmount] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [transactions, setTransactions] = useState(initialTransactions);
 
   const readyOrders = orders.filter(order => order.status === "ready");
+  const paidOrders = orders.filter(order => order.status === "paid");
+
+  useEffect(() => {
+    // Atualiza as transações com base nos pedidos pagos
+    const newTransactions = [...initialTransactions];
+    
+    // Adiciona as transações dos pedidos pagos
+    paidOrders.forEach(order => {
+      // Verifica se já existe uma transação para este pedido
+      const existingTransaction = newTransactions.find(t => t.orderId === order.id);
+      
+      if (!existingTransaction) {
+        // Cria uma nova transação para o pedido pago
+        const now = new Date();
+        const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        
+        newTransactions.push({
+          id: `T${order.id}`,
+          orderId: order.id,
+          value: calculateOrderTotal(order),
+          type: order.paymentMethod || "Dinheiro",
+          time: time,
+          status: "completed"
+        });
+      }
+    });
+    
+    setTransactions(newTransactions);
+  }, [paidOrders, calculateOrderTotal]);
 
   // Calculate totals from transactions
-  const totalCash = mockTransactions
+  const totalCash = transactions
     .filter(t => t.status === "completed" && t.type === "Dinheiro")
     .reduce((sum, t) => sum + t.value, 0);
 
-  const totalCard = mockTransactions
+  const totalCard = transactions
     .filter(t => t.status === "completed" && (t.type === "Crédito" || t.type === "Débito"))
     .reduce((sum, t) => sum + t.value, 0);
 
-  const totalPix = mockTransactions
+  const totalPix = transactions
     .filter(t => t.status === "completed" && t.type === "Pix")
     .reduce((sum, t) => sum + t.value, 0);
 
-  const totalSales = mockTransactions
+  const totalSales = transactions
     .filter(t => t.status === "completed")
     .reduce((sum, t) => sum + t.value, 0);
 
@@ -69,6 +100,15 @@ const Cashier = () => {
     setPaymentDialogOpen(true);
   };
 
+  const handlePaymentComplete = () => {
+    // Fecha o diálogo após o pagamento ser processado
+    setPaymentDialogOpen(false);
+    setSelectedOrder(null);
+    
+    // Notificação de sucesso
+    toast.success("Pagamento processado com sucesso!");
+  };
+
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
@@ -83,7 +123,7 @@ const Cashier = () => {
               <CardContent>
                 <div className="text-2xl font-bold">R$ {totalSales.toFixed(2)}</div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {mockTransactions.filter(t => t.status === "completed").length} transações
+                  {transactions.filter(t => t.status === "completed").length} transações
                 </p>
               </CardContent>
             </Card>
@@ -95,7 +135,7 @@ const Cashier = () => {
               <CardContent>
                 <div className="text-2xl font-bold text-pdv-secondary">R$ {totalCash.toFixed(2)}</div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {mockTransactions.filter(t => t.status === "completed" && t.type === "Dinheiro").length} transações
+                  {transactions.filter(t => t.status === "completed" && t.type === "Dinheiro").length} transações
                 </p>
               </CardContent>
             </Card>
@@ -107,7 +147,7 @@ const Cashier = () => {
               <CardContent>
                 <div className="text-2xl font-bold text-pdv-primary">R$ {totalCard.toFixed(2)}</div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {mockTransactions.filter(t => t.status === "completed" && (t.type === "Crédito" || t.type === "Débito")).length} transações
+                  {transactions.filter(t => t.status === "completed" && (t.type === "Crédito" || t.type === "Débito")).length} transações
                 </p>
               </CardContent>
             </Card>
@@ -119,7 +159,7 @@ const Cashier = () => {
               <CardContent>
                 <div className="text-2xl font-bold text-pdv-accent">R$ {totalPix.toFixed(2)}</div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {mockTransactions.filter(t => t.status === "completed" && t.type === "Pix").length} transações
+                  {transactions.filter(t => t.status === "completed" && t.type === "Pix").length} transações
                 </p>
               </CardContent>
             </Card>
@@ -173,30 +213,30 @@ const Cashier = () => {
                               <div className="w-3 h-3 bg-pdv-primary rounded-full mr-3"></div>
                               <span className="w-24">Cartão</span>
                               <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                <div className="bg-pdv-primary h-2 rounded-full" style={{ width: `${(totalCard / totalSales) * 100}%` }}></div>
+                                <div className="bg-pdv-primary h-2 rounded-full" style={{ width: `${totalSales > 0 ? (totalCard / totalSales) * 100 : 0}%` }}></div>
                               </div>
                               <span className="ml-4 font-medium w-24 text-right">
-                                {Math.round((totalCard / totalSales) * 100)}%
+                                {totalSales > 0 ? Math.round((totalCard / totalSales) * 100) : 0}%
                               </span>
                             </div>
                             <div className="flex items-center h-8">
                               <div className="w-3 h-3 bg-pdv-secondary rounded-full mr-3"></div>
                               <span className="w-24">Dinheiro</span>
                               <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                <div className="bg-pdv-secondary h-2 rounded-full" style={{ width: `${(totalCash / totalSales) * 100}%` }}></div>
+                                <div className="bg-pdv-secondary h-2 rounded-full" style={{ width: `${totalSales > 0 ? (totalCash / totalSales) * 100 : 0}%` }}></div>
                               </div>
                               <span className="ml-4 font-medium w-24 text-right">
-                                {Math.round((totalCash / totalSales) * 100)}%
+                                {totalSales > 0 ? Math.round((totalCash / totalSales) * 100) : 0}%
                               </span>
                             </div>
                             <div className="flex items-center h-8">
                               <div className="w-3 h-3 bg-pdv-accent rounded-full mr-3"></div>
                               <span className="w-24">Pix</span>
                               <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                <div className="bg-pdv-accent h-2 rounded-full" style={{ width: `${(totalPix / totalSales) * 100}%` }}></div>
+                                <div className="bg-pdv-accent h-2 rounded-full" style={{ width: `${totalSales > 0 ? (totalPix / totalSales) * 100 : 0}%` }}></div>
                               </div>
                               <span className="ml-4 font-medium w-24 text-right">
-                                {Math.round((totalPix / totalSales) * 100)}%
+                                {totalSales > 0 ? Math.round((totalPix / totalSales) * 100) : 0}%
                               </span>
                             </div>
                           </div>
@@ -222,7 +262,7 @@ const Cashier = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {mockTransactions.map((transaction) => (
+                          {transactions.map((transaction) => (
                             <TableRow key={transaction.id}>
                               <TableCell className="font-medium">{transaction.id}</TableCell>
                               <TableCell>#{transaction.orderId}</TableCell>
@@ -424,6 +464,7 @@ const Cashier = () => {
           setPaymentDialogOpen(false);
           setSelectedOrder(null);
         }}
+        onPaymentComplete={handlePaymentComplete}
       />
     </div>
   );
