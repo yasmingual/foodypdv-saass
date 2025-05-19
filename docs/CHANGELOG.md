@@ -34,6 +34,7 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 - Corrigido o problema onde transações de pedidos pendentes não eram exibidas nos cards do caixa
 - Removidos dados mockados do caixa, agora exibindo apenas dados reais baseados nos pedidos processados
 - Removidos dados mockados do Dashboard, agora exibindo informações reais baseadas nos pedidos processados
+- Corrigido problema de persistência no PDV, que agora exibe corretamente os produtos cadastrados no estoque e suas imagens
 
 ## [0.4.0] - 2025-05-19
 

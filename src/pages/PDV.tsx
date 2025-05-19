@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -14,22 +15,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useStock, StockItem } from "@/context/StockContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Image } from "lucide-react";
 
-// Mock data for products
-const mockProducts = [
-  { id: 1, name: "X-Bacon", price: 20.9, category: "Lanches" },
-  { id: 2, name: "X-Salada", price: 18.5, category: "Lanches" },
-  { id: 3, name: "X-Tudo", price: 25.9, category: "Lanches" },
-  { id: 4, name: "Batata Frita P", price: 10.5, category: "Porções" },
-  { id: 5, name: "Batata Frita M", price: 15.9, category: "Porções" },
-  { id: 6, name: "Batata Frita G", price: 20.9, category: "Porções" },
-  { id: 7, name: "Coca-Cola Lata", price: 6.5, category: "Bebidas" },
-  { id: 8, name: "Coca-Cola 600ml", price: 9.9, category: "Bebidas" },
-  { id: 9, name: "Água Mineral", price: 4.5, category: "Bebidas" },
-];
-
-// Mock data for categories
-const mockCategories = ["Todos", "Lanches", "Porções", "Bebidas"];
+// Definição do tipo de produto baseado nos itens do estoque
+type Product = {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+  imageUrl?: string;
+};
 
 type CartItem = {
   id: number;
@@ -37,6 +34,7 @@ type CartItem = {
   price: number;
   quantity: number;
   observation: string;
+  imageUrl?: string;
 };
 
 // Schema para os dados de entrega
@@ -52,18 +50,61 @@ const deliveryFormSchema = z.object({
 
 type DeliveryFormData = z.infer<typeof deliveryFormSchema>;
 
+// Mapeamento de categorias de estoque para categorias de produtos do PDV
+const stockToPDVCategory: Record<string, string> = {
+  "Ingredientes": "Lanches",
+  "Vegetais": "Lanches",
+  "Bebidas": "Bebidas",
+  "Descartáveis": "Outros",
+  "Outros": "Outros"
+};
+
+// Preços fictícios para demonstração (já que os itens de estoque não têm preços de venda)
+const defaultPrices: Record<string, number> = {
+  "Pão de Hambúrguer": 3.50,
+  "Carne Hambúrguer": 12.90,
+  "Queijo Cheddar": 3.00,
+  "Alface": 1.50,
+  "Tomate": 1.50,
+  "Cebola": 1.00,
+  "Batata": 8.90,
+  "Coca-Cola Lata": 6.50,
+  "Coca-Cola 600ml": 9.90,
+  "Água Mineral": 4.50,
+};
+
 const PDV = () => {
   const { addOrder } = useOrders();
+  const { stockItems } = useStock(); // Obtemos os itens do estoque
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orderType, setOrderType] = useState("mesa");
   const [tableNumber, setTableNumber] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [observationDialogOpen, setObservationDialogOpen] = useState(false);
-  const [currentProduct, setCurrentProduct] = useState<typeof mockProducts[0] | null>(null);
+  const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
   const [observation, setObservation] = useState("");
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
   const [applyServiceFee, setApplyServiceFee] = useState(false);
+
+  // Converter itens do estoque para produtos do PDV
+  const convertStockToProducts = (): Product[] => {
+    return stockItems
+      .filter(item => item.quantity > 0) // Apenas itens com estoque disponível
+      .map(item => ({
+        id: item.id,
+        name: item.name,
+        price: defaultPrices[item.name] || item.purchasePrice * 2 || 10.00, // Preço fictício ou markup do preço de compra
+        category: stockToPDVCategory[item.category] || "Outros",
+        imageUrl: item.imageUrl
+      }));
+  };
+
+  // Obter produtos convertidos do estoque
+  const products = convertStockToProducts();
+
+  // Obter categorias únicas dos produtos
+  const categories = ["Todos", ...new Set(products.map(product => product.category))];
 
   // Form de entrega com react-hook-form
   const deliveryForm = useForm<DeliveryFormData>({
@@ -80,13 +121,13 @@ const PDV = () => {
   });
 
   // Filter products based on active category and search query
-  const filteredProducts = mockProducts.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     const matchesCategory = activeCategory === "Todos" || product.category === activeCategory;
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-  const openObservationDialog = (product: typeof mockProducts[0]) => {
+  const openObservationDialog = (product: Product) => {
     setCurrentProduct(product);
     setObservation("");
     setObservationDialogOpen(true);
@@ -275,7 +316,7 @@ const PDV = () => {
                 </Button>
               </div>
               <div className="flex gap-2 overflow-x-auto pb-2">
-                {mockCategories.map((category) => (
+                {categories.map((category) => (
                   <Button
                     key={category}
                     variant={activeCategory === category ? "default" : "outline"}
@@ -297,16 +338,25 @@ const PDV = () => {
                     onClick={() => openObservationDialog(product)}
                   >
                     <CardContent className="p-4 flex flex-col items-center">
-                      <div className="w-full aspect-square bg-muted rounded-md mb-3 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
-                          <circle cx="12" cy="12" r="10"></circle>
-                          <line x1="14.31" y1="8" x2="20.05" y2="17.94"></line>
-                          <line x1="9.69" y1="8" x2="21.17" y2="8"></line>
-                          <line x1="7.38" y1="12" x2="13.12" y2="2.06"></line>
-                          <line x1="9.69" y1="16" x2="3.95" y2="6.06"></line>
-                          <line x1="14.31" y1="16" x2="2.83" y2="16"></line>
-                          <line x1="16.62" y1="12" x2="10.88" y2="21.94"></line>
-                        </svg>
+                      <div className="w-full aspect-square bg-muted rounded-md mb-3 flex items-center justify-center overflow-hidden">
+                        {product.imageUrl ? (
+                          <Avatar className="h-full w-full rounded-md">
+                            <AvatarImage src={product.imageUrl} alt={product.name} className="object-cover" />
+                            <AvatarFallback className="bg-muted rounded-md">
+                              <Image className="h-8 w-8" />
+                            </AvatarFallback>
+                          </Avatar>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="14.31" y1="8" x2="20.05" y2="17.94"></line>
+                            <line x1="9.69" y1="8" x2="21.17" y2="8"></line>
+                            <line x1="7.38" y1="12" x2="13.12" y2="2.06"></line>
+                            <line x1="9.69" y1="16" x2="3.95" y2="6.06"></line>
+                            <line x1="14.31" y1="16" x2="2.83" y2="16"></line>
+                            <line x1="16.62" y1="12" x2="10.88" y2="21.94"></line>
+                          </svg>
+                        )}
                       </div>
                       <h3 className="font-medium text-center">{product.name}</h3>
                       <p className="text-pdv-primary font-bold mt-2">
@@ -365,22 +415,32 @@ const PDV = () => {
                   {cart.map((item, index) => (
                     <div key={index} className="flex flex-col pb-4 border-b">
                       <div className="flex justify-between">
-                        <div className="flex-1">
-                          <div className="flex justify-between">
-                            <p className="font-medium">{item.name}</p>
-                            <button 
-                              onClick={() => removeFromCart(index)}
-                              className="text-pdv-danger hover:text-red-700 transition-colors"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M3 6h18"></path>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                              </svg>
-                            </button>
+                        <div className="flex flex-1 gap-2">
+                          {item.imageUrl && (
+                            <Avatar className="h-10 w-10 rounded-md">
+                              <AvatarImage src={item.imageUrl} alt={item.name} className="object-cover" />
+                              <AvatarFallback className="bg-muted rounded-md">
+                                <Image className="h-4 w-4" />
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
+                          <div>
+                            <div className="flex justify-between">
+                              <p className="font-medium">{item.name}</p>
+                              <button 
+                                onClick={() => removeFromCart(index)}
+                                className="text-pdv-danger hover:text-red-700 transition-colors ml-2"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M3 6h18"></path>
+                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                              </button>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              R$ {item.price.toFixed(2)} x {item.quantity}
+                            </p>
                           </div>
-                          <p className="text-sm text-muted-foreground">
-                            R$ {item.price.toFixed(2)} x {item.quantity}
-                          </p>
                         </div>
                         <div className="flex items-center ml-4">
                           <div className="flex items-center border rounded-md">
@@ -475,9 +535,21 @@ const PDV = () => {
             <DialogTitle>{currentProduct?.name}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="flex items-center justify-between">
-              <span>Preço</span>
-              <span className="font-medium">R$ {currentProduct?.price.toFixed(2)}</span>
+            <div className="flex flex-col space-y-4">
+              {currentProduct?.imageUrl && (
+                <div className="flex justify-center">
+                  <Avatar className="h-24 w-24 rounded-md">
+                    <AvatarImage src={currentProduct.imageUrl} alt={currentProduct.name} className="object-cover" />
+                    <AvatarFallback className="bg-muted rounded-md">
+                      <Image className="h-12 w-12" />
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <span>Preço</span>
+                <span className="font-medium">R$ {currentProduct?.price.toFixed(2)}</span>
+              </div>
             </div>
             <div>
               <label htmlFor="observation" className="text-sm font-medium">
