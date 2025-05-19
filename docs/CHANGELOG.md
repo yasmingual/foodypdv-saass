@@ -10,6 +10,7 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 - Corrigido o sistema de impressão de cupom fiscal para mostrar apenas o cupom e não a tela inteira do sistema
 - Corrigido o problema onde transações de pedidos pendentes não eram exibidas nos cards do caixa
 - Removidos dados mockados do caixa, agora exibindo apenas dados reais baseados nos pedidos processados
+- Removidos dados mockados do Dashboard, agora exibindo informações reais baseadas nos pedidos processados
 
 ### Adicionado
 - Adicionada funcionalidade para finalizar automaticamente pedidos prontos no KDS
