@@ -103,15 +103,15 @@ export function Sidebar() {
       </nav>
 
       <div className="mt-auto p-4 border-t border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center">
-            <span className="text-sidebar-foreground font-medium">U</span>
-          </div>
-          {!collapsed && (
-            <div>
-              <p className="text-sm font-medium text-sidebar-foreground">Usuário</p>
-              <p className="text-xs text-sidebar-foreground/70">Gerente</p>
-            </div>
+        <div className="flex items-center justify-center">
+          {!collapsed ? (
+            <p className="text-xs text-sidebar-foreground/70 text-center">
+              FoodPOS v3.0.2
+            </p>
+          ) : (
+            <p className="text-xs text-sidebar-foreground/70">
+              v3
+            </p>
           )}
         </div>
       </div>

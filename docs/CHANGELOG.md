@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [3.1.0] - 2025-05-23
+### Adicionado
+- Implementado perfil de usuário com opção para edição de informações
+- Adicionada funcionalidade de logout no sistema
+- Criado menu de usuário no cabeçalho para acesso rápido ao perfil
+
 ## [3.0.2] - 2025-05-23
 ### Correções
 - Corrigido erro de importação em SubscriptionSettings no componente Settings
