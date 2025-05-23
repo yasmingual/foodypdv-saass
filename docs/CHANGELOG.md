@@ -1,6 +1,7 @@
 
 
 
+
 # Changelog
 
 ## [Pendente]
@@ -12,6 +13,19 @@
 - Refatoração do código para melhorar manutenção
 - Implementação de testes automatizados
 - Exportação de relatórios em diferentes formatos
+
+## [v0.5.0] - 2025-05-23
+### Adicionado
+- Sistema completo de planos de assinatura (teste grátis, mensal e anual)
+- Landing page de apresentação do sistema com informações sobre planos
+- Configurações de assinatura com gerenciamento de planos
+- Alerta para assinaturas a expirar ou já expiradas
+- Vários planos mensais e anuais com diferentes recursos
+
+### Melhorado
+- Experiência inicial com período de teste de 7 dias
+- Interface de configurações com nova aba de assinatura
+- Sistema de alerta para status de assinatura
 
 ## [v0.4.0] - 2025-05-23
 ### Adicionado
@@ -158,5 +172,6 @@
 - Dashboard básico
 - Cadastro de produtos simples
 - Funcionalidade de vendas básicas
+
 
 

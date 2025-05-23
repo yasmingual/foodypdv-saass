@@ -6,7 +6,8 @@ const Index = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    navigate("/dashboard");
+    // Redirecionar para a landing page em vez do dashboard
+    navigate("/landing");
   }, [navigate]);
   
   return (

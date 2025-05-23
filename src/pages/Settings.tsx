@@ -1,156 +1,81 @@
 
-import React, { useState, useEffect } from "react";
-import { Header } from "@/components/layout/Header";
+import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
-import { GeneralSettings } from "@/components/settings/GeneralSettings";
-import { PrinterSettings } from "@/components/settings/PrinterSettings";
-import { AppearanceSettings } from "@/components/settings/AppearanceSettings";
-import { IntegrationSettings } from "@/components/settings/IntegrationSettings";
-import { BackupSettings } from "@/components/settings/BackupSettings";
-import { useOrders, Shift } from "@/context/OrderContext";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import ShiftDetailsDialog from "@/components/cashier/ShiftDetailsDialog";
-import { toast } from "sonner";
+import GeneralSettings from "@/components/settings/GeneralSettings";
+import AppearanceSettings from "@/components/settings/AppearanceSettings";
+import PrinterSettings from "@/components/settings/PrinterSettings";
+import IntegrationSettings from "@/components/settings/IntegrationSettings";
+import BackupSettings from "@/components/settings/BackupSettings";
+import SubscriptionSettings from "@/components/settings/SubscriptionSettings";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 
 const Settings = () => {
-  // Recuperamos o último tab ativo do localStorage, se disponível
-  const getInitialTab = () => {
-    try {
-      const savedTab = localStorage.getItem('settingsActiveTab');
-      return savedTab || "general";
-    } catch (error) {
-      return "general";
-    }
-  };
-
-  const [activeTab, setActiveTab] = useState(getInitialTab);
-  const { shifts } = useOrders();
-  const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
-  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-
-  // Salvamos o tab ativo no localStorage quando mudar
-  useEffect(() => {
-    localStorage.setItem('settingsActiveTab', activeTab);
-  }, [activeTab]);
-
-  // Função para abrir o diálogo de detalhes do turno
-  const handleViewShiftDetails = (shift: Shift) => {
-    console.log("Botão de detalhes clicado, abrindo diálogo para turno:", shift);
-    setSelectedShift(shift);
-    setDetailsDialogOpen(true);
-    toast.info(`Visualizando detalhes do turno #${shift.id}`);
-  };
+  const [activeTab, setActiveTab] = useLocalStorage("settings-tab", "general");
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar já está implementada globalmente */}
-      <div className="flex-1 flex flex-col">
-        <Header 
-          title="Configurações do Sistema" 
-          subtitle="Personalize o sistema conforme suas necessidades" 
-        />
-        
-        <div className="p-6 flex-1 overflow-y-auto">
-          <Card className="p-6">
-            <Tabs 
-              defaultValue={activeTab} 
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className="w-full"
-            >
-              <TabsList className="grid grid-cols-6 mb-8">
-                <TabsTrigger value="general">Geral</TabsTrigger>
-                <TabsTrigger value="printer">Impressão</TabsTrigger>
-                <TabsTrigger value="appearance">Aparência</TabsTrigger>
-                <TabsTrigger value="integrations">Integrações</TabsTrigger>
-                <TabsTrigger value="backup">Backup</TabsTrigger>
-                <TabsTrigger value="shifts">Turnos</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="general">
-                <GeneralSettings />
-              </TabsContent>
-              
-              <TabsContent value="printer">
-                <PrinterSettings />
-              </TabsContent>
-              
-              <TabsContent value="appearance">
-                <AppearanceSettings />
-              </TabsContent>
-              
-              <TabsContent value="integrations">
-                <IntegrationSettings />
-              </TabsContent>
-              
-              <TabsContent value="backup">
-                <BackupSettings />
-              </TabsContent>
-              
-              <TabsContent value="shifts">
-                <div className="space-y-4">
-                  <h2 className="text-2xl font-bold">Histórico de Turnos</h2>
-                  
-                  {shifts.length === 0 ? (
-                    <div className="text-center py-6 text-muted-foreground">
-                      Nenhum turno registrado
-                    </div>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>ID</TableHead>
-                          <TableHead>Operador</TableHead>
-                          <TableHead>Início</TableHead>
-                          <TableHead>Fim</TableHead>
-                          <TableHead>Transações</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead className="text-right">Ações</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {shifts.map((shift) => (
-                          <TableRow key={shift.id}>
-                            <TableCell>#{shift.id}</TableCell>
-                            <TableCell>{shift.operatorName}</TableCell>
-                            <TableCell>{shift.startTime}</TableCell>
-                            <TableCell>{shift.endTime || "-"}</TableCell>
-                            <TableCell>{shift.totalTransactions}</TableCell>
-                            <TableCell>
-                              <Badge className={shift.status === "active" ? "bg-green-500" : "bg-gray-500"}>
-                                {shift.status === "active" ? "Ativo" : "Fechado"}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => handleViewShiftDetails(shift)}
-                              >
-                                Detalhes
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  )}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </Card>
-        </div>
-      </div>
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Configurações</h1>
       
-      {/* Diálogo de detalhes do turno */}
-      <ShiftDetailsDialog 
-        shift={selectedShift}
-        open={detailsDialogOpen}
-        onOpenChange={setDetailsDialogOpen}
-      />
+      <Tabs 
+        defaultValue={activeTab} 
+        className="w-full" 
+        onValueChange={(value) => setActiveTab(value)}
+      >
+        <div className="mb-6 border-b">
+          <TabsList className="h-10">
+            <TabsTrigger value="general" className="data-[state=active]:bg-background">
+              Geral
+            </TabsTrigger>
+            <TabsTrigger value="appearance" className="data-[state=active]:bg-background">
+              Aparência
+            </TabsTrigger>
+            <TabsTrigger value="printer" className="data-[state=active]:bg-background">
+              Impressão
+            </TabsTrigger>
+            <TabsTrigger value="shifts" className="data-[state=active]:bg-background">
+              Turnos
+            </TabsTrigger>
+            <TabsTrigger value="integrations" className="data-[state=active]:bg-background">
+              Integrações
+            </TabsTrigger>
+            <TabsTrigger value="subscription" className="data-[state=active]:bg-background">
+              Assinatura
+            </TabsTrigger>
+            <TabsTrigger value="backup" className="data-[state=active]:bg-background">
+              Backup
+            </TabsTrigger>
+          </TabsList>
+        </div>
+        
+        <TabsContent value="general" className="mt-0">
+          <GeneralSettings />
+        </TabsContent>
+        
+        <TabsContent value="appearance" className="mt-0">
+          <AppearanceSettings />
+        </TabsContent>
+        
+        <TabsContent value="printer" className="mt-0">
+          <PrinterSettings />
+        </TabsContent>
+        
+        <TabsContent value="shifts" className="mt-0">
+          <h2 className="text-2xl font-bold mb-4">Configurações de Turnos</h2>
+          <p className="text-muted-foreground">Configurações para o gerenciamento de turnos estarão disponíveis em breve.</p>
+        </TabsContent>
+        
+        <TabsContent value="integrations" className="mt-0">
+          <IntegrationSettings />
+        </TabsContent>
+        
+        <TabsContent value="subscription" className="mt-0">
+          <SubscriptionSettings />
+        </TabsContent>
+        
+        <TabsContent value="backup" className="mt-0">
+          <BackupSettings />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
