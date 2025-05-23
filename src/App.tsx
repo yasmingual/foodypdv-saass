@@ -1,4 +1,5 @@
 
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { OrderProvider } from "./context/OrderContext";
 import { StockProvider } from "./context/StockContext";
 import { ProductProvider } from "./context/ProductContext";
+import { initializeSystem } from "./utils/settingsUtils";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import PDV from "./pages/PDV";
@@ -29,35 +31,42 @@ const PDVRedirect = () => {
   return isMobile ? <Navigate to="/pdv-mobile" /> : <PDV />;
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <StockProvider>
-        <ProductProvider>
-          <OrderProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/pdv" element={<PDVRedirect />} />
-                <Route path="/pdv-mobile" element={<PDVMobile />} />
-                <Route path="/kds" element={<KDS />} />
-                <Route path="/stock" element={<Stock />} />
-                <Route path="/cashier" element={<Cashier />} />
-                <Route path="/products" element={<Products />} />
-                <Route path="/categories" element={<Categories />} />
-                <Route path="/orders" element={<Orders />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </OrderProvider>
-        </ProductProvider>
-      </StockProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  // Inicializar sistema no carregamento
+  useEffect(() => {
+    initializeSystem();
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <StockProvider>
+          <ProductProvider>
+            <OrderProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/pdv" element={<PDVRedirect />} />
+                  <Route path="/pdv-mobile" element={<PDVMobile />} />
+                  <Route path="/kds" element={<KDS />} />
+                  <Route path="/stock" element={<Stock />} />
+                  <Route path="/cashier" element={<Cashier />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/categories" element={<Categories />} />
+                  <Route path="/orders" element={<Orders />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </OrderProvider>
+          </ProductProvider>
+        </StockProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

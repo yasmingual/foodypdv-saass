@@ -13,6 +13,18 @@
 - Implementação de testes automatizados
 - Exportação de relatórios em diferentes formatos
 
+## [v0.4.0] - 2025-05-23
+### Adicionado
+- Funcionalidade SaaS para múltiplos restaurantes
+- Isolamento completo de dados por restaurante (pedidos, configurações, turnos)
+- Sistema de gestão de restaurantes com diferentes planos
+- Inicialização automática do sistema para novos restaurantes
+
+### Melhorado
+- Estrutura de armazenamento local para suportar multi-tenant
+- Segmentação de configurações por restaurante
+- Interface de administração adaptada para múltiplos restaurantes
+
 ## [v0.3.11] - 2025-05-19
 ### Adicionado
 - Suporte para impressoras térmicas locais/USB conectadas diretamente ao computador

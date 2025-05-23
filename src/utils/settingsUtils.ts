@@ -3,6 +3,7 @@
 
 // Tipo para as configurações gerais
 export interface GeneralSettingsType {
+  restaurantId: string;
   restaurantName: string;
   address: string;
   city: string;
@@ -57,8 +58,18 @@ export interface IntegrationSettingsType {
   apiKey: string;
 }
 
+// Tipo para configuração de tenant
+export interface TenantType {
+  id: string;
+  name: string;
+  plan: "free" | "basic" | "premium";
+  active: boolean;
+  createdAt: string;
+}
+
 // Valores padrão para configurações gerais
 export const defaultGeneralSettings: GeneralSettingsType = {
+  restaurantId: "",
   restaurantName: "Restaurante Demo",
   address: "Av. Principal, 1000",
   city: "São Paulo",
@@ -113,23 +124,67 @@ export const defaultIntegrationSettings: IntegrationSettingsType = {
   apiKey: "sk_test_api_key_123456789",
 };
 
+// Valores padrão para tenant
+export const defaultTenant: TenantType = {
+  id: "default",
+  name: "Restaurante Demo",
+  plan: "free",
+  active: true,
+  createdAt: new Date().toISOString()
+};
+
+// Função para obter o ID do restaurante atual
+export function getCurrentRestaurantId(): string {
+  try {
+    const tenantInfo = localStorage.getItem('currentTenant');
+    if (tenantInfo) {
+      const tenant: TenantType = JSON.parse(tenantInfo);
+      return tenant.id;
+    }
+  } catch (error) {
+    console.error('Erro ao carregar informações do tenant:', error);
+  }
+  return defaultTenant.id;
+}
+
+// Função para definir o restaurante atual
+export function setCurrentRestaurant(tenant: TenantType): void {
+  try {
+    localStorage.setItem('currentTenant', JSON.stringify(tenant));
+    
+    // Inicializar configurações para o novo tenant se não existirem
+    const generalSettings = loadGeneralSettings();
+    if (generalSettings.restaurantId !== tenant.id) {
+      const newGeneralSettings = {...defaultGeneralSettings, restaurantId: tenant.id, restaurantName: tenant.name};
+      saveGeneralSettings(newGeneralSettings);
+    }
+  } catch (error) {
+    console.error('Erro ao salvar informações do tenant:', error);
+  }
+}
+
 // Função para carregar as configurações gerais do localStorage
 export function loadGeneralSettings(): GeneralSettingsType {
   try {
-    const storedSettings = localStorage.getItem('generalSettings');
+    const restaurantId = getCurrentRestaurantId();
+    const key = `generalSettings_${restaurantId}`;
+    const storedSettings = localStorage.getItem(key);
     if (storedSettings) {
       return JSON.parse(storedSettings);
     }
   } catch (error) {
     console.error('Erro ao carregar configurações gerais:', error);
   }
-  return defaultGeneralSettings;
+  const defaultSettings = {...defaultGeneralSettings, restaurantId: getCurrentRestaurantId()};
+  return defaultSettings;
 }
 
 // Função para salvar as configurações gerais no localStorage
 export function saveGeneralSettings(settings: GeneralSettingsType): void {
   try {
-    localStorage.setItem('generalSettings', JSON.stringify(settings));
+    const restaurantId = getCurrentRestaurantId();
+    const key = `generalSettings_${restaurantId}`;
+    localStorage.setItem(key, JSON.stringify({...settings, restaurantId}));
   } catch (error) {
     console.error('Erro ao salvar configurações gerais:', error);
   }
@@ -138,7 +193,9 @@ export function saveGeneralSettings(settings: GeneralSettingsType): void {
 // Função para carregar as configurações de aparência do localStorage
 export function loadAppearanceSettings(): AppearanceSettingsType {
   try {
-    const storedSettings = localStorage.getItem('appearanceSettings');
+    const restaurantId = getCurrentRestaurantId();
+    const key = `appearanceSettings_${restaurantId}`;
+    const storedSettings = localStorage.getItem(key);
     if (storedSettings) {
       return JSON.parse(storedSettings);
     }
@@ -151,7 +208,9 @@ export function loadAppearanceSettings(): AppearanceSettingsType {
 // Função para salvar as configurações de aparência no localStorage
 export function saveAppearanceSettings(settings: AppearanceSettingsType): void {
   try {
-    localStorage.setItem('appearanceSettings', JSON.stringify(settings));
+    const restaurantId = getCurrentRestaurantId();
+    const key = `appearanceSettings_${restaurantId}`;
+    localStorage.setItem(key, JSON.stringify(settings));
   } catch (error) {
     console.error('Erro ao salvar configurações de aparência:', error);
   }
@@ -160,7 +219,9 @@ export function saveAppearanceSettings(settings: AppearanceSettingsType): void {
 // Função para carregar as configurações de impressão do localStorage
 export function loadPrinterSettings(): PrinterSettingsType {
   try {
-    const storedSettings = localStorage.getItem('printerSettings');
+    const restaurantId = getCurrentRestaurantId();
+    const key = `printerSettings_${restaurantId}`;
+    const storedSettings = localStorage.getItem(key);
     if (storedSettings) {
       return JSON.parse(storedSettings);
     }
@@ -173,7 +234,9 @@ export function loadPrinterSettings(): PrinterSettingsType {
 // Função para salvar as configurações de impressão no localStorage
 export function savePrinterSettings(settings: PrinterSettingsType): void {
   try {
-    localStorage.setItem('printerSettings', JSON.stringify(settings));
+    const restaurantId = getCurrentRestaurantId();
+    const key = `printerSettings_${restaurantId}`;
+    localStorage.setItem(key, JSON.stringify(settings));
   } catch (error) {
     console.error('Erro ao salvar configurações de impressão:', error);
   }
@@ -182,7 +245,9 @@ export function savePrinterSettings(settings: PrinterSettingsType): void {
 // Função para carregar as configurações de integração do localStorage
 export function loadIntegrationSettings(): IntegrationSettingsType {
   try {
-    const storedSettings = localStorage.getItem('integrationSettings');
+    const restaurantId = getCurrentRestaurantId();
+    const key = `integrationSettings_${restaurantId}`;
+    const storedSettings = localStorage.getItem(key);
     if (storedSettings) {
       return JSON.parse(storedSettings);
     }
@@ -195,10 +260,70 @@ export function loadIntegrationSettings(): IntegrationSettingsType {
 // Função para salvar as configurações de integração no localStorage
 export function saveIntegrationSettings(settings: IntegrationSettingsType): void {
   try {
-    localStorage.setItem('integrationSettings', JSON.stringify(settings));
+    const restaurantId = getCurrentRestaurantId();
+    const key = `integrationSettings_${restaurantId}`;
+    localStorage.setItem(key, JSON.stringify(settings));
   } catch (error) {
     console.error('Erro ao salvar configurações de integração:', error);
   }
+}
+
+// Função para carregar a lista de restaurantes
+export function loadRestaurants(): TenantType[] {
+  try {
+    const storedRestaurants = localStorage.getItem('restaurants');
+    if (storedRestaurants) {
+      return JSON.parse(storedRestaurants);
+    }
+  } catch (error) {
+    console.error('Erro ao carregar lista de restaurantes:', error);
+  }
+  // Se não existir, cria com o restaurante padrão
+  const defaultRestaurants = [defaultTenant];
+  localStorage.setItem('restaurants', JSON.stringify(defaultRestaurants));
+  return defaultRestaurants;
+}
+
+// Função para salvar a lista de restaurantes
+export function saveRestaurants(restaurants: TenantType[]): void {
+  try {
+    localStorage.setItem('restaurants', JSON.stringify(restaurants));
+  } catch (error) {
+    console.error('Erro ao salvar lista de restaurantes:', error);
+  }
+}
+
+// Função para adicionar um novo restaurante
+export function addRestaurant(name: string, plan: TenantType['plan'] = 'free'): TenantType {
+  const restaurants = loadRestaurants();
+  const newId = `restaurant_${Date.now()}`;
+  
+  const newRestaurant: TenantType = {
+    id: newId,
+    name,
+    plan,
+    active: true,
+    createdAt: new Date().toISOString()
+  };
+  
+  restaurants.push(newRestaurant);
+  saveRestaurants(restaurants);
+  
+  // Inicializar configurações para o novo restaurante
+  const newGeneralSettings = {...defaultGeneralSettings, restaurantId: newId, restaurantName: name};
+  const currentRestaurantId = getCurrentRestaurantId();
+  
+  // Temporariamente mudar para o novo restaurante para salvar as configurações iniciais
+  setCurrentRestaurant(newRestaurant);
+  saveGeneralSettings(newGeneralSettings);
+  
+  // Restaurar o restaurante anterior
+  const currentRestaurant = restaurants.find(r => r.id === currentRestaurantId);
+  if (currentRestaurant) {
+    setCurrentRestaurant(currentRestaurant);
+  }
+  
+  return newRestaurant;
 }
 
 // Função para aplicar as configurações de aparência
@@ -228,5 +353,28 @@ export function applyAppearanceSettings(settings: AppearanceSettingsType): void 
     document.documentElement.classList.add('compact-mode');
   } else {
     document.documentElement.classList.remove('compact-mode');
+  }
+}
+
+// Inicializar o sistema com o restaurante padrão se não houver configuração
+export function initializeSystem(): TenantType {
+  let restaurants = loadRestaurants();
+  
+  // Se não houver restaurantes, criar o padrão
+  if (restaurants.length === 0) {
+    restaurants = [defaultTenant];
+    saveRestaurants(restaurants);
+  }
+  
+  // Verificar se há um restaurante atual selecionado
+  const currentTenant = localStorage.getItem('currentTenant');
+  
+  if (!currentTenant) {
+    // Se não, selecionar o primeiro
+    setCurrentRestaurant(restaurants[0]);
+    return restaurants[0];
+  } else {
+    // Se sim, retornar o atual
+    return JSON.parse(currentTenant);
   }
 }

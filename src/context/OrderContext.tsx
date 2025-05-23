@@ -1,5 +1,7 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useProducts } from './ProductContext';
+import { getCurrentRestaurantId } from '../utils/settingsUtils';
 
 // Tipos
 export type OrderItem = {
@@ -20,6 +22,7 @@ export type DeliveryInfo = {
 
 export type Order = {
   id: number;
+  restaurantId: string;
   type: "Mesa" | "Retirada" | "Delivery";
   identifier: string;
   time: string;
@@ -34,6 +37,7 @@ export type Order = {
 
 export type Shift = {
   id: number;
+  restaurantId: string;
   startTime: string;
   endTime?: string;
   operatorName: string;
@@ -54,7 +58,7 @@ type OrderContextType = {
   orders: Order[];
   shifts: Shift[];
   currentShift: Shift | null;
-  addOrder: (order: Omit<Order, "id" | "time" | "status">) => void;
+  addOrder: (order: Omit<Order, "id" | "time" | "status" | "restaurantId">) => void;
   updateOrderStatus: (orderId: number, newStatus: Order["status"]) => void;
   getNextOrderId: () => number;
   addItemsToOrder: (orderId: number, newItems: OrderItem[]) => void;
@@ -85,6 +89,7 @@ export const useOrders = () => {
 const initialOrders: Order[] = [
   {
     id: 1001,
+    restaurantId: "default",
     type: "Mesa",
     identifier: "Mesa 3",
     time: "10:15",
@@ -98,6 +103,7 @@ const initialOrders: Order[] = [
   },
   {
     id: 1002,
+    restaurantId: "default",
     type: "Retirada",
     identifier: "João",
     time: "10:20",
@@ -111,6 +117,7 @@ const initialOrders: Order[] = [
   },
   {
     id: 1003,
+    restaurantId: "default",
     type: "Delivery",
     identifier: "Maria",
     time: "10:25",
@@ -133,6 +140,7 @@ const initialOrders: Order[] = [
   },
   {
     id: 1004,
+    restaurantId: "default",
     type: "Mesa",
     identifier: "Mesa 5",
     time: "10:30",
@@ -148,12 +156,12 @@ const initialOrders: Order[] = [
 const initialShifts: Shift[] = [];
 
 export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-  const [orders, setOrders] = useState<Order[]>(() => {
+  const [allOrders, setAllOrders] = useState<Order[]>(() => {
     const savedOrders = localStorage.getItem("orders");
     return savedOrders ? JSON.parse(savedOrders) : initialOrders;
   });
   
-  const [shifts, setShifts] = useState<Shift[]>(() => {
+  const [allShifts, setAllShifts] = useState<Shift[]>(() => {
     const savedShifts = localStorage.getItem("shifts");
     return savedShifts ? JSON.parse(savedShifts) : initialShifts;
   });
@@ -162,25 +170,33 @@ export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children 
     const savedShifts = localStorage.getItem("shifts");
     if (savedShifts) {
       const parsedShifts: Shift[] = JSON.parse(savedShifts);
-      return parsedShifts.find(shift => shift.status === "active") || null;
+      const restaurantId = getCurrentRestaurantId();
+      return parsedShifts.find(
+        shift => shift.status === "active" && shift.restaurantId === restaurantId
+      ) || null;
     }
     return null;
   });
   
   const { products } = useProducts();
+  
+  // Filtrar pedidos e turnos apenas do restaurante atual
+  const restaurantId = getCurrentRestaurantId();
+  const orders = allOrders.filter(order => order.restaurantId === restaurantId);
+  const shifts = allShifts.filter(shift => shift.restaurantId === restaurantId);
 
   // Salvar pedidos e turnos no localStorage
   useEffect(() => {
-    localStorage.setItem("orders", JSON.stringify(orders));
-  }, [orders]);
+    localStorage.setItem("orders", JSON.stringify(allOrders));
+  }, [allOrders]);
 
   useEffect(() => {
-    localStorage.setItem("shifts", JSON.stringify(shifts));
-  }, [shifts]);
+    localStorage.setItem("shifts", JSON.stringify(allShifts));
+  }, [allShifts]);
 
   // Função para obter o próximo ID de pedido
   const getNextOrderId = () => {
-    const maxId = Math.max(...orders.map(order => order.id), 0);
+    const maxId = Math.max(...allOrders.map(order => order.id), 0);
     return maxId + 1;
   };
 
@@ -202,7 +218,8 @@ export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children 
     
     // Criar novo turno
     const newShift: Shift = {
-      id: shifts.length > 0 ? Math.max(...shifts.map(shift => shift.id)) + 1 : 1,
+      id: allShifts.length > 0 ? Math.max(...allShifts.map(shift => shift.id)) + 1 : 1,
+      restaurantId,
       startTime: `${formattedDate} ${formattedTime}`,
       operatorName,
       initialAmount,
@@ -213,7 +230,7 @@ export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children 
       totalTransactions: 0
     };
     
-    setShifts(prev => [...prev, newShift]);
+    setAllShifts(prev => [...prev, newShift]);
     setCurrentShift(newShift);
     
     return newShift;
@@ -246,7 +263,7 @@ export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children 
       status: "closed"
     };
     
-    setShifts(prev => prev.map(shift => 
+    setAllShifts(prev => prev.map(shift => 
       shift.id === currentShift.id ? closedShift : shift
     ));
     
@@ -256,27 +273,28 @@ export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children 
   };
 
   // Adicionar novo pedido
-  const addOrder = (order: Omit<Order, "id" | "time" | "status">) => {
+  const addOrder = (order: Omit<Order, "id" | "time" | "status" | "restaurantId">) => {
     const now = new Date();
     const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
     
     const newOrder: Order = {
       ...order,
+      restaurantId,
       id: getNextOrderId(),
       time,
       status: "pending",
     };
     
-    setOrders(prevOrders => [...prevOrders, newOrder]);
+    setAllOrders(prevOrders => [...prevOrders, newOrder]);
   };
 
   // Atualizar status do pedido
   const updateOrderStatus = (orderId: number, newStatus: Order["status"]) => {
     console.log(`Atualizando pedido ${orderId} para status: ${newStatus}`);
     
-    setOrders(prevOrders => 
+    setAllOrders(prevOrders => 
       prevOrders.map(order => {
-        if (order.id === orderId) {
+        if (order.id === orderId && order.restaurantId === restaurantId) {
           // Se o pedido estiver sendo marcado como completo (completed),
           // automaticamente marca como pronto para pagamento (ready)
           if (newStatus === "completed") {
@@ -297,9 +315,9 @@ export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children 
       throw new Error("Não é possível processar pagamentos sem um turno ativo. Por favor, abra um turno primeiro.");
     }
     
-    setOrders(prevOrders => 
+    setAllOrders(prevOrders => 
       prevOrders.map(order => {
-        if (order.id !== orderId) return order;
+        if (order.id !== orderId || order.restaurantId !== restaurantId) return order;
         
         const totalAmount = calculateOrderTotal(order);
         
@@ -330,7 +348,7 @@ export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children 
       updatedShift.totalTransactions += 1;
       
       // Atualizar o estado do turno
-      setShifts(prev => prev.map(shift => 
+      setAllShifts(prev => prev.map(shift => 
         shift.id === currentShift.id ? updatedShift : shift
       ));
       
@@ -353,9 +371,9 @@ export const OrderProvider: React.FC<{children: React.ReactNode}> = ({ children 
 
   // Adicionar itens a um pedido existente
   const addItemsToOrder = (orderId: number, newItems: OrderItem[]) => {
-    setOrders(prevOrders => 
+    setAllOrders(prevOrders => 
       prevOrders.map(order => {
-        if (order.id !== orderId) return order;
+        if (order.id !== orderId || order.restaurantId !== restaurantId) return order;
         
         // Combinar itens existentes com novos itens
         const updatedItems = [...order.items];
