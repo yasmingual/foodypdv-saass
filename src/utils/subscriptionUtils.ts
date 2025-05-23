@@ -1,8 +1,6 @@
-
 // Utilitários para gerenciamento de assinaturas
 
-import { getCurrentRestaurantId, loadRestaurants, saveRestaurants } from "./settingsUtils";
-import { TenantType } from "./settingsUtils";
+import { getCurrentRestaurantId, loadRestaurants, saveRestaurants, TenantType } from "./settingsUtils";
 
 export interface SubscriptionPlan {
   id: string;
@@ -206,8 +204,8 @@ export function upgradeSubscription(restaurantId: string, planId: string): Subsc
       return {
         ...restaurant,
         plan: planId.includes('premium') ? 'premium' : 
-              planId.includes('standard') ? 'basic' : 'free'
-      };
+              planId.includes('standard') ? 'standard' : 'basic'
+      } as TenantType;
     }
     return restaurant;
   });

@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [3.0.2] - 2025-05-23
+### Correções
+- Corrigido erro de importação em SubscriptionSettings no componente Settings
+- Corrigido erro de tipo em subscriptionUtils na função upgradeSubscription
+- Ajustado o valor do plano standard para garantir conformidade com o tipo TenantType
+
 ## [3.0.1] - 2025-05-23
 ### Correções
 - Corrigido erro de importação em componentes de configuração que usavam exportações nomeadas incorretamente

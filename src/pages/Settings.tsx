@@ -6,7 +6,7 @@ import { AppearanceSettings } from "@/components/settings/AppearanceSettings";
 import { PrinterSettings } from "@/components/settings/PrinterSettings";
 import { IntegrationSettings } from "@/components/settings/IntegrationSettings";
 import { BackupSettings } from "@/components/settings/BackupSettings";
-import { SubscriptionSettings } from "@/components/settings/SubscriptionSettings";
+import SubscriptionSettings from "@/components/settings/SubscriptionSettings";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
 const Settings = () => {
