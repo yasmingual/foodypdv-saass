@@ -1,12 +1,12 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import GeneralSettings from "@/components/settings/GeneralSettings";
-import AppearanceSettings from "@/components/settings/AppearanceSettings";
-import PrinterSettings from "@/components/settings/PrinterSettings";
-import IntegrationSettings from "@/components/settings/IntegrationSettings";
-import BackupSettings from "@/components/settings/BackupSettings";
-import SubscriptionSettings from "@/components/settings/SubscriptionSettings";
+import { GeneralSettings } from "@/components/settings/GeneralSettings";
+import { AppearanceSettings } from "@/components/settings/AppearanceSettings";
+import { PrinterSettings } from "@/components/settings/PrinterSettings";
+import { IntegrationSettings } from "@/components/settings/IntegrationSettings";
+import { BackupSettings } from "@/components/settings/BackupSettings";
+import { SubscriptionSettings } from "@/components/settings/SubscriptionSettings";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
 const Settings = () => {
