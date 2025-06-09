@@ -87,10 +87,12 @@ const Landing = () => {
         <div className="container mx-auto px-4 py-6 flex justify-between items-center">
           <div className="text-2xl font-bold">FoodPOS</div>
           <div className="space-x-4">
-            <Button variant="ghost" className="text-white hover:text-white hover:bg-white/10">
-              Login
-            </Button>
-            <Link to="/dashboard">
+            <Link to="/login">
+              <Button variant="ghost" className="text-white hover:text-white hover:bg-white/10">
+                Login
+              </Button>
+            </Link>
+            <Link to="/register">
               <Button variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
                 Teste Grátis 7 Dias
               </Button>
@@ -108,7 +110,7 @@ const Landing = () => {
             Revolucione seu negócio de alimentação hoje.
           </p>
           <div className="flex justify-center gap-4">
-            <Link to="/dashboard">
+            <Link to="/register">
               <Button size="lg" variant="default" className="bg-white text-primary hover:bg-white/90">
                 Comece agora
               </Button>
@@ -208,7 +210,7 @@ const Landing = () => {
           <p className="text-lg opacity-90 max-w-2xl mx-auto mb-8">
             Comece agora com 7 dias grátis. Sem compromisso, cancele quando quiser.
           </p>
-          <Link to="/dashboard">
+          <Link to="/register">
             <Button size="lg" className="bg-white text-primary hover:bg-white/90">
               Experimente Grátis por 7 Dias
             </Button>

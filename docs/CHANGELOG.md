@@ -1,6 +1,25 @@
 
 # Changelog
 
+## [3.2.0] - 2025-06-09
+### Adicionado
+- Implementado sistema de autenticação completo para SaaS
+- Criada tela de cadastro de restaurante (/register)
+- Criada tela de login (/login) 
+- Adicionado componente ProtectedRoute para proteger rotas autenticadas
+- Implementada validação de formulários de cadastro e login
+
+### Alterado
+- Atualizado fluxo de autenticação para começar como não autenticado
+- Modificados redirecionamentos da landing page para direcionar ao cadastro
+- Atualizado Header para mostrar menu de usuário apenas quando autenticado
+- Corrigido UserMenu para verificar existência de usuário
+- Atualizado store de usuário para começar com isAuthenticated: false
+
+### Correções
+- Corrigido problema onde usuários não autenticados acessavam dashboard diretamente
+- Implementado fluxo correto de SaaS: landing → cadastro → login → dashboard
+
 ## [3.1.0] - 2025-05-23
 ### Adicionado
 - Implementado perfil de usuário com opção para edição de informações

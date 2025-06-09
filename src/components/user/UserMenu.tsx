@@ -11,12 +11,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { UserProfile, UserData } from "./UserProfile";
+import { UserProfile } from "./UserProfile";
 import { LogOut, User } from "lucide-react";
 import { useUserStore } from "@/stores/userStore";
 
 export const UserMenu = () => {
   const { user, logout } = useUserStore();
+
+  // Se não há usuário, não renderiza o menu
+  if (!user) {
+    return null;
+  }
 
   const getInitials = (name: string) => {
     return name

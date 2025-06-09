@@ -3,32 +3,24 @@ import { create } from "zustand";
 import { UserData } from "@/components/user/UserProfile";
 
 interface UserStore {
-  user: UserData;
+  user: UserData | null;
   isAuthenticated: boolean;
   login: (userData: UserData) => void;
   logout: () => void;
   updateProfile: (userData: Partial<UserData>) => void;
 }
 
-// Dados do usuário padrão (em produção, isso viria do backend)
-const defaultUser: UserData = {
-  id: "1",
-  name: "Administrador",
-  email: "admin@foodpos.com",
-  role: "Gerente",
-  createdAt: "2025-01-01T00:00:00Z",
-};
-
 export const useUserStore = create<UserStore>((set) => ({
-  user: defaultUser,
-  isAuthenticated: true, // Por padrão iniciamos como autenticado para demonstração
+  user: null,
+  isAuthenticated: false, // Começar como não autenticado
   login: (userData) => set({ user: userData, isAuthenticated: true }),
   logout: () => {
-    // Em produção, aqui limparíamos tokens e dados de sessão
-    // Redirecionamos para a página de login após logout
+    // Limpar dados do usuário e redirecionar
+    set({ user: null, isAuthenticated: false });
     window.location.href = "/landing";
-    set({ isAuthenticated: false });
   },
   updateProfile: (userData) =>
-    set((state) => ({ user: { ...state.user, ...userData } })),
+    set((state) => ({ 
+      user: state.user ? { ...state.user, ...userData } : null 
+    })),
 }));
